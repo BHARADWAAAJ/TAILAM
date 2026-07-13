@@ -1,0 +1,36 @@
+{
+  "method": "Transformer Health Index (THI)",
+  "engineFunction": "window.TAILAM.engine.thi.calcRiskScore + healthCategoryFor",
+  "engineFile": "src/js/engine/thi.js",
+  "referenceStandard": "TAILAM composite weighting (Duval 0.25, Rogers 0.15, IEC 0.15, Key Gas 0.10, IEEE 0.20, TDCG 0.15) — internal, not an external standard",
+  "gasShape": "{ h2, ch4, c2h6, c2h4, c2h2, co, co2 } — the runner derives duval/rogers/iec/ieee/keygas from this gas set, then calls calcRiskScore(duval,rogers,iec,ieee,keygas)",
+  "notes": "THI has no external published reference examples (it is TAILAM's own composite formula, not a standards body figure) — every dataset here is an engine-snapshot regression baseline. The published-standard placeholder is intentionally omitted for this method; see VALIDATION.md.",
+  "datasets": [
+    {
+      "datasetId": "THI-SNAP-001",
+      "provenance": "engine-snapshot",
+      "status": "SNAPSHOT",
+      "capturedOn": "2026-07-13",
+      "description": "Regression baseline captured directly from the current, unmodified src/js/engine/thi.js#calcRiskScore, fed by the same gas set as DUVAL1-SNAP-001 / ROGERS-SNAP-001 / IEC-SNAP-001 / IEEE-SNAP-001 / KEYGAS-SNAP-001.",
+      "inputGasValues": { "h2": 50, "ch4": 60, "c2h6": 20, "c2h4": 40, "c2h2": 2, "co": 300, "co2": 3000 },
+      "expectedResult": "Attention",
+      "expectedZone": null,
+      "expectedRatios": { "risk": 34 },
+      "referenceStandard": "TAILAM internal composite",
+      "revision": "n/a"
+    },
+    {
+      "datasetId": "THI-SNAP-002",
+      "provenance": "engine-snapshot",
+      "status": "SNAPSHOT",
+      "capturedOn": "2026-07-13",
+      "description": "Regression baseline (engine-snapshot) — elevated gas set fed by the same input as DUVAL1-SNAP-002 / ROGERS-SNAP-002 / IEC-SNAP-002 / IEEE-SNAP-002 / KEYGAS-SNAP-002.",
+      "inputGasValues": { "h2": 150, "ch4": 130, "c2h6": 15, "c2h4": 250, "c2h2": 80, "co": 600, "co2": 6000 },
+      "expectedResult": "Attention",
+      "expectedZone": null,
+      "expectedRatios": { "risk": 50 },
+      "referenceStandard": "TAILAM internal composite",
+      "revision": "n/a"
+    }
+  ]
+}

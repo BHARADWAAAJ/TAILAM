@@ -1,0 +1,279 @@
+/* TAILAM — dashboard.css
+   Dashboard-only styles: analysis panels and the risk gauge block. */
+
+.panel{display:none;}
+.panel.active{display:block;}
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;}
+
+/* ══════════════════════════════════════════════════════════════════
+   Sprint 03 — Engineering Workspace (right-panel results, 11 sections)
+   Reuses the same card/token vocabulary as components.css; no new
+   colors or thresholds introduced, only layout for the new sections.
+   ══════════════════════════════════════════════════════════════════ */
+
+.section-title{font-size:15px;font-weight:700;margin:0 0 14px;display:block;}
+.section-title.as-summary{display:inline;cursor:pointer;}
+
+/* 1 — Engineering Status banner */
+.status-banner{border-radius:14px;padding:22px 24px;margin-bottom:18px;border:1px solid var(--border);box-shadow:var(--shadow);background:var(--card);}
+.status-word{font-size:26px;font-weight:800;margin-bottom:12px;}
+.status-healthy .status-word{color:var(--green);}
+.status-attention .status-word{color:#a86a00;}
+html[data-theme="dark"] .status-attention .status-word{color:var(--yellow);}
+.status-warning .status-word{color:var(--orange);}
+.status-critical .status-word{color:var(--red);}
+.status-healthy{border-left:4px solid var(--green);}
+.status-attention{border-left:4px solid var(--yellow);}
+.status-warning{border-left:4px solid var(--orange);}
+.status-critical{border-left:4px solid var(--red);}
+.status-meta{display:flex;gap:28px;flex-wrap:wrap;}
+.status-meta > div{font-size:13px;color:var(--text2);}
+.status-meta-label{display:block;font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;}
+
+/* 2 — Engineering Assessment */
+.assessment-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:6px;}
+@media(max-width:980px){.assessment-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:520px){.assessment-grid{grid-template-columns:1fr;}}
+.assessment-item{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.ai-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px;}
+.ai-value{font-size:15px;font-weight:700;color:var(--text);}
+
+/* Why? / collapsible sections — native <details>, no JS needed */
+.why-toggle{margin-top:14px;border-top:1px solid var(--border);padding-top:12px;}
+.why-toggle summary{cursor:pointer;font-size:12.5px;font-weight:700;color:var(--accent);list-style:none;user-select:none;}
+.why-toggle summary::-webkit-details-marker{display:none;}
+.why-toggle .chev{display:inline-block;transition:transform .15s;font-size:10px;}
+.why-toggle[open] > summary .chev{transform:rotate(180deg);}
+.why-body{margin-top:12px;font-size:13px;color:var(--text2);line-height:1.7;}
+.why-row-item{margin-bottom:8px;}
+.why-note{margin-top:8px;color:var(--text3);font-size:12.5px;}
+.evidence-table{width:100%;margin-bottom:4px;}
+.evidence-table td{border-bottom:1px solid var(--border);padding:6px 8px;font-size:12.5px;}
+.evidence-table td:first-child{color:var(--text3);font-weight:600;width:44%;}
+
+/* 3 — Operational Decision */
+.decision-value{font-size:20px;font-weight:800;color:var(--accent);margin-bottom:10px;}
+.decision-reason .ai-label{margin-bottom:4px;}
+.decision-reason > div:last-child{font-size:13.5px;color:var(--text2);line-height:1.6;}
+.thi-oltc-note{font-size:12.5px;color:var(--text3);margin-bottom:12px;line-height:1.6;}
+.sev-badge-healthy{color:var(--green);}
+.sev-badge-attention{color:#a86a00;}
+html[data-theme="dark"] .sev-badge-attention{color:var(--yellow);}
+.sev-badge-warning{color:var(--orange);}
+.sev-badge-critical{color:var(--red);}
+
+/* 4 — Immediate Action Plan */
+.action-plan{display:flex;flex-direction:column;gap:10px;}
+.action-item{display:flex;gap:14px;align-items:flex-start;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+.action-priority{flex:none;font-size:10.5px;font-weight:800;letter-spacing:.04em;padding:4px 9px;border-radius:6px;margin-top:1px;}
+.priority-high .action-priority{background:var(--red-dim);color:var(--red);}
+.priority-medium .action-priority{background:var(--orange-dim);color:var(--orange);}
+.priority-low .action-priority{background:var(--green-dim);color:var(--green);}
+.action-text{font-size:13.5px;color:var(--text);line-height:1.5;margin-bottom:4px;}
+.action-source{font-size:11.5px;color:var(--text3);}
+.action-empty{color:var(--text3);font-size:13px;font-style:italic;}
+
+/* 6 — Engineering Interpretation */
+.interpretation{font-size:14px;color:var(--text2);line-height:1.75;margin:0;}
+
+/* 8 — Diagnostic Methods table */
+.diagnostic-table{width:100%;}
+.sev-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:700;}
+.sev-tag.sev-healthy{background:var(--green-dim);color:var(--green);}
+.sev-tag.sev-attention{background:var(--yellow-dim);color:#a86a00;}
+html[data-theme="dark"] .sev-tag.sev-attention{color:var(--yellow);}
+.sev-tag.sev-warning{background:var(--orange-dim);color:var(--orange);}
+.sev-tag.sev-critical{background:var(--red-dim);color:var(--red);}
+.why-row td{border-bottom:1px solid var(--border);padding:0;}
+.row-why{padding:8px 0;}
+.row-why summary{cursor:pointer;font-size:12px;font-weight:600;color:var(--accent);list-style:none;padding:2px 0;}
+.row-why summary::-webkit-details-marker{display:none;}
+.row-why .why-body{font-size:12.5px;margin-top:6px;}
+
+/* 9 — Raw Calculations (relocated original method cards) */
+.raw-calculations{display:flex;flex-direction:column;gap:20px;}
+.raw-card{border-top:1px solid var(--border);padding-top:16px;}
+.raw-card:first-child{border-top:none;padding-top:0;}
+.raw-card-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;}
+.raw-ref{font-weight:400;color:var(--text3);font-size:11.5px;margin-left:6px;}
+
+/* 10 — Engineering References */
+.engineering-references{margin:0;padding-left:18px;color:var(--text2);font-size:13px;line-height:2;}
+
+/* ══════════════════════════════════════════════════════════════════
+   Duval Triangle hero — the Duval Triangle is now the primary visual
+   of the Engineering Assessment card. Desktop: triangle capped at
+   520px beside a zone-summary column. Tablet/mobile: stacks, 100%
+   width. Aspect ratio is preserved by the canvas's own width/height
+   attributes (charts.js reads canvas.width/height directly) — only
+   CSS width is constrained here, height follows automatically.
+   ══════════════════════════════════════════════════════════════════ */
+.duval-hero{display:flex;flex-direction:column;align-items:center;gap:0;margin-top:18px;padding-top:18px;border-top:1px solid var(--border);}
+.duval-hero-canvas-wrap{position:relative;max-width:520px;width:100%;}
+.duval-hero-canvas{display:block;width:100%;height:auto;max-width:520px;cursor:pointer;transition:box-shadow .15s,border-color .15s;}
+.duval-hero-canvas:hover,.duval-hero-canvas:focus{box-shadow:0 0 0 3px var(--accent-dim);border-color:var(--accent);outline:none;}
+.duval-hero-hint{text-align:center;font-size:11.5px;color:var(--text3);margin-top:8px;}
+@media(max-width:860px){.duval-hero-canvas-wrap{max-width:100%;}.duval-hero-canvas{max-width:100%;}}
+
+/* Task 4 — professional figure-caption block beneath the triangle */
+.duval-caption{width:100%;max-width:520px;margin-top:20px;padding-top:18px;border-top:1px solid var(--border);text-align:center;}
+.duval-caption-title{font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;}
+.duval-caption-kicker{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;}
+.zs-zone{font-size:26px;font-weight:800;display:inline-block;min-width:72px;text-align:center;}
+.duval-caption-fault{font-size:15px;font-weight:700;color:var(--text);margin-top:10px;}
+.duval-caption-standard{font-size:11.5px;color:var(--text3);margin-top:6px;letter-spacing:.03em;}
+.duval-caption-gas{flex-direction:row;justify-content:center;gap:10px;margin-top:18px;}
+.duval-caption-gas .zs-gas-row{flex-direction:column;align-items:center;gap:2px;min-width:76px;}
+.duval-caption-gas .zs-gas-row span:first-child{font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;}
+.duval-caption-gas .zs-gas-row span:last-child{font-size:14px;}
+.zs-gas-list{display:flex;flex-direction:column;gap:6px;}
+.zs-gas-row{display:flex;justify-content:space-between;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;}
+.zs-gas-row span:first-child{color:var(--text3);font-weight:600;}
+.zs-gas-row span:last-child{font-weight:700;color:var(--text);}
+@media(max-width:480px){.duval-caption-gas{flex-direction:column;}.duval-caption-gas .zs-gas-row{flex-direction:row;justify-content:space-between;width:100%;}}
+
+/* Diagnostic Methods — Role column */
+.role-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;white-space:nowrap;}
+.role-tag.role-primary{background:var(--accent-dim);color:var(--accent);}
+.role-tag.role-supporting{background:var(--bg2);color:var(--text3);border:1px solid var(--border);}
+
+/* Duval Triangle detail modal */
+.modal-box.modal-wide{max-width:640px;}
+/* Legend sprint — canvas now sits in a position:relative wrapper (matches
+   the existing .duval-hero-canvas-wrap pattern above) so the hover-highlight
+   overlay canvas ui/duval-legend.js creates on demand can be positioned
+   exactly over it. Centering/max-width moved from the canvas to the wrap;
+   the canvas itself is unchanged in every other respect. */
+.duval-modal-canvas-wrap{position:relative;max-width:560px;margin:14px auto;}
+.duval-modal-canvas{display:block;width:100%;height:auto;background:var(--bg2);border-radius:10px;border:1px solid var(--border);}
+.duval-modal-facts{display:flex;flex-direction:column;gap:12px;margin-top:6px;}
+.duval-modal-fact > div:last-child{font-size:13px;color:var(--text2);line-height:1.6;margin-top:3px;}
+
+/* ══════════════════════════════════════════════════════════════════
+   Legend sprint — Duval Triangle colour-key legend (ui/duval-legend.js).
+   Desktop: 4 items/row. Tablet (≤860px): 3/row. Mobile (≤480px): 2/row.
+   Colours are set inline per-swatch from ui/charts.js's own zone tables
+   (see renderDuvalLegend()) — nothing here defines a colour, only layout.
+   ══════════════════════════════════════════════════════════════════ */
+.duval-legend{width:100%;max-width:520px;margin:20px auto 0 auto;padding-top:16px;border-top:1px solid var(--border);}
+.duval-legend-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px 10px;}
+.duval-legend-item{display:flex;align-items:center;gap:8px;text-align:left;background:none;border:1px solid transparent;border-radius:8px;padding:6px 8px;cursor:pointer;font:inherit;color:var(--text2);transition:background-color .12s,border-color .12s;}
+.duval-legend-item:hover,.duval-legend-item:focus-visible{background:var(--bg2);border-color:var(--border);outline:none;}
+.duval-legend-item[aria-expanded="true"]{background:var(--accent-dim);border-color:var(--accent);}
+/* Legend sprint follow-up — swatches are now inline <svg> (vector fill),
+   not a span with a CSS background-color, so legend colours are never at
+   the mercy of a browser/print engine that omits background colours by
+   default when printing. This rule only sizes the SVG element itself;
+   colour comes from the fill attribute set in ui/duval-legend.js. */
+.duval-legend-swatch,.duval-legend-marker{flex:0 0 auto;display:block;width:14px;height:14px;}
+.duval-legend-text{display:flex;flex-direction:column;line-height:1.25;}
+.duval-legend-text strong{font-size:10.5px;letter-spacing:.02em;color:var(--text);}
+.duval-legend-text span:last-child{font-size:11.5px;}
+.duval-legend-tooltip{margin-top:4px;padding:10px 12px;border-radius:8px;background:var(--bg2);border:1px solid var(--border);font-size:12.5px;line-height:1.55;color:var(--text2);}
+.duval-legend-tooltip[hidden]{display:none;}
+.duval-legend-tooltip-title{font-weight:700;color:var(--text);margin-bottom:4px;}
+.duval-legend-note{margin-top:12px;font-size:11px;color:var(--text3);line-height:1.55;}
+.duval-legend-highlight-overlay{position:absolute;inset:0;pointer-events:none;width:100%;height:100%;}
+@media(max-width:860px){.duval-legend-grid{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:480px){.duval-legend{max-width:100%;}.duval-legend-grid{grid-template-columns:repeat(2,1fr);}}
+
+/* ══════════════════════════════════════════════════════════════════
+   Sprint 05 — Engineering Decision Support presentation pass.
+   No new colors/tokens beyond the existing --green/-yellow/-orange/-red
+   family; whitespace increased, borders kept minimal (1px, existing
+   --border token only), no gradients or animations anywhere below.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Task 1 — Engineering Snapshot: first card, large values, no prose.
+   Value is deliberately much stronger than its label (24px/800 vs
+   10.5px/600 uppercase) so the eye reads values first, labels second. */
+.snapshot-card{border-width:2px;border-color:var(--accent);}
+.snapshot-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:26px;}
+@media(max-width:980px){.snapshot-grid{grid-template-columns:repeat(2,1fr);gap:24px;}}
+@media(max-width:520px){.snapshot-grid{grid-template-columns:1fr;}}
+.snapshot-label{font-size:10.5px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;}
+.snapshot-value{font-size:24px;font-weight:800;color:var(--text);line-height:1.2;letter-spacing:-.01em;}
+
+/* Task 2 — Status banner: Transformer Condition / Current Status / summary / date-time */
+.status-field{display:flex;align-items:baseline;gap:10px;margin-bottom:4px;}
+.status-field .status-meta-label{margin-bottom:0;}
+.status-classification{font-size:14px;font-weight:700;color:var(--text2);}
+.status-summary{font-size:14.5px;color:var(--text2);line-height:1.5;margin:10px 0 16px;max-width:760px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+/* Task 4 — THI horizontal health band */
+.thi-band{margin-top:16px;}
+.thi-band-track{display:flex;border-radius:8px;overflow:hidden;border:1px solid var(--border);}
+.thi-band-seg{flex:1;text-align:center;padding:9px 4px;font-size:11px;font-weight:700;letter-spacing:.02em;color:var(--text3);background:var(--bg2);border-right:1px solid var(--border);}
+.thi-band-seg:last-child{border-right:none;}
+.thi-band-seg.active{color:#fff;}
+.thi-band-seg[data-band="Excellent"].active,.thi-band-seg[data-band="Good"].active{background:var(--green);}
+.thi-band-seg[data-band="Monitor"].active{background:var(--yellow);color:#3a2e00;}
+.thi-band-seg[data-band="Attention"].active{background:var(--orange);}
+.thi-band-seg[data-band="Critical"].active{background:var(--red);}
+
+/* Task 5 — Action Plan: Priority / Recommendation / Source / Expected Time */
+.action-meta{display:flex;gap:22px;flex-wrap:wrap;margin-top:2px;}
+.action-meta-label{display:block;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px;}
+.action-source,.action-time{font-size:12px;color:var(--text2);}
+
+/* Task 6 — Supporting Evidence: compact blocks instead of paragraphs */
+.evidence-blocks{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+@media(max-width:640px){.evidence-blocks{grid-template-columns:1fr;}}
+.evidence-block{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+.evidence-block-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px;}
+.evidence-block-value{font-size:13.5px;font-weight:600;color:var(--text);line-height:1.5;}
+.evidence-emphasis{font-size:16px;font-weight:800;color:var(--accent);}
+.evidence-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.evidence-tag{display:inline-block;padding:3px 9px;border-radius:6px;font-size:11.5px;font-weight:600;background:var(--card2);color:var(--text2);border:1px solid var(--border);}
+
+/* Task 7 — Diagnostic Methods: Agreement column */
+.agree-tag{font-size:12px;color:var(--text2);}
+
+/* Task 12 — Accessibility: visible keyboard focus on every interactive element */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,
+.duval-hero-canvas:focus-visible,summary:focus-visible,[tabindex]:focus-visible{
+  outline:2px solid var(--accent);outline-offset:2px;
+}
+
+/* ══════════════════════════════════════════════════════════════════
+   Sprint 06 — final UI polish. Commercial-software presentation pass:
+   no icons/emoji added, no new colors, no gradients, no animation.
+   ══════════════════════════════════════════════════════════════════ */
+
+/* Task 2 — Assessment Completed strip: slim, informational, no card chrome */
+.assessment-strip{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;
+  padding:9px 16px;margin:0 0 18px;font-size:12px;color:var(--text3);letter-spacing:.01em;}
+.assessment-strip-sep{color:var(--border);}
+
+/* Task 3 — Status banner readability */
+.status-banner{padding:24px 26px;}
+.status-field + .status-field{margin-top:2px;}
+.status-summary{font-size:15px;}
+
+/* Task 5 — Diagnostic Methods: separate Primary from Supporting rows */
+#diagnostic-table-main tbody tr:nth-child(1),
+#diagnostic-table-oltc tbody tr:nth-child(1){background:var(--accent-dim);}
+#diagnostic-table-main tbody tr:nth-child(1) td,
+#diagnostic-table-oltc tbody tr:nth-child(1) td{border-bottom:none;font-weight:600;}
+#diagnostic-table-main tbody tr:nth-child(3) td,
+#diagnostic-table-oltc tbody tr:nth-child(3) td{border-top:2px solid var(--border);padding-top:14px;}
+.diagnostic-table thead th{padding-bottom:10px;}
+.diagnostic-table td,.diagnostic-table th{padding:9px 10px;}
+
+/* Task 6 — Engineering References: standard + one-line description */
+.engineering-references{list-style:none;margin:0;padding:0;}
+.engineering-references li{display:flex;flex-wrap:wrap;column-gap:14px;padding:10px 0;border-bottom:1px solid var(--border);}
+.engineering-references li:last-child{border-bottom:none;}
+.ref-name{flex:0 0 130px;font-weight:700;color:var(--text);font-size:13px;}
+.ref-desc{flex:1 1 260px;color:var(--text2);font-size:13px;line-height:1.5;}
+
+/* Task 7 — Footer */
+.footer-line{margin:2px 0;}
+.footer-dot{color:var(--text3);margin:0 6px;}
+
+/* Task 9 — Card consistency: identical padding, radius, title size and
+   margin already come from the shared .card / .section-title rules
+   (components.css / dashboard.css). No per-card overrides remain except
+   the deliberate accent border on .snapshot-card (Task 1 hierarchy) and
+   .modal-box.modal-wide (a modal, not a workspace card). */

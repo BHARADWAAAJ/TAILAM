@@ -1,0 +1,48 @@
+{
+  "method": "CIGRE 5-Key-Ratio Screening",
+  "engineFunction": "window.TAILAM.engine.cigre.calcCIGRE",
+  "engineFile": "src/js/engine/cigre.js",
+  "referenceStandard": "CIGRE TB 771 / TB 443",
+  "gasShape": "{ h2, ch4, c2h6, c2h4, c2h2, co, co2 }",
+  "datasets": [
+    {
+      "datasetId": "CIGRE-REF-001",
+      "provenance": "published-standard",
+      "status": "PLACEHOLDER",
+      "description": "TODO: Replace with a genuine worked example from CIGRE TB 771 / TB 443. Structural placeholder only.",
+      "inputGasValues": { "h2": 0, "ch4": 0, "c2h6": 0, "c2h4": 0, "c2h2": 0, "co": 0, "co2": 0 },
+      "expectedResult": null,
+      "expectedZone": null,
+      "expectedRatios": null,
+      "referenceStandard": "CIGRE TB 771",
+      "revision": "n/a",
+      "todo": "Source a published CIGRE worked example, populate fields, set status to REFERENCE."
+    },
+    {
+      "datasetId": "CIGRE-SNAP-001",
+      "provenance": "engine-snapshot",
+      "status": "SNAPSHOT",
+      "capturedOn": "2026-07-13",
+      "description": "Regression baseline captured directly from the current, unmodified src/js/engine/cigre.js#calcCIGRE. NOT a published-standard example. expectedResult/expectedZone record the flag names triggered (CIGRE returns flags, not a single fault code).",
+      "inputGasValues": { "h2": 50, "ch4": 60, "c2h6": 20, "c2h4": 40, "c2h2": 2, "co": 300, "co2": 3000 },
+      "expectedResult": ["R1 — Thermal Fault"],
+      "expectedZone": null,
+      "expectedRatios": { "k1": 0.1, "k2": 0.8333, "r1": 2, "r2": 10, "r3": 0.04 },
+      "referenceStandard": "CIGRE TB 771",
+      "revision": "n/a"
+    },
+    {
+      "datasetId": "CIGRE-SNAP-002",
+      "provenance": "engine-snapshot",
+      "status": "SNAPSHOT",
+      "capturedOn": "2026-07-13",
+      "description": "Regression baseline (engine-snapshot) — elevated arcing-type gas mix triggering two flags.",
+      "inputGasValues": { "h2": 150, "ch4": 130, "c2h6": 15, "c2h4": 250, "c2h2": 80, "co": 600, "co2": 6000 },
+      "expectedResult": ["K1 — Electrical Discharge", "R1 — Thermal Fault"],
+      "expectedZone": null,
+      "expectedRatios": { "k1": 5.3333, "k2": 1.1538, "r1": 16.6667, "r2": 10, "r3": 0.5333 },
+      "referenceStandard": "CIGRE TB 771",
+      "revision": "n/a"
+    }
+  ]
+}

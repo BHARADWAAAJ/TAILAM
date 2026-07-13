@@ -1,0 +1,48 @@
+{
+  "method": "Doernenburg Ratio Method",
+  "engineFunction": "window.TAILAM.engine.doernenburg.calcDoernenburg",
+  "engineFile": "src/js/engine/doernenburg.js",
+  "referenceStandard": "Doernenburg Ratio Method (legacy IEEE C57.104 Annex)",
+  "gasShape": "{ h2, ch4, c2h6, c2h4, c2h2, co, co2 }",
+  "datasets": [
+    {
+      "datasetId": "DOERN-REF-001",
+      "provenance": "published-standard",
+      "status": "PLACEHOLDER",
+      "description": "TODO: Replace with a genuine worked example from the Doernenburg published tables. Structural placeholder only.",
+      "inputGasValues": { "h2": 0, "ch4": 0, "c2h6": 0, "c2h4": 0, "c2h2": 0, "co": 0, "co2": 0 },
+      "expectedResult": null,
+      "expectedZone": null,
+      "expectedRatios": null,
+      "referenceStandard": "Doernenburg",
+      "revision": "n/a",
+      "todo": "Source a published Doernenburg worked example, populate fields, set status to REFERENCE."
+    },
+    {
+      "datasetId": "DOERN-SNAP-001",
+      "provenance": "engine-snapshot",
+      "status": "SNAPSHOT",
+      "capturedOn": "2026-07-13",
+      "description": "Regression baseline captured directly from the current, unmodified src/js/engine/doernenburg.js#calcDoernenburg. NOT a published-standard example.",
+      "inputGasValues": { "h2": 50, "ch4": 60, "c2h6": 20, "c2h4": 40, "c2h2": 2, "co": 300, "co2": 3000 },
+      "expectedResult": "Thermal Decomposition",
+      "expectedZone": "Thermal",
+      "expectedRatios": { "R1": 1.2, "R2": 0.05, "R3": 0.0333, "R4": null },
+      "referenceStandard": "Doernenburg",
+      "revision": "n/a"
+    },
+    {
+      "datasetId": "DOERN-SNAP-002",
+      "provenance": "engine-snapshot",
+      "status": "SNAPSHOT",
+      "capturedOn": "2026-07-13",
+      "description": "Regression baseline (engine-snapshot) — elevated arcing-type gas mix.",
+      "inputGasValues": { "h2": 150, "ch4": 130, "c2h6": 15, "c2h4": 250, "c2h2": 80, "co": 600, "co2": 6000 },
+      "expectedResult": "Electrical Arcing / Discharge",
+      "expectedZone": "Arcing",
+      "expectedRatios": { "R1": 0.8667, "R2": 0.32, "R3": 0.6154, "R4": 0.1875 },
+      "referenceStandard": "Doernenburg",
+      "revision": "n/a"
+    }
+  ]
+}

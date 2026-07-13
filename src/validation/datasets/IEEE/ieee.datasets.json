@@ -1,0 +1,48 @@
+{
+  "method": "IEEE C57.104 Individual Gas Conditions",
+  "engineFunction": "window.TAILAM.engine.ieee.calcIEEE",
+  "engineFile": "src/js/engine/ieee.js",
+  "referenceStandard": "IEEE C57.104 Table 1",
+  "gasShape": "{ h2, ch4, c2h6, c2h4, c2h2, co, co2 }",
+  "datasets": [
+    {
+      "datasetId": "IEEE-REF-001",
+      "provenance": "published-standard",
+      "status": "PLACEHOLDER",
+      "description": "TODO: Replace with a genuine worked example from IEEE C57.104 Table 1. Structural placeholder only.",
+      "inputGasValues": { "h2": 0, "ch4": 0, "c2h6": 0, "c2h4": 0, "c2h2": 0, "co": 0, "co2": 0 },
+      "expectedResult": null,
+      "expectedZone": null,
+      "expectedRatios": null,
+      "referenceStandard": "IEEE C57.104",
+      "revision": "2019",
+      "todo": "Source a published IEEE C57.104 worked example, populate fields, set status to REFERENCE."
+    },
+    {
+      "datasetId": "IEEE-SNAP-001",
+      "provenance": "engine-snapshot",
+      "status": "SNAPSHOT",
+      "capturedOn": "2026-07-13",
+      "description": "Regression baseline captured directly from the current, unmodified src/js/engine/ieee.js#calcIEEE. NOT a published-standard example.",
+      "inputGasValues": { "h2": 50, "ch4": 60, "c2h6": 20, "c2h4": 40, "c2h2": 2, "co": 300, "co2": 3000 },
+      "expectedResult": "Condition 2 — Caution",
+      "expectedZone": "2",
+      "expectedRatios": null,
+      "referenceStandard": "IEEE C57.104",
+      "revision": "2019"
+    },
+    {
+      "datasetId": "IEEE-SNAP-002",
+      "provenance": "engine-snapshot",
+      "status": "SNAPSHOT",
+      "capturedOn": "2026-07-13",
+      "description": "Regression baseline (engine-snapshot) — elevated gas set pushing several gases into Condition 3.",
+      "inputGasValues": { "h2": 150, "ch4": 130, "c2h6": 15, "c2h4": 250, "c2h2": 80, "co": 600, "co2": 6000 },
+      "expectedResult": "Condition 3 — High",
+      "expectedZone": "3",
+      "expectedRatios": null,
+      "referenceStandard": "IEEE C57.104",
+      "revision": "2019"
+    }
+  ]
+}

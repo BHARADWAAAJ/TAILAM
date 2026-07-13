@@ -1,0 +1,10 @@
+/* TAILAM — print.css
+   Print media rules for the in-page view (the PDF export builds its own
+   standalone document). */
+
+@media print{
+  body{background:#fff;color:#111;}
+  .card{border:1px solid #ddd;background:#fff;break-inside:avoid;}
+  .no-print{display:none !important;}
+  canvas{border:1px solid #ccc;}
+}

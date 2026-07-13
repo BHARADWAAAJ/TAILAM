@@ -1,0 +1,48 @@
+{
+  "method": "IEC 60599 Three-Ratio Method",
+  "engineFunction": "window.TAILAM.engine.iec.calcIEC",
+  "engineFile": "src/js/engine/iec.js",
+  "referenceStandard": "IEC 60599:2022 Table 1",
+  "gasShape": "{ h2, ch4, c2h6, c2h4, c2h2, co, co2 }",
+  "datasets": [
+    {
+      "datasetId": "IEC-REF-001",
+      "provenance": "published-standard",
+      "status": "PLACEHOLDER",
+      "description": "TODO: Replace with a genuine worked example from IEC 60599:2022 Table 1 / Annex A. Structural placeholder only.",
+      "inputGasValues": { "h2": 0, "ch4": 0, "c2h6": 0, "c2h4": 0, "c2h2": 0, "co": 0, "co2": 0 },
+      "expectedResult": null,
+      "expectedZone": null,
+      "expectedRatios": null,
+      "referenceStandard": "IEC 60599:2022",
+      "revision": "2022",
+      "todo": "Source a published IEC three-ratio worked example, populate fields, set status to REFERENCE."
+    },
+    {
+      "datasetId": "IEC-SNAP-001",
+      "provenance": "engine-snapshot",
+      "status": "SNAPSHOT",
+      "capturedOn": "2026-07-13",
+      "description": "Regression baseline captured directly from the current, unmodified src/js/engine/iec.js#calcIEC. NOT a published-standard example.",
+      "inputGasValues": { "h2": 50, "ch4": 60, "c2h6": 20, "c2h4": 40, "c2h2": 2, "co": 300, "co2": 3000 },
+      "expectedResult": "Thermal 300–700°C",
+      "expectedZone": "T2",
+      "expectedRatios": { "r1": 0.05, "r2": 1.2, "r3": 2 },
+      "referenceStandard": "IEC 60599:2022",
+      "revision": "2022"
+    },
+    {
+      "datasetId": "IEC-SNAP-002",
+      "provenance": "engine-snapshot",
+      "status": "SNAPSHOT",
+      "capturedOn": "2026-07-13",
+      "description": "Regression baseline (engine-snapshot) — a ratio combination that falls outside all defined IEC codes.",
+      "inputGasValues": { "h2": 150, "ch4": 130, "c2h6": 15, "c2h4": 250, "c2h2": 80, "co": 600, "co2": 6000 },
+      "expectedResult": "Indeterminate",
+      "expectedZone": "Indeterminate",
+      "expectedRatios": { "r1": 0.32, "r2": 0.8667, "r3": 16.6667 },
+      "referenceStandard": "IEC 60599:2022",
+      "revision": "2022"
+    }
+  ]
+}

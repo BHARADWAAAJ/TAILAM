@@ -1,0 +1,64 @@
+/* TAILAM — components.css
+   Reusable components: tabs, buttons, cards, form fields, result boxes,
+   stats, tables, badges, flags, canvases, misc text elements. */
+
+.theme-toggle{appearance:none;border:1px solid var(--border);background:var(--card);color:var(--text);width:40px;height:40px;border-radius:10px;cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);}
+.theme-toggle:hover{border-color:var(--accent);}
+
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px 22px;margin-bottom:18px;box-shadow:var(--shadow);}
+.card h2{font-size:15px;font-weight:700;margin:0 0 14px;display:flex;align-items:center;gap:8px;}
+.card h2 .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block;}
+.sub{color:var(--text3);font-size:12.5px;margin:-10px 0 16px;}
+.panel-title{font-size:13px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin:0 0 12px;}
+
+label{display:block;font-size:12px;color:var(--text3);margin-bottom:5px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;}
+input,select{width:100%;padding:10px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:14px;}
+input:focus,select:focus{outline:none;border-color:var(--accent);}
+input::placeholder{color:var(--text3);}
+.field{margin-bottom:0;}
+
+.btn{appearance:none;border:none;border-radius:10px;padding:13px 22px;font-size:14.5px;font-weight:700;cursor:pointer;transition:.15s;}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-primary:hover{filter:brightness(1.08);}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+.btn-outline-danger{background:transparent;border:1px solid rgba(239,68,68,.4);color:var(--red);}
+.btn-outline-danger:hover{background:var(--red-dim);border-color:var(--red);}
+.actions{display:flex;gap:12px;justify-content:center;margin-top:6px;flex-wrap:wrap;}
+
+.result-box{border-radius:10px;padding:14px 16px;font-weight:700;font-size:16px;text-align:center;}
+.result-healthy{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,197,94,.3);}
+.result-attention{background:var(--yellow-dim);color:#a86a00;border:1px solid rgba(234,179,8,.3);}
+html[data-theme="dark"] .result-attention{color:var(--yellow);}
+.result-warning{background:var(--orange-dim);color:var(--orange);border:1px solid rgba(249,115,22,.3);}
+.result-critical{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,.3);}
+
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;text-align:center;}
+.stat .v{font-size:19px;font-weight:800;}
+.stat .l{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;margin-top:2px;}
+
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);}
+th{color:var(--text3);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;}
+
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;}
+.badge-green{background:var(--green-dim);color:var(--green);}
+.badge-yellow{background:var(--yellow-dim);color:#a86a00;}
+html[data-theme="dark"] .badge-yellow{color:var(--yellow);}
+.badge-orange{background:var(--orange-dim);color:var(--orange);}
+.badge-red{background:var(--red-dim);color:var(--red);}
+
+canvas{max-width:100%;background:var(--bg2);border-radius:10px;border:1px solid var(--border);}
+
+.flag{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:8px;}
+.flag.crit{border-left:3px solid var(--red);}
+.flag.warn{border-left:3px solid var(--orange);}
+.flag.att{border-left:3px solid var(--yellow);}
+.flag.ok{border-left:3px solid var(--green);}
+.flag .t{font-weight:700;font-size:13px;margin-bottom:2px;}
+.flag .d{color:var(--text2);font-size:12.5px;}
+
+.rec-box{background:var(--accent-dim);border:1px solid rgba(91,107,213,.35);border-radius:10px;padding:14px 16px;font-size:13.5px;color:var(--text);}
+.method-desc{color:var(--text2);font-size:13px;margin-top:10px;line-height:1.6;}
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.hint{font-size:12px;color:var(--text3);margin-top:6px;}
