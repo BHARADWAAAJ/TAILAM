@@ -68,10 +68,18 @@
 
     mtReport = { g, info, duval, rogers, iec, ieee, keygas, paper, doern, cigre, agree, risk, rec, o2info };
     mtExported = false;
-    renderMainTank(mtReport);
     document.getElementById('empty-main').style.display = 'none';
-    document.getElementById('results-main').style.display = 'block';
-    document.getElementById('results-main').scrollIntoView({ behavior:'smooth' });
+    const resultsMainEl = document.getElementById('results-main');
+    resultsMainEl.style.display = 'block';
+    // Bug fix — render (which draws duval-canvas) only AFTER the panel is
+    // unhidden, never while results-main is still display:none. See the
+    // matching comment in analyzeOltc() and the bug-fix report for the full
+    // root-cause explanation; no drawing math or engineering value changed.
+    renderMainTank(mtReport);
+    // Design sprint — restart the CSS fade-in-up animation every run (class
+    // toggle only; no engineering value touched, see base.css .reveal-in).
+    resultsMainEl.classList.remove('reveal-in'); void resultsMainEl.offsetWidth; resultsMainEl.classList.add('reveal-in');
+    resultsMainEl.scrollIntoView({ behavior:'smooth' });
     syncCrossContamDefaults();
   }
 
@@ -173,10 +181,22 @@
 
     otReport = { og, taps, duval2, oltcRes, xcontam, info: readTransformerInfo() };
     otExported = false;
-    renderOltc(otReport);
     document.getElementById('empty-oltc').style.display = 'none';
-    document.getElementById('results-oltc').style.display = 'block';
-    document.getElementById('results-oltc').scrollIntoView({ behavior:'smooth' });
+    const resultsOltcEl = document.getElementById('results-oltc');
+    resultsOltcEl.style.display = 'block';
+    // Bug fix — render (which draws duval2-canvas) only AFTER the panel is
+    // unhidden, never while results-oltc is still display:none. Root cause:
+    // .duval-hero-canvas-wrap is the only reveal-in target animated directly
+    // (scaleIn, a transform) on the canvas's immediate parent; combined with
+    // drawing into that canvas while its whole subtree was still hidden, the
+    // browser could promote the wrapper to a fresh compositing layer AFTER
+    // the bitmap was already painted, losing it once the animation settled.
+    // Drawing after display:block removes the hidden-canvas/animation race —
+    // same single draw call, same drawDuvalTriangle2()/engine values.
+    renderOltc(otReport);
+    // Design sprint — same reveal animation as Main Tank (presentation only).
+    resultsOltcEl.classList.remove('reveal-in'); void resultsOltcEl.offsetWidth; resultsOltcEl.classList.add('reveal-in');
+    resultsOltcEl.scrollIntoView({ behavior:'smooth' });
   }
 
   /**

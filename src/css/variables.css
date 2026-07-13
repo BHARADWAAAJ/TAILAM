@@ -1,22 +1,62 @@
 /* TAILAM — variables.css
-   Design tokens: colors, shadows. Dark theme is the default (:root);
-   the light theme overrides via html[data-theme="light"]. */
+   Final Visual Design Sprint — premium engineering design system.
+   Dark theme is the default (:root); the light theme overrides via
+   html[data-theme="light"]. Palette: Deep Navy / Steel Blue / Slate Grey /
+   Electric Blue accent / Healthy Green / Warning Amber / Critical Red only —
+   no rainbow colours, no gradients used for decoration (only for the hero
+   backdrop, which is explicitly allowed as a single restrained accent wash).
+   Every existing token name is preserved so no consuming CSS/JS breaks —
+   only the underlying values, plus a set of new tokens, are added. */
 
 :root{
-  --bg:#0b0e1a; --bg2:#11162a; --card:#151b32; --card2:#1a2140;
-  --border:rgba(255,255,255,0.08); --text:#e8ecf4; --text2:#aab0c4; --text3:#7d84a0;
-  --accent:#5B6BD5; --accent-dim:rgba(91,107,213,0.15);
-  --green:#22c55e; --green-dim:rgba(34,197,94,0.13);
-  --yellow:#eab308; --yellow-dim:rgba(234,179,8,0.13);
-  --orange:#f97316; --orange-dim:rgba(249,115,22,0.13);
-  --red:#ef4444; --red-dim:rgba(239,68,68,0.13);
-  --shadow:0 2px 10px rgba(0,0,0,0.25);
+  /* ── Deep Navy / Steel Blue surfaces ── */
+  --bg:#0a0e1c; --bg2:#101830; --card:#131b34; --card2:#182140;
+  --border:rgba(148,163,204,0.12); --border-strong:rgba(148,163,204,0.22);
+  --text:#eef1f8; --text2:#a7b0c9; --text3:#717a99;
+
+  /* ── Electric Blue accent (signature colour) ── */
+  --accent:#4c7cf0; --accent-2:#6a93ff; --accent-dim:rgba(76,124,240,0.16);
+  --accent-glow:rgba(76,124,240,0.35);
+
+  /* ── Engineering status colours — meaningful only ── */
+  --green:#2dd4a8; --green-dim:rgba(45,212,168,0.14);
+  --yellow:#eab308; --yellow-dim:rgba(234,179,8,0.14);
+  --orange:#f79242; --orange-dim:rgba(247,146,66,0.14);
+  --red:#f0596a; --red-dim:rgba(240,89,106,0.14);
+
+  /* ── Elevation ── */
+  --shadow-sm:0 1px 3px rgba(3,6,16,0.35);
+  --shadow:0 6px 24px rgba(3,6,16,0.38);
+  --shadow-lg:0 16px 44px rgba(3,6,16,0.46);
+  --shadow-accent:0 8px 26px rgba(76,124,240,0.22);
+
+  /* ── Typography ── */
+  --font-ui:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+
+  /* ── Radii / rhythm ── */
+  --r-sm:8px; --r-md:12px; --r-lg:18px; --r-xl:26px;
+
+  /* ── Blueprint background wash (opacity kept below 4% — see base.css) ── */
+  --grid-line:rgba(148,163,204,0.55);
 }
 html[data-theme="light"]{
-  --bg:#f4f6fb; --bg2:#ffffff; --card:#ffffff; --card2:#eef1f9;
-  --border:rgba(15,23,42,0.10); --text:#161b2e; --text2:#4a5170; --text3:#7d84a0;
-  --accent:#4C5BC4; --accent-dim:rgba(76,91,196,0.10);
-  --green-dim:rgba(34,197,94,0.12); --yellow-dim:rgba(234,179,8,0.14);
-  --orange-dim:rgba(249,115,22,0.12); --red-dim:rgba(239,68,68,0.10);
-  --shadow:0 2px 10px rgba(15,23,42,0.08);
+  --bg:#f3f5fb; --bg2:#ffffff; --card:#ffffff; --card2:#f0f3fb;
+  --border:rgba(21,32,66,0.09); --border-strong:rgba(21,32,66,0.16);
+  --text:#131a30; --text2:#4d5779; --text3:#7b84a3;
+
+  --accent:#3457d5; --accent-2:#4c7cf0; --accent-dim:rgba(52,87,213,0.10);
+  --accent-glow:rgba(52,87,213,0.22);
+
+  --green:#0f9d78; --green-dim:rgba(15,157,120,0.12);
+  --yellow:#c98a00; --yellow-dim:rgba(201,138,0,0.14);
+  --orange:#d9670f; --orange-dim:rgba(217,103,15,0.12);
+  --red:#d63a4c; --red-dim:rgba(214,58,76,0.11);
+
+  --shadow-sm:0 1px 2px rgba(21,32,66,0.06);
+  --shadow:0 6px 20px rgba(21,32,66,0.08);
+  --shadow-lg:0 18px 40px rgba(21,32,66,0.12);
+  --shadow-accent:0 8px 22px rgba(52,87,213,0.14);
+
+  --grid-line:rgba(21,32,66,0.55);
 }

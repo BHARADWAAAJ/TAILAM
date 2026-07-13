@@ -20,6 +20,8 @@
            openUnsavedDialog, closeUnsavedDialog, confirmUnsavedExportPDF,
            confirmUnsavedExportExcel, confirmUnsavedDiscard } = window.TAILAM.ui.modals;
   const { openDuvalModal, closeDuvalModal } = window.TAILAM.ui.workspace;
+  const { runLoadingSequence } = window.TAILAM.ui.loading;
+  const { animateLandingCounters } = window.TAILAM.ui.motion;
 
   /** Bind a click handler by element id. */
   function on(id, handler) {
@@ -75,13 +77,22 @@
   on('modal-about-close',    closeAbout);
   on('landing-btn-main',     () => requestNavigate('main'));
   on('landing-btn-oltc',     () => requestNavigate('oltc'));
+  on('landing-cta-main',     () => requestNavigate('main'));
+  on('landing-cta-oltc',     () => requestNavigate('oltc'));
   on('theme-btn',            toggleTheme);
-  on('btn-analyze-main',     analyzeMain);
+  // Design sprint — the loading sequence is purely a presentational delay;
+  // it calls the SAME unmodified analyzeMain()/analyzeOltc() when done, so
+  // every computed value is identical to a direct call.
+  on('btn-analyze-main',     () => runLoadingSequence(analyzeMain));
   on('btn-clear-main',       clearMain);
+  // Design sprint — empty-state CTA: focuses the first gas-value input
+  // instead of performing any action itself (presentation only).
+  on('empty-cta-main',       () => { const el = document.getElementById('g-h2'); if (el) { el.scrollIntoView({ behavior:'smooth', block:'center' }); el.focus(); } });
+  on('empty-cta-oltc',       () => { const el = document.getElementById('ot-h2'); if (el) { el.scrollIntoView({ behavior:'smooth', block:'center' }); el.focus(); } });
   on('btn-export-main-pdf',  () => exportPDF('main'));
   on('btn-export-main-xlsx', () => exportExcelX('main'));
   on('btn-new-main',         () => { clearMain(); const p = document.getElementById('panel-main'); if (p) p.scrollIntoView({ behavior:'smooth' }); });
-  on('btn-analyze-oltc',     analyzeOltc);
+  on('btn-analyze-oltc',     () => runLoadingSequence(analyzeOltc));
   on('btn-clear-oltc',       clearOltc);
   on('btn-export-oltc-pdf',  () => exportPDF('oltc'));
   on('btn-export-oltc-xlsx', () => exportExcelX('oltc'));
@@ -115,4 +126,5 @@
   initTheme();
   initDismissableModals();
   showLanding();
+  animateLandingCounters();
 })();

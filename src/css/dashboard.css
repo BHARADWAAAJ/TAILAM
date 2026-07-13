@@ -230,6 +230,9 @@ html[data-theme="dark"] .sev-tag.sev-attention{color:var(--yellow);}
 /* Task 7 — Diagnostic Methods: Agreement column */
 .agree-tag{font-size:12px;color:var(--text2);}
 
+/* Action Plan: body column fills remaining width, text truncates cleanly */
+.action-body{flex:1 1 auto;min-width:0;}
+
 /* Task 12 — Accessibility: visible keyboard focus on every interactive element */
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,
 .duval-hero-canvas:focus-visible,summary:focus-visible,[tabindex]:focus-visible{
@@ -277,3 +280,67 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,
    (components.css / dashboard.css). No per-card overrides remain except
    the deliberate accent border on .snapshot-card (Task 1 hierarchy) and
    .modal-box.modal-wide (a modal, not a workspace card). */
+
+/* ══════════════════════════════════════════════════════════════════
+   Final Visual Design Sprint — dashboard visual hierarchy. Every card
+   type below gets a deliberately different treatment so the eye reads
+   Snapshot → Status → Duval → Decision → everything else as a hierarchy,
+   not a stack of identical white boxes. No engineering value changes —
+   presentation only. Duval calculations/geometry (charts.js) untouched.
+   ══════════════════════════════════════════════════════════════════ */
+
+.card{border-radius:var(--r-lg);box-shadow:var(--shadow-sm);}
+
+/* ① Engineering Snapshot — the hero. Gradient wash, accent glow border,
+   icon-topped metrics, largest type in the workspace. */
+.snapshot-card{
+  border-width:1px;border-color:var(--accent-glow);box-shadow:var(--shadow-accent);
+  background:
+    radial-gradient(ellipse 520px 200px at 15% -20%, var(--accent-dim), transparent 65%),
+    var(--card);
+  padding:26px 26px 24px;
+}
+.snapshot-grid{row-gap:22px;}
+.snapshot-icon{width:30px;height:30px;border-radius:8px;background:var(--accent-dim);color:var(--accent-2);
+  display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+.snapshot-value{font-size:22px;}
+
+/* Status banner — coloured wash matches its left-border severity so the
+   whole card reads as one signal, not just a stripe. */
+.status-healthy{background:linear-gradient(135deg,var(--green-dim),transparent 55%),var(--card);}
+.status-attention{background:linear-gradient(135deg,var(--yellow-dim),transparent 55%),var(--card);}
+.status-warning{background:linear-gradient(135deg,var(--orange-dim),transparent 55%),var(--card);}
+.status-critical{background:linear-gradient(135deg,var(--red-dim),transparent 55%),var(--card);}
+
+/* Engineering Assessment / Duval Triangle card — the signature feature.
+   Deliberately the most "premium" card: deeper shadow, subtle radial glow
+   staged behind the triangle itself (pure CSS, no canvas change). */
+#panel-main .card:has(.duval-hero),#panel-oltc .card:has(.duval-hero){
+  box-shadow:var(--shadow-lg);border-color:var(--border-strong);
+}
+.duval-hero-canvas-wrap{position:relative;}
+.duval-hero-canvas-wrap::before{
+  content:'';position:absolute;inset:-26px;z-index:-1;border-radius:50%;
+  background:radial-gradient(closest-side, var(--accent-dim), transparent 72%);
+  opacity:.9;pointer-events:none;
+}
+.duval-hero-canvas{border-radius:var(--r-md);}
+.duval-caption{border-top-color:var(--border-strong);}
+
+/* Operational Decision — the "what do I do now" card gets an accent card2
+   surface behind the headline so it reads at a glance. */
+.decision-value{font-size:23px;background:var(--accent-dim);display:inline-block;padding:9px 16px;border-radius:var(--r-sm);
+  border:1px solid var(--accent-glow);}
+
+/* Transformer Health Index gauge card — quiet card, gauge is the focus */
+.gauge-wrap canvas{box-shadow:var(--shadow-sm);}
+
+/* Supporting-tier cards (Raw Calculations, References) read calmer —
+   smaller title weight, no elevated shadow — reinforcing that they are
+   evidence, not headline content. */
+.raw-calculations,.engineering-references{opacity:.94;}
+
+/* Duval Triangle canvas reveal — plays once when results first render
+   ("Duval point grows into place"). Pure opacity/scale on the CANVAS
+   ELEMENT itself; the pixels drawn inside it (charts.js) are untouched. */
+.reveal-in .duval-hero-canvas-wrap{animation:scaleIn .55s cubic-bezier(.2,.8,.3,1) .15s both;}

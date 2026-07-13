@@ -182,14 +182,17 @@
   }
 
   /**
-   * Engineering References list, filtered to standards actually exercised
-   * by this analysis (Task 9). Descriptions match the Engineering Workspace's
-   * own References section verbatim (src/js/... does not own this text —
-   * it lives in index.html — reproduced here only, not altered there).
+   * Compaction sprint — which of the 5 standards TAILAM implements actually
+   * apply to a given analysis, hoisted to its own function (previously
+   * inlined only inside buildReferences) so the ⑪ Engineering References
+   * list and the merged Final Recommendation card's "Applicable Standards"
+   * field read from exactly the same filtering rule instead of two copies
+   * of it. Names/descriptions unchanged from the original References list.
    * @param {boolean} isOLTC
    * @param {boolean} hasO2 - whether IEC 60422 (dissolved-O₂) actually ran
+   * @returns {Array<{name:string, desc:string}>}
    */
-  function buildReferences(isOLTC, hasO2) {
+  function applicableStandards(isOLTC, hasO2) {
     const ALL = [
       { name: 'IEC 60599', desc: 'Mineral oil-filled electrical equipment — interpretation of dissolved gases.', used: true },
       { name: 'IEEE C57.104', desc: 'Guide for gases generated in transformer oil.', used: !isOLTC },
@@ -197,10 +200,36 @@
       { name: 'IEC 60422', desc: 'Mineral insulating oil supervision.', used: !isOLTC && hasO2 },
       { name: 'CIGRE TB 771', desc: 'Transformer condition assessment.', used: true }
     ];
-    const rows = ALL.filter((r) => r.used).map((r) =>
+    return ALL.filter((r) => r.used);
+  }
+
+  /**
+   * Engineering References list (Task 9). Descriptions match the Engineering
+   * Workspace's own References section verbatim (src/js/... does not own
+   * this text — it lives in index.html — reproduced here only, not altered
+   * there). Now sourced from applicableStandards() above.
+   * @param {boolean} isOLTC
+   * @param {boolean} hasO2 - whether IEC 60422 (dissolved-O₂) actually ran
+   */
+  function buildReferences(isOLTC, hasO2) {
+    const rows = applicableStandards(isOLTC, hasO2).map((r) =>
       `<li><span class="ref-name">${esc(r.name)}</span><span class="ref-desc">${esc(r.desc)}</span></li>`
     ).join('');
     return rows || '<li><span class="ref-desc">No supporting standards reference applies to this analysis.</span></li>';
+  }
+
+  /**
+   * Compaction sprint — comma-joined standard names for the merged Final
+   * Recommendation card's "Applicable Standards" field. Reuses
+   * applicableStandards() so the card can never list a standard the
+   * References section itself doesn't also list.
+   * @param {boolean} isOLTC
+   * @param {boolean} hasO2
+   * @returns {string}
+   */
+  function standardsSummary(isOLTC, hasO2) {
+    const names = applicableStandards(isOLTC, hasO2).map((r) => r.name);
+    return names.length ? names.join(', ') : '—';
   }
 
   /**
@@ -397,22 +426,46 @@
   }
 
   /**
-   * Redesign sprint — Final Engineering Recommendation. Reuses the SAME
-   * Operational Decision headline and reason text ui/workspace.js already
-   * computed and shows on screen (decision-value-ID / decision-reason-ID) —
-   * the identical decision word (e.g. "Continue Operation") and the
-   * identical first sentence of the already-computed recommendation/zone
-   * description, just given a dedicated, highlighted closing section. No
-   * new recommendation text is authored here.
+   * Compaction sprint — Final Engineering Recommendation. Previously its own
+   * dedicated page-⑫ section; now a highlighted card merged directly under
+   * ⑨ Engineering Interpretation per this sprint's explicit instruction not
+   * to give one recommendation an entire page. Every field is a reuse of a
+   * value some other part of the report already computed — nothing new is
+   * authored here:
+   *   Recommended Action / Reason → decision-value-ID / decision-reason-ID
+   *     (the same Operational Decision text already shown on screen and in the
+   *     ① Engineering Snapshot card).
+   *   Priority                    → the top row of the SAME already
+   *     HIGH→MEDIUM→LOW-sorted Immediate Action Plan table shown in ④;
+   *     omitted (no badge) rather than invented if the plan is empty.
+   *   Expected Outcome            → the Engineering Conclusion sentence
+   *     splitInterpretation() already isolates from the same interpretation
+   *     text used in ⑨ — the last sentence, not new wording.
+   *   Applicable Standards        → standardsSummary(), the exact same
+   *     standards list shown in ⑪ Engineering References.
    * @param {string} idSuffix - 'main' | 'oltc'
+   * @param {string} topPriority - top Action Plan row's priority, or ''
+   * @param {string} expectedOutcome - Engineering Conclusion sentence, or ''
+   * @param {string} standardsText - comma-joined applicable standards
    * @returns {string} HTML
    */
-  function buildFinalRecommendationHTML(idSuffix) {
+  function buildFinalRecommendationHTML(idSuffix, topPriority, expectedOutcome, standardsText) {
     const decision = domText('decision-value-' + idSuffix) || '—';
-    const reason = domText('decision-reason-' + idSuffix) || '';
+    const reason = domText('decision-reason-' + idSuffix) || '—';
+    const priorityBadge = topPriority
+      ? `<span class="priority-tag priority-${esc(topPriority.toLowerCase())}">${esc(topPriority)}</span>`
+      : '';
     return `<div class="final-rec-pdf">
+      <div class="final-rec-head">
+        <span class="final-rec-label">Final Engineering Recommendation</span>
+        ${priorityBadge}
+      </div>
       <div class="final-rec-decision">${esc(decision)}</div>
-      ${reason ? `<p class="final-rec-reason">${esc(reason)}</p>` : ''}
+      <div class="final-rec-grid">
+        <div class="final-rec-field"><span class="final-rec-field-label">Reason</span><span class="final-rec-field-value">${esc(reason)}</span></div>
+        <div class="final-rec-field"><span class="final-rec-field-label">Expected Outcome</span><span class="final-rec-field-value">${esc(expectedOutcome || '—')}</span></div>
+        <div class="final-rec-field"><span class="final-rec-field-label">Applicable Standards</span><span class="final-rec-field-value">${esc(standardsText || '—')}</span></div>
+      </div>
     </div>`;
   }
 
@@ -436,11 +489,14 @@
     const now = new Date();
     const reportNumber = buildReportNumber(isOLTC);
     const moduleLabel = isOLTC ? 'OLTC Analysis' : 'Main Tank Analysis';
+    const hasO2 = !!(!isOLTC && rp.o2info);
 
-    // ── Document Information (renamed from "Report Information" and moved
-    // to the very end of the report — see body markup below). Field list
-    // and values are unchanged; "Analysis Date/Time" are relabelled
-    // "Generation Date/Time" to match the redesign spec's exact wording. ──
+    // ── Document Information — compaction sprint: this was its own page-⑬
+    // section; this sprint explicitly forbids dedicating a whole page to
+    // metadata, so it now renders as a small compact card on Page 1 (see
+    // .doc-info-strip in the body markup / CSS below). Field list, labels
+    // and values are completely unchanged — only its position and visual
+    // weight changed. ──
     const documentInfoHTML = [
       metaRow('Report Number', reportNumber),
       metaRow('Generation Date', now.toLocaleDateString()),
@@ -548,8 +604,12 @@
       </figure>
       ${buildDuvalLegendHTML(isOLTC ? 'triangle2' : 'triangle1', duval ? duval.zone : null)}`;
 
-    // ── ④ Immediate Action Plan (table) ──
-    const actionPlanHTML = buildActionPlanTable(extractActionPlan('action-plan-' + idSuffix));
+    // ── ④ Immediate Action Plan — rows are kept (not just the built HTML)
+    // so the merged Final Recommendation card below can reuse the top row's
+    // already-computed Priority instead of inventing an urgency level. ──
+    const actionRows = extractActionPlan('action-plan-' + idSuffix);
+    const actionPlanHTML = buildActionPlanTable(actionRows);
+    const topPriority = actionRows.length ? actionRows[0].priority : '';
 
     // ── ⑦ Diagnostic Methods table ──
     const diagnosticHTML = buildDiagnosticTable(extractDiagnosticRows('diagnostic-table-' + idSuffix));
@@ -577,40 +637,45 @@
     }
 
     // ── ⑨ Engineering Interpretation — Summary / Evidence / Engineering
-    // Conclusion, same sentences as always, just regrouped. ──
-    const interpretationHTML = buildInterpretationHTML(domText('interpretation-' + idSuffix));
+    // Conclusion, same sentences as always, just regrouped. Text is kept
+    // (not just the built HTML) so the merged Final Recommendation card
+    // below can reuse the same Engineering Conclusion sentence as its
+    // Expected Outcome field, instead of authoring new wording. ──
+    const interpText = domText('interpretation-' + idSuffix);
+    const interpretationHTML = buildInterpretationHTML(interpText);
+    const expectedOutcome = splitInterpretation(interpText).conclusion;
+
+    // ── Final Engineering Recommendation — compaction sprint: merged
+    // directly under ⑨ Engineering Interpretation as a highlighted card
+    // instead of its own page-⑫ section (see buildFinalRecommendationHTML
+    // doc comment for where every field's value is reused from). ──
+    const finalRecHTML = buildFinalRecommendationHTML(idSuffix, topPriority, expectedOutcome, standardsSummary(isOLTC, hasO2));
 
     // ── ⑩ Supporting Evidence — cloned from the already-rendered evidence
-    // blocks (see buildEvidenceHTML). New to the PDF this sprint; the
-    // content itself has existed in the on-screen workspace all along. ──
+    // blocks (see buildEvidenceHTML). ──
     const evidenceHTML = buildEvidenceHTML('evidence-' + idSuffix);
 
     // ── ⑪ Engineering References ──
-    const referencesHTML = `<ul class="report-references">${buildReferences(isOLTC, !!(!isOLTC && rp.o2info))}</ul>`;
+    const referencesHTML = `<ul class="report-references">${buildReferences(isOLTC, hasO2)}</ul>`;
 
-    // ── ⑫ Final Engineering Recommendation — new closing section, built
-    // entirely from the already-computed Operational Decision (see
-    // buildFinalRecommendationHTML). ──
-    const finalRecHTML = buildFinalRecommendationHTML(idSuffix);
-
-    // ── Footer — repeats on every page. Redesign sprint: "Generated by
-    // Bharadwaj" moves back into the repeating footer per this sprint's
-    // explicit footer spec (supersedes the previous polish sprint's
-    // one-time placement). Real "Page X of Y" numbering keeps using the
-    // CSS-correct @page bottom-right margin box established in the polish
-    // sprint — a body-level counter(page) always evaluates to 0 outside an
-    // @page margin box, which is why that mechanism (not a plain footer
-    // span) is what actually produces a real page number. Positioned at the
-    // same bottom edge as .pdf-footer so the two read as one footer band. ──
-    const generatedStamp = now.toLocaleString();
+    // ── Footer — compaction sprint: content trimmed to exactly what this
+    // sprint's footer spec allows (TAILAM™ / Community Edition / Engineering
+    // Decision Support Report / Version / Generated Date / Page X of Y —
+    // "Nothing else"). "Generated by Bharadwaj" and the time-of-day stamp
+    // move out of the per-page footer since that information is still shown
+    // once, in full, in the compact Document Information card on Page 1 —
+    // no information is lost, only de-duplicated across every page. Real
+    // "Page X of Y" still comes from the @page bottom-right margin box (a
+    // body-level counter(page) always reads 0 outside that mechanism).
+    // Footer height and @page bottom margin are tightened together in CSS
+    // below so the footer can no longer overlap report content. ──
     const footerHTML = `
       <div class="pdf-footer">
         <span>TAILAM™</span><span class="footer-sep">·</span>
         <span>${esc(REPORT_META.edition)}</span><span class="footer-sep">·</span>
         <span>Engineering Decision Support Report</span><span class="footer-sep">·</span>
         <span>Version ${esc(REPORT_META.version)}</span><span class="footer-sep">·</span>
-        <span>Generated by Bharadwaj</span><span class="footer-sep">·</span>
-        <span>Generated ${esc(generatedStamp)}</span>
+        <span>Generated ${esc(now.toLocaleDateString())}</span>
       </div>`;
 
     const reportTitle = isOLTC ? 'OLTC Analysis Report' : 'Main Tank Analysis Report';
@@ -620,12 +685,18 @@
     <meta name="tailam-report-number" content="${esc(reportNumber)}">
     <title>TAILAM ${esc(reportTitle)} — ${esc(info.name || 'Transformer')}</title>
     <style>
-      /* Real per-page numbering via the CSS-correct @page margin box — a
-         body-level counter(page) always evaluates to 0 outside this
-         mechanism. Browsers that support @page margin boxes show real
-         "Page X of Y" here; browsers that don't render nothing — a silent,
-         graceful fallback rather than a wrong number. */
-      @page { margin: 20mm 14mm 26mm 14mm; }
+      /* Compaction sprint — @page margins tightened (was 20/14/26/14mm) so
+         each page carries more usable content, and the bottom margin now
+         matches the SHRUNK single-line footer band exactly (12mm reserved,
+         footer sits at 4mm from the edge with a 1-line height) — the old
+         26mm bottom margin combined with a fixed-position footer is what
+         let report content and footer collide on some pages; matching the
+         two numbers is the permanent fix. Real per-page numbering via the
+         CSS-correct @page margin box — a body-level counter(page) always
+         evaluates to 0 outside this mechanism. Browsers that don't support
+         @page margin boxes render nothing here — a silent, graceful
+         fallback rather than a wrong number. */
+      @page { margin: 14mm 12mm 15mm 12mm; }
       @page {
         @bottom-right {
           content: "Page " counter(page) " of " counter(pages);
@@ -636,11 +707,9 @@
       }
       * { box-sizing: border-box; }
 
-      /* ── Redesign sprint — restrained 5-colour engineering palette
-         (blue / orange / green / red / grey). TAILAM's own established
-         brand blue (#2d3a8c, used since the first PDF sprint) is kept as
-         "Blue" for identity continuity — nothing here is copied from any
-         reference document, only the palette discipline is inspired by it. ── */
+      /* ── Restrained 5-colour engineering palette (blue / orange / green /
+         red / grey), unchanged from the previous sprint — kept exactly so
+         no colour meaning shifts. ── */
       :root{
         --pdf-blue:#2d3a8c; --pdf-blue-bg:#eef1fc;
         --pdf-green:#15803d; --pdf-green-bg:#dcfce7;
@@ -649,157 +718,197 @@
         --pdf-grey:#5b6072; --pdf-grey-bg:#f1f2f7; --pdf-grey-line:#d7dae8;
       }
 
-      /* ── Typography scale (redesign sprint): section headings 19px,
-         table headers 15.5px, body 14.5px, captions/notes 13.5px. ── */
-      body{font-family:'Segoe UI',Arial,Helvetica,sans-serif;color:#161b2e;margin:0;padding:0 0 26mm 0;font-size:14.5px;line-height:1.6;}
+      /* ── Typography scale (unchanged targets): section headings 18-20px,
+         table headers 15-16px, body 14-15px, captions/notes 13-14px. Line
+         spacing kept generous for readability even as outer whitespace is
+         compacted. ── */
+      body{font-family:'Segoe UI',Arial,Helvetica,sans-serif;color:#161b2e;margin:0;padding:0 0 13mm 0;font-size:14.5px;line-height:1.55;}
       h1,h2,h3{margin:0;}
 
-      /* ── Cover header — premium coloured masthead establishing identity
-         immediately, with Transformer Name / Analysis Module / Date /
-         Version surfaced right in the header per the redesign spec. ── */
-      .report-header{background:var(--pdf-blue);color:#fff;padding:22px 26px 18px 26px;border-radius:0 0 10px 10px;margin-bottom:20px;}
-      .report-brand{font-size:30px;font-weight:800;letter-spacing:0.5px;}
-      .report-brand .tm{font-size:14px;vertical-align:super;}
-      .report-subtitle{font-size:13.5px;color:#dbe1f7;margin-top:3px;}
-      .report-doctype{font-size:12.5px;font-weight:700;color:#fff;margin-top:10px;text-transform:uppercase;letter-spacing:0.6px;opacity:0.92;}
-      .report-header-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.25);}
+      /* ── Cover header — compaction sprint: padding and margin reduced so
+         Page 1 has more room left for the Engineering Snapshot / Executive
+         Summary / compact Document Information that must all fit above the
+         Page-2 break. Same premium coloured masthead, same fields. ── */
+      .report-header{background:var(--pdf-blue);color:#fff;padding:14px 20px 12px 20px;border-radius:0 0 8px 8px;margin-bottom:12px;}
+      .report-brand{font-size:26px;font-weight:800;letter-spacing:0.5px;}
+      .report-brand .tm{font-size:13px;vertical-align:super;}
+      .report-subtitle{font-size:12.5px;color:#dbe1f7;margin-top:2px;}
+      .report-doctype{font-size:11.5px;font-weight:700;color:#fff;margin-top:7px;text-transform:uppercase;letter-spacing:0.6px;opacity:0.92;}
+      .report-header-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:11px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.25);}
       .report-header-meta-cell{overflow-wrap:break-word;word-break:break-word;}
-      .report-header-meta-label{display:block;font-size:10.5px;color:#c3cbf0;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:2px;}
-      .report-header-meta-value{display:block;font-size:13.5px;font-weight:700;color:#fff;}
+      .report-header-meta-label{display:block;font-size:10px;color:#c3cbf0;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:2px;}
+      .report-header-meta-value{display:block;font-size:13px;font-weight:700;color:#fff;}
 
-      /* ── Numbered engineering sections — consistent rhythm for every
-         section's spacing, heading size, divider style. ── */
-      .section{margin:0 0 20px 0;page-break-inside:avoid;}
-      .section h2{font-size:19px;font-weight:700;color:var(--pdf-blue);border-bottom:2px solid var(--pdf-grey-line);padding-bottom:6px;margin-bottom:12px;page-break-after:avoid;display:flex;align-items:baseline;gap:8px;}
-      .section h2 .sec-num{font-size:17px;color:var(--pdf-blue);}
+      /* ── Numbered engineering sections — compaction sprint: margin/heading
+         spacing tightened throughout so sections flow without large gaps.
+         page-break-inside:avoid keeps each section's heading glued to its
+         content (no orphan headings); explicit .page-break-before is only
+         applied at the 3 real page boundaries this sprint defines (Page 2 /
+         3 / 4) instead of before nearly every section as before. ── */
+      .section{margin:0 0 13px 0;page-break-inside:avoid;}
+      .section h2{font-size:18.5px;font-weight:700;color:var(--pdf-blue);border-bottom:2px solid var(--pdf-grey-line);padding-bottom:4px;margin-bottom:8px;page-break-after:avoid;display:flex;align-items:baseline;gap:7px;}
+      .section h2 .sec-num{font-size:16px;color:var(--pdf-blue);}
       .section h2 + *{page-break-before:avoid;}
       .page-break-before{page-break-before:always;}
 
-      .meta-grid,.info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
-      .meta-cell,.info-cell{border:1px solid var(--pdf-grey-line);border-radius:6px;padding:9px 12px;overflow-wrap:break-word;word-break:break-word;}
-      .meta-label,.info-label{display:block;font-size:10.5px;color:var(--pdf-grey);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:3px;}
-      .meta-value,.info-value{font-size:13.5px;font-weight:600;color:#161b2e;overflow-wrap:break-word;word-break:break-word;}
+      .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
+      .meta-cell,.info-cell{border:1px solid var(--pdf-grey-line);border-radius:6px;padding:8px 10px;overflow-wrap:break-word;word-break:break-word;}
+      .meta-label,.info-label{display:block;font-size:10px;color:var(--pdf-grey);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:2px;}
+      .meta-value,.info-value{font-size:13px;font-weight:600;color:#161b2e;overflow-wrap:break-word;word-break:break-word;}
+
+      /* ── Compact Document Information card — compaction sprint: replaces
+         the old standalone page-⑬ section. Sits on Page 1, deliberately
+         smaller/quieter than a numbered section (no circled digit, no
+         section-heading styling) since administrative metadata is the
+         least important thing in the report per the design philosophy.
+         Reuses metaRow()'s existing .meta-cell markup, just laid out in a
+         tighter 3-column grid with smaller type. ── */
+      .doc-info-strip{border:1px solid var(--pdf-grey-line);border-radius:8px;padding:8px 10px;background:var(--pdf-grey-bg);margin-bottom:13px;page-break-inside:avoid;}
+      .doc-info-strip-title{font-size:9.5px;font-weight:700;color:var(--pdf-grey);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+      .doc-info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px 8px;}
+      .doc-info-grid .meta-cell{border:none;background:transparent;padding:0;}
+      .doc-info-grid .meta-label{font-size:9px;margin-bottom:1px;}
+      .doc-info-grid .meta-value{font-size:11.5px;}
 
       /* ① Engineering Snapshot — large cards, colour-coded Overall
-         Condition card, excellent visual hierarchy per the redesign spec. */
-      .snapshot-grid-pdf{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
-      .snapshot-cell-pdf{border:1px solid var(--pdf-grey-line);border-radius:8px;padding:12px 10px;text-align:center;background:var(--pdf-grey-bg);}
+         Condition card. Gaps/padding trimmed slightly for Page-1 density. */
+      .snapshot-grid-pdf{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+      .snapshot-cell-pdf{border:1px solid var(--pdf-grey-line);border-radius:8px;padding:9px 8px;text-align:center;background:var(--pdf-grey-bg);}
       .snapshot-cell-primary{border-width:2px;}
-      .snapshot-label-pdf{display:block;font-size:10px;color:var(--pdf-grey);text-transform:uppercase;letter-spacing:0.3px;margin-bottom:5px;}
-      .snapshot-value-pdf{display:block;font-size:14.5px;font-weight:800;color:#161b2e;overflow-wrap:break-word;word-break:break-word;}
+      .snapshot-label-pdf{display:block;font-size:9.5px;color:var(--pdf-grey);text-transform:uppercase;letter-spacing:0.3px;margin-bottom:4px;}
+      .snapshot-value-pdf{display:block;font-size:14px;font-weight:800;color:#161b2e;overflow-wrap:break-word;word-break:break-word;}
       .sev-pdf-healthy{background:var(--pdf-green-bg);border-color:var(--pdf-green);} .sev-pdf-healthy .snapshot-value-pdf{color:var(--pdf-green);}
       .sev-pdf-attention{background:var(--pdf-orange-bg);border-color:var(--pdf-orange);} .sev-pdf-attention .snapshot-value-pdf{color:var(--pdf-orange);}
       .sev-pdf-warning{background:var(--pdf-orange-bg);border-color:var(--pdf-orange);} .sev-pdf-warning .snapshot-value-pdf{color:var(--pdf-orange);}
       .sev-pdf-critical{background:var(--pdf-red-bg);border-color:var(--pdf-red);} .sev-pdf-critical .snapshot-value-pdf{color:var(--pdf-red);}
 
       /* ② Executive Engineering Summary */
-      .exec-summary-pdf{font-size:14.5px;line-height:1.75;color:#222;text-align:justify;margin:0;padding:14px 16px;background:var(--pdf-grey-bg);border-left:4px solid var(--pdf-blue);border-radius:4px;}
+      .exec-summary-pdf{font-size:14px;line-height:1.65;color:#222;text-align:justify;margin:0;padding:10px 13px;background:var(--pdf-grey-bg);border-left:4px solid var(--pdf-blue);border-radius:4px;}
 
-      /* ③ Duval Triangle Analysis — the visual centrepiece: generous
-         breathing space, perfect centring, larger figure and clearer
-         diagnostic-point block than before. */
-      .duval-figure{margin:6px auto 10px auto;text-align:center;page-break-inside:avoid;max-width:100%;}
+      /* ③ Diagnostic Analysis (Duval Triangle) — the visual centrepiece.
+         Size is UNCHANGED (max-width 430/400px) per this sprint's explicit
+         "do not reduce the triangle" instruction; only the margins around
+         it are tightened so it doesn't push extra pages. */
+      .duval-figure{margin:4px auto 6px auto;text-align:center;page-break-inside:avoid;max-width:100%;}
       .duval-figure img{display:block;margin:0 auto;width:100%;max-width:430px;height:auto;object-fit:contain;}
-      .duval-figure-number{font-size:10.5px;font-weight:700;color:var(--pdf-grey);text-transform:uppercase;letter-spacing:0.6px;margin-top:14px;}
-      .duval-caption-title{font-size:15px;font-weight:700;color:var(--pdf-blue);margin-top:3px;}
-      .duval-caption-kicker{font-size:10.5px;color:var(--pdf-grey);text-transform:uppercase;letter-spacing:0.3px;margin-top:10px;}
-      .duval-caption-zone{font-size:22px;font-weight:800;color:#161b2e;margin-top:4px;}
-      .duval-caption-fault{font-size:13.5px;color:#333;margin-top:3px;}
-      .duval-caption-gas{font-size:12px;color:#555;margin-top:6px;}
-      .duval-caption-standard{font-size:11px;color:var(--pdf-grey);margin-top:6px;font-style:italic;}
+      .duval-figure-number{font-size:10px;font-weight:700;color:var(--pdf-grey);text-transform:uppercase;letter-spacing:0.6px;margin-top:10px;}
+      .duval-caption-title{font-size:14.5px;font-weight:700;color:var(--pdf-blue);margin-top:2px;}
+      .duval-caption-kicker{font-size:10px;color:var(--pdf-grey);text-transform:uppercase;letter-spacing:0.3px;margin-top:7px;}
+      .duval-caption-zone{font-size:20px;font-weight:800;color:#161b2e;margin-top:3px;}
+      .duval-caption-fault{font-size:13px;color:#333;margin-top:2px;}
+      .duval-caption-gas{font-size:11.5px;color:#555;margin-top:4px;}
+      .duval-caption-standard{font-size:10.5px;color:var(--pdf-grey);margin-top:3px;font-style:italic;}
 
       /* Duval legend — inline SVG swatches (never a CSS background-colour)
-         so the colours always print. Kept together, never split. */
-      .pdf-legend{margin:14px auto 0 auto;max-width:480px;page-break-inside:avoid;}
-      .pdf-legend-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px 16px;}
-      .pdf-legend-item{display:flex;align-items:center;gap:8px;font-size:12px;color:#333;}
+         so the colours always print. Legend stays immediately below the
+         triangle, Engineering Note immediately below the legend, both kept
+         together and never split. */
+      .pdf-legend{margin:9px auto 0 auto;max-width:480px;page-break-inside:avoid;}
+      .pdf-legend-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:5px 14px;}
+      .pdf-legend-item{display:flex;align-items:center;gap:7px;font-size:11.5px;color:#333;}
       .pdf-legend-swatch,.pdf-legend-marker{flex:0 0 auto;display:block;}
       .pdf-legend-text strong{color:#161b2e;margin-right:4px;}
-      .pdf-legend-note{margin-top:10px;font-size:11px;color:var(--pdf-grey);line-height:1.55;text-align:center;}
+      .pdf-legend-note{margin-top:7px;font-size:10.5px;color:var(--pdf-grey);line-height:1.5;text-align:center;}
 
-      /* ── Tables — increased padding, row height and font size throughout;
-         Diagnosis/Recommendation columns receive the most width. ── */
-      table.report-table{width:100%;border-collapse:collapse;margin-bottom:6px;page-break-inside:avoid;}
-      table.report-table th,table.report-table td{border:1px solid var(--pdf-grey-line);padding:10px 12px;text-align:left;font-size:13.5px;line-height:1.45;overflow-wrap:break-word;word-break:break-word;}
-      table.report-table th{background:var(--pdf-blue-bg);color:var(--pdf-blue);font-weight:700;font-size:15.5px;}
+      /* ── Tables — generous cell padding for readability, but outer
+         margins trimmed so several tables fit per page. Diagnosis and
+         Recommendation columns get the most width; Status stays compact;
+         Reference is narrow so it wraps before Diagnosis ever needs to. ── */
+      table.report-table{width:100%;border-collapse:collapse;margin-bottom:4px;page-break-inside:avoid;}
+      table.report-table th,table.report-table td{border:1px solid var(--pdf-grey-line);padding:8px 11px;text-align:left;font-size:13px;line-height:1.4;overflow-wrap:break-word;word-break:break-word;}
+      table.report-table th{background:var(--pdf-blue-bg);color:var(--pdf-blue);font-weight:700;font-size:15px;}
       table.report-table tbody tr{page-break-inside:avoid;}
 
-      .action-table .col-priority{width:11%;} .action-table .col-recommendation{width:47%;}
-      .action-table .col-time{width:19%;} .action-table .col-reference{width:23%;}
-      .diagnostic-table-pdf .col-method{width:15%;} .diagnostic-table-pdf .col-role{width:12%;}
-      .diagnostic-table-pdf .col-diagnosis{width:27%;} .diagnostic-table-pdf .col-agreement{width:15%;}
-      .diagnostic-table-pdf .col-reference{width:16%;} .diagnostic-table-pdf .col-status{width:15%;}
+      .action-table .col-priority{width:10%;} .action-table .col-recommendation{width:48%;}
+      .action-table .col-time{width:18%;} .action-table .col-reference{width:24%;}
+      .diagnostic-table-pdf .col-method{width:13%;} .diagnostic-table-pdf .col-role{width:10%;}
+      .diagnostic-table-pdf .col-diagnosis{width:31%;} .diagnostic-table-pdf .col-agreement{width:18%;}
+      .diagnostic-table-pdf .col-reference{width:13%;} .diagnostic-table-pdf .col-status{width:15%;}
 
       /* Primary Diagnostic vs Supporting Method — tinted row, bold method
          name, left border on the primary row only. Presentational only. */
       tr.diag-row-primary td{background:var(--pdf-blue-bg);font-weight:700;border-left:4px solid var(--pdf-blue);}
-      tr.diag-row-primary td:first-child{padding-left:9px;}
+      tr.diag-row-primary td:first-child{padding-left:8px;}
       tr.diag-row-supporting td:first-child{border-left:4px solid transparent;}
 
-      .priority-tag{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;color:#fff;}
+      .priority-tag{display:inline-block;padding:2px 9px;border-radius:12px;font-size:10.5px;font-weight:700;color:#fff;white-space:nowrap;}
       .priority-high{background:var(--pdf-red);} .priority-medium{background:var(--pdf-orange);} .priority-low{background:var(--pdf-green);}
 
       /* Status badges — easier to recognise than plain text; the status
          STRING is unchanged, only its visual treatment. */
-      .status-badge{display:inline-block;padding:3px 10px;border-radius:12px;font-size:11px;font-weight:700;}
+      .status-badge{display:inline-block;padding:2px 9px;border-radius:12px;font-size:10.5px;font-weight:700;white-space:nowrap;}
       .status-badge-computed{background:var(--pdf-green-bg);color:var(--pdf-green);}
       .status-badge-neutral{background:var(--pdf-grey-bg);color:var(--pdf-grey);}
 
       /* ⑧ Transformer Health Index — score, category, band and (Main Tank)
-         gauge, with more breathing room than before. */
-      .thi-hero-pdf{border:1px solid var(--pdf-grey-line);border-radius:8px;padding:20px;text-align:center;background:var(--pdf-grey-bg);}
-      .thi-gauge-pdf{display:block;margin:0 auto 8px auto;max-width:170px;height:auto;}
-      .thi-score-value{font-size:32px;font-weight:800;color:#161b2e;line-height:1.1;}
-      .thi-category-row{margin-top:10px;font-size:12px;}
-      .thi-category-label{color:var(--pdf-grey);text-transform:uppercase;letter-spacing:0.4px;margin-right:8px;}
-      .thi-category-word{font-weight:700;font-size:14px;padding:3px 12px;border-radius:12px;}
+         gauge. Compaction sprint: this used to occupy nearly a full page
+         by itself; padding/gauge size/margins reduced so it comfortably
+         shares Page 3 with Transformer Information, Gas Values and
+         Diagnostic Methods while keeping every element (score, gauge,
+         category, band, interpretation). */
+      .thi-hero-pdf{border:1px solid var(--pdf-grey-line);border-radius:8px;padding:12px;text-align:center;background:var(--pdf-grey-bg);}
+      .thi-gauge-pdf{display:block;margin:0 auto 5px auto;max-width:140px;height:auto;}
+      .thi-score-value{font-size:26px;font-weight:800;color:#161b2e;line-height:1.1;}
+      .thi-category-row{margin-top:7px;font-size:12px;}
+      .thi-category-label{color:var(--pdf-grey);text-transform:uppercase;letter-spacing:0.4px;margin-right:7px;}
+      .thi-category-word{font-weight:700;font-size:13px;padding:2px 10px;border-radius:12px;}
       .thi-healthy{background:var(--pdf-green-bg);color:var(--pdf-green);} .thi-attention{background:var(--pdf-orange-bg);color:var(--pdf-orange);}
       .thi-warning{background:var(--pdf-orange-bg);color:var(--pdf-orange);} .thi-critical{background:var(--pdf-red-bg);color:var(--pdf-red);}
-      .thi-oltc-note-pdf{font-size:12px;color:var(--pdf-grey);font-style:italic;margin-bottom:8px;}
-      .thi-band-pdf{display:flex;margin-top:14px;border-radius:6px;overflow:hidden;border:1px solid var(--pdf-grey-line);}
-      .thi-band-seg-pdf{flex:1;padding:6px 4px;text-align:center;font-size:10.5px;font-weight:700;color:var(--pdf-grey);background:#fff;border-right:1px solid var(--pdf-grey-line);}
+      .thi-oltc-note-pdf{font-size:11.5px;color:var(--pdf-grey);font-style:italic;margin-bottom:6px;}
+      .thi-band-pdf{display:flex;margin-top:10px;border-radius:6px;overflow:hidden;border:1px solid var(--pdf-grey-line);}
+      .thi-band-seg-pdf{flex:1;padding:5px 3px;text-align:center;font-size:10px;font-weight:700;color:var(--pdf-grey);background:#fff;border-right:1px solid var(--pdf-grey-line);}
       .thi-band-seg-pdf:last-child{border-right:none;}
       .thi-band-seg-pdf.active{background:var(--pdf-blue);color:#fff;}
 
       /* ⑨ Engineering Interpretation — Summary / Evidence / Engineering
-         Conclusion, same sentences, clearer section headings and spacing. */
-      .interp-block{margin-bottom:14px;}
+         Conclusion, same sentences, tightened spacing so it and the merged
+         Final Recommendation card below fit together on Page 4. */
+      .interp-block{margin-bottom:9px;}
       .interp-block:last-child{margin-bottom:0;}
-      .interp-label{font-size:13px;font-weight:700;color:var(--pdf-grey);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:5px;}
-      .interpretation-pdf{font-size:14px;line-height:1.7;color:#222;text-align:justify;margin:0;}
+      .interp-label{font-size:12.5px;font-weight:700;color:var(--pdf-grey);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+      .interpretation-pdf{font-size:13.5px;line-height:1.6;color:#222;text-align:justify;margin:0;}
+
+      /* Final Engineering Recommendation card — compaction sprint: merged
+         directly under ⑨ Engineering Interpretation instead of its own
+         page-⑫ section. Highlighted, kept together, never split; shows
+         Recommended Action (headline), Priority (badge), and a 3-column
+         Reason / Expected Outcome / Applicable Standards grid. */
+      .final-rec-pdf{background:var(--pdf-blue);color:#fff;border-radius:8px;padding:13px 16px;page-break-inside:avoid;margin-top:11px;}
+      .final-rec-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px;}
+      .final-rec-label{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:#dbe1f7;}
+      .final-rec-decision{font-size:18px;font-weight:800;letter-spacing:0.2px;margin-bottom:9px;}
+      .final-rec-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;border-top:1px solid rgba(255,255,255,0.25);padding-top:9px;}
+      .final-rec-field-label{display:block;font-size:9.5px;color:#c3cbf0;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:3px;}
+      .final-rec-field-value{display:block;font-size:12px;font-weight:600;line-height:1.4;overflow-wrap:break-word;word-break:break-word;}
 
       /* ⑩ Supporting Evidence — compact evidence blocks, cloned from the
          same DOM ui/workspace.js#renderEvidenceBlocks already rendered. */
-      .evidence-pdf-wrap .evidence-blocks{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
-      .evidence-pdf-wrap .evidence-block{background:var(--pdf-grey-bg);border:1px solid var(--pdf-grey-line);border-radius:8px;padding:12px 14px;}
-      .evidence-pdf-wrap .evidence-block-label{font-size:11px;color:var(--pdf-grey);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px;}
-      .evidence-pdf-wrap .evidence-block-value{font-size:13.5px;font-weight:600;color:#161b2e;line-height:1.5;}
-      .evidence-pdf-wrap .evidence-emphasis{font-size:16px;font-weight:800;color:var(--pdf-blue);}
-      .evidence-pdf-wrap .evidence-tags{display:flex;flex-wrap:wrap;gap:6px;}
-      .evidence-pdf-wrap .evidence-tag{display:inline-block;padding:3px 10px;border-radius:8px;font-size:11.5px;font-weight:600;background:#fff;color:#333;border:1px solid var(--pdf-grey-line);}
+      .evidence-pdf-wrap .evidence-blocks{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;}
+      .evidence-pdf-wrap .evidence-block{background:var(--pdf-grey-bg);border:1px solid var(--pdf-grey-line);border-radius:8px;padding:9px 11px;}
+      .evidence-pdf-wrap .evidence-block-label{font-size:10.5px;color:var(--pdf-grey);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px;}
+      .evidence-pdf-wrap .evidence-block-value{font-size:13px;font-weight:600;color:#161b2e;line-height:1.45;}
+      .evidence-pdf-wrap .evidence-emphasis{font-size:15px;font-weight:800;color:var(--pdf-blue);}
+      .evidence-pdf-wrap .evidence-tags{display:flex;flex-wrap:wrap;gap:5px;}
+      .evidence-pdf-wrap .evidence-tag{display:inline-block;padding:2px 9px;border-radius:8px;font-size:11px;font-weight:600;background:#fff;color:#333;border:1px solid var(--pdf-grey-line);}
 
-      /* ⑪ Engineering References */
+      /* ⑪ Engineering References — one line per standard, no dedicated page. */
       .report-references{list-style:none;margin:0;padding:0;}
-      .report-references li{display:flex;justify-content:space-between;gap:14px;border-bottom:1px solid #eceef7;padding:9px 3px;font-size:13px;}
+      .report-references li{display:flex;justify-content:space-between;gap:14px;border-bottom:1px solid #eceef7;padding:6px 3px;font-size:12.5px;}
       .ref-name{font-weight:700;color:var(--pdf-blue);white-space:nowrap;}
       .ref-desc{color:#555;text-align:right;}
 
       .empty-note{font-size:13px;color:var(--pdf-grey);font-style:italic;}
 
-      /* ⑫ Final Engineering Recommendation — highlighted closing section,
-         the last engineering content before administrative Document
-         Information. Kept together, never split across a page. */
-      .final-rec-pdf{background:var(--pdf-blue);color:#fff;border-radius:8px;padding:20px 24px;text-align:center;page-break-inside:avoid;}
-      .final-rec-decision{font-size:20px;font-weight:800;letter-spacing:0.2px;}
-      .final-rec-reason{font-size:13.5px;color:#dbe1f7;margin:8px 0 0 0;line-height:1.6;}
+      .disclaimer{font-size:11.5px;color:var(--pdf-grey);border-top:1px solid var(--pdf-grey-line);padding-top:8px;margin-top:4px;}
 
-      .disclaimer{font-size:12px;color:var(--pdf-grey);border-top:1px solid var(--pdf-grey-line);padding-top:10px;margin-top:6px;}
-
-      /* Footer — repeats on every page. Real "Page X of Y" comes from the
-         @page bottom-right margin box above, positioned at the same bottom
-         edge so the two read as one footer band. */
-      .pdf-footer{position:fixed;left:14mm;right:14mm;bottom:7mm;font-size:9.5px;color:var(--pdf-grey);text-align:center;border-top:1px solid var(--pdf-grey-line);padding-top:6px;}
-      .footer-sep{margin:0 5px;color:#c7cadd;}
+      /* Footer — compaction sprint: reduced to a single slim line reserving
+         only the CSS-matched 15mm @page bottom margin above, so it can
+         never overlap tables/text/images/charts on any page. Content
+         trimmed to exactly what this sprint's footer spec lists. Real
+         "Page X of Y" comes from the @page bottom-right margin box, sharing
+         the same bottom edge so the two read as one footer band. */
+      .pdf-footer{position:fixed;left:12mm;right:12mm;bottom:4mm;font-size:8.5px;color:var(--pdf-grey);text-align:center;border-top:1px solid var(--pdf-grey-line);padding-top:4px;}
+      .footer-sep{margin:0 4px;color:#c7cadd;}
 
       @media print{
         .duval-figure img{max-width:400px;}
@@ -829,8 +938,13 @@
       ${execSummaryHTML}
     </div>
 
-    <div class="section">
-      <h2><span class="sec-num">③</span> Duval Triangle Analysis</h2>
+    <div class="doc-info-strip">
+      <div class="doc-info-strip-title">Document Information</div>
+      <div class="doc-info-grid">${documentInfoHTML}</div>
+    </div>
+
+    <div class="section page-break-before">
+      <h2><span class="sec-num">③</span> Diagnostic Analysis</h2>
       ${duvalHTML}
     </div>
 
@@ -862,6 +976,7 @@
     <div class="section page-break-before">
       <h2><span class="sec-num">⑨</span> Engineering Interpretation</h2>
       ${interpretationHTML}
+      ${finalRecHTML}
     </div>
 
     <div class="section">
@@ -874,18 +989,8 @@
       ${referencesHTML}
     </div>
 
-    <div class="section">
-      <h2><span class="sec-num">⑫</span> Final Engineering Recommendation</h2>
-      ${finalRecHTML}
-    </div>
-
     <div class="section disclaimer">
       For engineering guidance only — not a substitute for the judgement of a qualified transformer engineer. TAILAM™ ${esc(REPORT_META.version)} (${esc(REPORT_META.edition)}, Static Browser Edition, Build ${esc(REPORT_META.build)}). Report ${esc(reportNumber)}.
-    </div>
-
-    <div class="section page-break-before">
-      <h2><span class="sec-num">⑬</span> Document Information</h2>
-      <div class="meta-grid">${documentInfoHTML}</div>
     </div>
 
     ${footerHTML}

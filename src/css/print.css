@@ -1,10 +1,49 @@
 /* TAILAM — print.css
    Print media rules for the in-page view (the PDF export builds its own
-   standalone document). */
+   standalone document). Goal: a clean, black-on-white engineering report
+   with no interactive chrome. */
 
 @media print{
+  @page{margin:14mm 12mm;}
+
   body{background:#fff;color:#111;}
-  .card{border:1px solid #ddd;background:#fff;break-inside:avoid;}
-  .no-print{display:none !important;}
-  canvas{border:1px solid #ccc;}
+  body::before{display:none !important;content:none !important;}
+  .wrap{max-width:none;padding:0;}
+  /* Design-sprint motion never prints — instant, static content only */
+  *,*::before,*::after{animation:none !important;transition:none !important;}
+
+  /* Interactive chrome never prints */
+  .no-print,
+  .duval-hero-hint,
+  .duval-legend-tooltip,
+  .modal-overlay{display:none !important;}
+
+  /* Cards become bordered report blocks */
+  .card{border:1px solid #ddd;background:#fff;box-shadow:none;break-inside:avoid;}
+  .snapshot-card{border:2px solid #999;}
+  .status-banner{background:#fff;box-shadow:none;break-inside:avoid;}
+
+  /* Inner surfaces flatten to white with visible borders */
+  .assessment-item,.evidence-block,.action-item,.stat,.zs-gas-row,
+  .flag,.thi-band-seg,.duval-legend-tooltip{background:#fff;border-color:#ddd;}
+
+  /* Single column: input form is irrelevant on paper; workspace gets full width */
+  .workspace-grid{display:block;}
+  .workspace-left{display:none;}
+
+  /* Tables print with full grid lines for unambiguous reading */
+  table{font-size:11.5px;}
+  th,td{border:1px solid #ccc;}
+  th{background:#f2f2f2;color:#333;}
+  tbody tr:hover>td{background:transparent;}
+
+  /* Triangles: centered, bordered, never split across pages */
+  canvas{border:1px solid #ccc;background:#fff;break-inside:avoid;}
+  .duval-hero,.duval-caption,.duval-legend{break-inside:avoid;}
+
+  /* Keep decision content together */
+  .action-item,.evidence-block,.references-block li{break-inside:avoid;}
+
+  /* Muted text stays legible on paper */
+  .sub,.hint,.method-desc,.action-source,.action-time{color:#555;}
 }

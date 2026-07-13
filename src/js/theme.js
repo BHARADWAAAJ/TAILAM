@@ -33,7 +33,13 @@
   function applyTheme(mode) {
     document.documentElement.setAttribute('data-theme', mode);
     const btn = document.getElementById('theme-btn');
-    if (btn) btn.textContent = mode === 'light' ? '☀️' : '🌙';
+    // Design sprint — SVG icon (sun/moon) from the shared icon family instead
+    // of an emoji glyph, for visual consistency with the rest of the UI.
+    if (btn) {
+      const icons = window.TAILAM.ui.icons;
+      btn.innerHTML = icons ? icons.svg(mode === 'light' ? 'sun' : 'moon', { size: 18 }) : '';
+      btn.setAttribute('aria-label', mode === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
+    }
     try { localStorage.setItem('dga-theme', mode); } catch { /* localStorage unavailable (private mode, etc.) — theme still applies for this session */ }
   }
 

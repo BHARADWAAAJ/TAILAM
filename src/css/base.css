@@ -1,8 +1,64 @@
 /* TAILAM — base.css
-   Reset, body defaults, page header/footer typography. */
+   Reset, body defaults, page header/footer typography, blueprint background
+   texture, global motion primitives (Final Visual Design Sprint). */
 
 *{box-sizing:border-box;}
-body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:14px;line-height:1.5;transition:background .2s,color .2s;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:var(--font-ui);font-size:14px;line-height:1.5;
+  transition:background .2s,color .2s;
+  position:relative;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+}
+/* Subtle engineering blueprint grid — fixed, non-interactive, kept under
+   4% visual weight (line colour alpha is 0.028 in dark / 0.022 in light,
+   applied on top of the low-alpha --grid-line token) so it reads as texture,
+   never as content. Two line-widths (40px minor / 200px major) mimic a
+   technical drafting grid without needing an image asset. */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size:200px 200px,200px 200px,40px 40px,40px 40px;
+  opacity:.028;
+}
+html[data-theme="light"] body::before{opacity:.022;}
+.wrap{position:relative;z-index:1;}
+/* Form controls and buttons inherit the app font instead of UA defaults —
+   removes the subtle typeface mismatch between buttons and body text. */
+button,input,select,textarea{font-family:inherit;}
+/* Text selection in brand color */
+::selection{background:var(--accent);color:#fff;}
+/* Respect users who disable animation at OS level */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{transition-duration:.01ms !important;animation-duration:.01ms !important;scroll-behavior:auto !important;animation:none !important;}
+  html{scroll-behavior:auto;}
+}
+
+/* ── Motion primitives — tasteful, reused everywhere below, never gimmicky ── */
+@keyframes fadeInUp{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.97);}to{opacity:1;transform:scale(1);}}
+@keyframes softPulse{0%,100%{opacity:1;}50%{opacity:.55;}}
+.reveal-in{animation:fadeIn .3s ease both;}
+.reveal-in>*{animation:fadeInUp .45s cubic-bezier(.2,.7,.3,1) both;}
+.reveal-in>*:nth-child(1){animation-delay:.02s;}
+.reveal-in>*:nth-child(2){animation-delay:.05s;}
+.reveal-in>*:nth-child(3){animation-delay:.08s;}
+.reveal-in>*:nth-child(4){animation-delay:.11s;}
+.reveal-in>*:nth-child(5){animation-delay:.14s;}
+.reveal-in>*:nth-child(6){animation-delay:.17s;}
+.reveal-in>*:nth-child(n+7){animation-delay:.2s;}
+/* Subtle industrial scrollbars (WebKit); Firefox gets thin native */
+*{scrollbar-width:thin;scrollbar-color:var(--border) transparent;}
+*::-webkit-scrollbar{width:10px;height:10px;}
+*::-webkit-scrollbar-thumb{background:var(--card2);border-radius:5px;border:2px solid var(--bg);}
+*::-webkit-scrollbar-thumb:hover{background:var(--text3);}
+*::-webkit-scrollbar-track{background:transparent;}
 footer{text-align:center;color:var(--text3);font-size:12px;margin-top:40px;padding-top:24px;border-top:1px solid var(--border);}
 footer div{margin:3px 0;}
 footer .footer-brand{font-weight:800;font-size:14px;color:var(--text2);margin-bottom:6px;}
