@@ -103,9 +103,11 @@
   /**
    * Read the already-rendered Diagnostic Methods table
    * (ui/workspace.js#renderDiagnosticTable output) into plain row objects.
-   * Skips the collapsible "Why?" detail rows and the Severity column — the
-   * PDF's Diagnostic Methods table uses the 6-column layout specified for
-   * this report (Method / Role / Diagnosis / Agreement / Reference / Status).
+   * Skips the collapsible "Why?" detail rows and the Severity column. The
+   * PDF's Diagnostic Methods table (buildDiagnosticTable()) renders Method /
+   * Role / Diagnosis / Agreement / Reference — Status is still read into
+   * `status` here (harmless) but no longer rendered as of the final polish
+   * sprint, since every row read the same uninformative "Computed" text.
    * @param {string} tbodyId - 'diagnostic-table-main' | 'diagnostic-table-oltc'
    * @returns {Array<{method:string, role:string, diagnosis:string, agreement:string, reference:string, status:string}>}
    */
@@ -184,7 +186,7 @@
   /**
    * Compaction sprint — which of the 5 standards TAILAM implements actually
    * apply to a given analysis, hoisted to its own function (previously
-   * inlined only inside buildReferences) so the ⑪ Engineering References
+   * inlined only inside buildReferences) so the ⑫ Engineering References
    * list and the merged Final Recommendation card's "Applicable Standards"
    * field read from exactly the same filtering rule instead of two copies
    * of it. Names/descriptions unchanged from the original References list.
@@ -233,9 +235,43 @@
   }
 
   /**
-   * Build the Immediate Action Plan HTML table (Task 8) from extracted rows.
+   * PDF polish sprint — condense the Immediate Action Plan to at most
+   * `maxItems` rows. Presentation only: no priority, text, source or time is
+   * altered, computed, or reworded.
+   *  - Duplicates: rows whose recommendation text is identical once trimmed
+   *    and lower-cased are the same engineering meaning restated (e.g. the
+   *    same sentence surfacing from more than one method) — only the first
+   *    occurrence is kept; nothing is merged into a new hybrid sentence.
+   *  - Sort: re-asserts HIGH → MEDIUM → LOW. The DOM this was extracted from
+   *    is already sorted this way by ui/workspace.js#renderActionPlan, so
+   *    this is a defensive guarantee, not a new rule.
+   *  - Cap: keeps only the top `maxItems` after dedup + sort — the highest-
+   *    priority actions, never an arbitrary subset.
+   * @param {Array<{priority:string,text:string,source:string,time:string}>} rows
+   * @param {number} [maxItems=5]
+   * @returns {Array}
+   */
+  function condenseActionRows(rows, maxItems) {
+    maxItems = maxItems || 5;
+    const PRIORITY_ORDER_PDF = { HIGH: 0, MEDIUM: 1, LOW: 2 };
+    const seen = new Set();
+    const deduped = [];
+    rows.forEach((r) => {
+      const key = (r.text || '').trim().toLowerCase().replace(/\s+/g, ' ');
+      if (!key || seen.has(key)) return;
+      seen.add(key);
+      deduped.push(r);
+    });
+    const sorted = deduped.slice().sort((a, b) =>
+      (PRIORITY_ORDER_PDF[(a.priority || '').toUpperCase()] ?? 1) - (PRIORITY_ORDER_PDF[(b.priority || '').toUpperCase()] ?? 1));
+    return sorted.slice(0, maxItems);
+  }
+
+  /**
+   * Build the Immediate Action Plan HTML table from extracted (and, per the
+   * final polish sprint, already-condensed via condenseActionRows()) rows.
    * Sort order matches ui/workspace.js#renderActionPlan (HIGH → MEDIUM → LOW),
-   * inherited automatically since the DOM is already sorted that way.
+   * inherited automatically since the input is already sorted that way.
    */
   function buildActionPlanTable(rows) {
     if (!rows.length) {
@@ -253,40 +289,32 @@
   }
 
   /**
-   * Build the Diagnostic Methods HTML table (Task 7) from extracted rows.
-   * Polish sprint Task 4: rows whose scraped Role text is the workspace's
-   * own "Primary Diagnostic" tag (ui/workspace.js#roleFor) get a distinguishing
-   * class — tinted background, left border, bold — everything else is styled
-   * as a Supporting Method. This is a pure CSS/markup distinction of data the
-   * engine already produced; it does not change any row's method, diagnosis,
-   * or classification.
+   * Build the Diagnostic Methods HTML table from extracted rows. Rows whose
+   * scraped Role text is the workspace's own "Primary Diagnostic" tag
+   * (ui/workspace.js#roleFor) get a distinguishing class — tinted
+   * background, left border, bold — everything else is styled as a
+   * Supporting Method (with alternating shading — polish sprint). This is a
+   * pure CSS/markup distinction of data the engine already produced; it
+   * does not change any row's method, diagnosis, or classification.
+   * Final polish sprint: the Status column (every row read "Computed", no
+   * information carried) is no longer rendered — see extractDiagnosticRows()
+   * for where that field is still read (harmlessly unused) and the .col-*
+   * width comments below for how its space was redistributed.
    */
-  /**
-   * Redesign sprint — status text ("Computed" / "Indeterminate" / "Insufficient
-   * Data" / "Not Applicable", all already produced by ui/workspace.js) wrapped
-   * in a small coloured badge so it reads at a glance instead of as plain
-   * text. The status STRING itself is never altered — only its visual
-   * treatment. Restrained 5-colour system (blue/orange/green/red/grey).
-   * @param {string} status
-   * @returns {string} CSS class
-   */
-  function statusBadgeClass(status) {
-    const s = (status || '').toLowerCase();
-    if (s.indexOf('computed') > -1) return 'status-badge status-badge-computed';
-    if (s.indexOf('insufficient') > -1) return 'status-badge status-badge-neutral';
-    if (s.indexOf('indeterminate') > -1) return 'status-badge status-badge-neutral';
-    if (s.indexOf('not applicable') > -1) return 'status-badge status-badge-neutral';
-    return 'status-badge status-badge-neutral';
-  }
-
   function buildDiagnosticTable(rows) {
     if (!rows.length) return '<p class="empty-note">No diagnostic method data available.</p>';
-    const body = rows.map((r) => {
+    // Polish sprint — Status column removed (every row read "Computed"; no
+    // information carried). Freed width redistributed to Diagnosis and
+    // Agreement (see .diagnostic-table-pdf col widths in <style> below).
+    // Supporting rows alternate shading for readability; the Primary
+    // Diagnostic row keeps its own distinct tinted/bordered treatment.
+    const body = rows.map((r, i) => {
       const isPrimary = /Primary/i.test(r.role);
-      return `<tr class="${isPrimary ? 'diag-row-primary' : 'diag-row-supporting'}"><td>${esc(r.method)}</td><td>${esc(r.role)}</td><td>${esc(r.diagnosis)}</td>` +
-        `<td>${esc(r.agreement)}</td><td>${esc(r.reference)}</td><td><span class="${statusBadgeClass(r.status)}">${esc(r.status)}</span></td></tr>`;
+      const altCls = (!isPrimary && i % 2 === 1) ? ' diag-row-alt' : '';
+      return `<tr class="${isPrimary ? 'diag-row-primary' : 'diag-row-supporting'}${altCls}"><td>${esc(r.method)}</td><td>${esc(r.role)}</td><td>${esc(r.diagnosis)}</td>` +
+        `<td>${esc(r.agreement)}</td><td>${esc(r.reference)}</td></tr>`;
     }).join('');
-    return `<table class="report-table diagnostic-table-pdf"><colgroup><col class="col-method"><col class="col-role"><col class="col-diagnosis"><col class="col-agreement"><col class="col-reference"><col class="col-status"></colgroup><thead><tr><th>Method</th><th>Role</th><th>Diagnosis</th><th>Agreement</th><th>Reference</th><th>Status</th></tr></thead><tbody>${body}</tbody></table>`;
+    return `<table class="report-table diagnostic-table-pdf"><colgroup><col class="col-method"><col class="col-role"><col class="col-diagnosis"><col class="col-agreement"><col class="col-reference"></colgroup><thead><tr><th>Method</th><th>Role</th><th>Diagnosis</th><th>Agreement</th><th>Reference</th></tr></thead><tbody>${body}</tbody></table>`;
   }
 
   /**
@@ -426,23 +454,40 @@
   }
 
   /**
+   * PDF polish sprint — Engineering Assessment section, moved onto Page 1
+   * per this sprint's requested flow. Clones the already-rendered method/
+   * zone breakdown table (ui/workspace.js#renderMainWorkspace /
+   * renderOltcWorkspace write this into #assess-why-main / #assess-why-oltc:
+   * each primary method's zone/classification plus the Consensus/Confidence
+   * note) — same DOM-read principle as buildEvidenceHTML() above. No value
+   * is recomputed here.
+   * @param {string} containerId - 'assess-why-main' | 'assess-why-oltc'
+   * @returns {string} HTML
+   */
+  function buildAssessmentHTML(containerId) {
+    const el = document.getElementById(containerId);
+    const inner = el ? el.innerHTML.trim() : '';
+    return inner ? `<div class="assessment-pdf-wrap">${inner}</div>` : '<p class="empty-note">No assessment evidence available.</p>';
+  }
+
+  /**
    * Compaction sprint — Final Engineering Recommendation. Previously its own
    * dedicated page-⑫ section; now a highlighted card merged directly under
-   * ⑨ Engineering Interpretation per this sprint's explicit instruction not
+   * ⑩ Engineering Interpretation per this sprint's explicit instruction not
    * to give one recommendation an entire page. Every field is a reuse of a
    * value some other part of the report already computed — nothing new is
    * authored here:
    *   Recommended Action / Reason → decision-value-ID / decision-reason-ID
    *     (the same Operational Decision text already shown on screen and in the
-   *     ① Engineering Snapshot card).
+   *     ③ Engineering Snapshot card).
    *   Priority                    → the top row of the SAME already
-   *     HIGH→MEDIUM→LOW-sorted Immediate Action Plan table shown in ④;
+   *     HIGH→MEDIUM→LOW-sorted Immediate Action Plan table shown in ⑦;
    *     omitted (no badge) rather than invented if the plan is empty.
    *   Expected Outcome            → the Engineering Conclusion sentence
    *     splitInterpretation() already isolates from the same interpretation
-   *     text used in ⑨ — the last sentence, not new wording.
+   *     text used in ⑩ — the last sentence, not new wording.
    *   Applicable Standards        → standardsSummary(), the exact same
-   *     standards list shown in ⑪ Engineering References.
+   *     standards list shown in ⑫ Engineering References.
    * @param {string} idSuffix - 'main' | 'oltc'
    * @param {string} topPriority - top Action Plan row's priority, or ''
    * @param {string} expectedOutcome - Engineering Conclusion sentence, or ''
@@ -491,12 +536,13 @@
     const moduleLabel = isOLTC ? 'OLTC Analysis' : 'Main Tank Analysis';
     const hasO2 = !!(!isOLTC && rp.o2info);
 
-    // ── Document Information — compaction sprint: this was its own page-⑬
-    // section; this sprint explicitly forbids dedicating a whole page to
-    // metadata, so it now renders as a small compact card on Page 1 (see
-    // .doc-info-strip in the body markup / CSS below). Field list, labels
-    // and values are completely unchanged — only its position and visual
-    // weight changed. ──
+    // ── Document Information — final polish sprint: moved off Page 1
+    // entirely (administrative metadata must never interrupt the
+    // engineering flow) and placed as a compact card near the end of the
+    // report, after Engineering References and before the Disclaimer/
+    // footer (see .doc-info-strip in the body markup / CSS below). Field
+    // list, labels and values are completely unchanged — only its position
+    // and visual weight changed; no field was removed. ──
     const documentInfoHTML = [
       metaRow('Report Number', reportNumber),
       metaRow('Generation Date', now.toLocaleDateString()),
@@ -506,34 +552,33 @@
       metaRow('Analysis Module', moduleLabel)
     ].join('');
 
-    // ── Transformer Information (hide empty fields; no Serial Number /
-    // Manufacturer / Remarks fields exist in TAILAM's input form, so they
-    // are always omitted here rather than fabricated). Unchanged logic —
-    // only its position in the report (now section ⑤, after the engineering
-    // summary) has moved. ──
+    // ── Transformer Information — Page-1 polish sprint: trimmed to exactly
+    // the 3 fields this sprint specifies (Name / Oil Sample Date / Oil Type)
+    // so it reads compactly immediately under the header, per the requested
+    // Page-1 flow. No field is deleted from the app or its data model —
+    // this only narrows what the PDF's Page-1 identity block shows;
+    // infoCell() still hides any of the 3 if left empty. ──
     const transformerInfoHTML = [
       infoCell('Transformer Name', info.name),
-      infoCell('Manufacturer', info.manufacturer),
-      infoCell('Serial Number', info.serial),
-      infoCell('Voltage Rating', info.voltage),
-      infoCell('Power Rating (MVA)', info.mva),
-      infoCell('Cooling Type', info.cooling),
-      infoCell('Location', info.location),
       infoCell('Oil Sample Date', info.date),
-      infoCell('Oil Type', info.oil),
-      infoCell('Laboratory', info.laboratory)
+      infoCell('Oil Type', info.oil)
     ].join('');
 
     // ── Gas Values (ppm) — raw lab-report input data, sourced directly from
-    // the same rp.g / rp.og fields exportExcelX() already reads. ──
+    // the same rp.g / rp.og fields exportExcelX() already reads. Polish
+    // sprint: equal-width columns via an explicit colgroup, centred values
+    // and a solid professional-blue header (see .gas-table in <style>
+    // below) — same values, improved table only. ──
     const gasKeys = isOLTC ? ['h2', 'ch4', 'c2h6', 'c2h4', 'c2h2', 'co', 'co2'] : ['h2', 'ch4', 'c2h6', 'c2h4', 'c2h2', 'co', 'co2', 'o2'];
     const gasVals = isOLTC ? rp.og : rp.g;
+    const gasColWidth = (100 / gasKeys.length).toFixed(3) + '%';
     const gasValuesHTML = `<table class="report-table gas-table">
+      <colgroup>${gasKeys.map(() => `<col style="width:${gasColWidth}">`).join('')}</colgroup>
       <thead><tr>${gasKeys.map((k) => `<th>${esc(GAS_LABELS[k] || k.toUpperCase())}</th>`).join('')}</tr></thead>
       <tbody><tr>${gasKeys.map((k) => `<td>${esc(gasVals && gasVals[k] != null ? gasVals[k] : '—')}</td>`).join('')}</tr></tbody>
     </table>`;
 
-    // ── ① Engineering Snapshot — redesign sprint: 5 cards (Overall Condition /
+    // ── ③ Engineering Snapshot — redesign sprint: 5 cards (Overall Condition /
     // Primary Fault / Operational Decision / Confidence / Transformer Health
     // Index), now the very first engineering content in the report. Every
     // value is read from the same already-rendered Engineering Workspace DOM
@@ -574,13 +619,14 @@
         </div>
       </div>`;
 
-    // ── ② Executive Engineering Summary — at most 5 of the already-composed
-    // Engineering Interpretation sentences (see buildExecutiveSummaryHTML). ──
+    // ── ④ Current Status — at most 5 of the already-composed Engineering
+    // Interpretation sentences (see buildExecutiveSummaryHTML). ──
     const execSummaryHTML = buildExecutiveSummaryHTML(domText('interpretation-' + idSuffix));
 
-    // ── ③ Duval Triangle Analysis — the visual centrepiece. Same high-
-    // resolution capture and same underlying zone/gas-% values as before;
-    // only spacing, centring and caption typography change (CSS below). ──
+    // ── ⑥ Diagnostic Analysis (Duval Triangle) — the visual centrepiece.
+    // Same high-resolution capture and same underlying zone/gas-% values as
+    // before; only spacing, centring and caption typography change (CSS
+    // below). ──
     const duval = isOLTC ? rp.duval2 : rp.duval;
     const duvalTitle = isOLTC ? 'Duval Triangle 2' : 'Duval Triangle 1';
     const duvalImg = isOLTC
@@ -604,17 +650,24 @@
       </figure>
       ${buildDuvalLegendHTML(isOLTC ? 'triangle2' : 'triangle1', duval ? duval.zone : null)}`;
 
-    // ── ④ Immediate Action Plan — rows are kept (not just the built HTML)
-    // so the merged Final Recommendation card below can reuse the top row's
-    // already-computed Priority instead of inventing an urgency level. ──
-    const actionRows = extractActionPlan('action-plan-' + idSuffix);
+    // ── Immediate Action Plan — rows are kept (not just the built HTML) so
+    // the merged Final Recommendation card below can reuse the top row's
+    // already-computed Priority instead of inventing an urgency level.
+    // Polish sprint — condensed to at most 5 rows via condenseActionRows()
+    // (dedupe + re-sort HIGH→MEDIUM→LOW; see its doc comment). ──
+    const actionRows = condenseActionRows(extractActionPlan('action-plan-' + idSuffix));
     const actionPlanHTML = buildActionPlanTable(actionRows);
     const topPriority = actionRows.length ? actionRows[0].priority : '';
 
-    // ── ⑦ Diagnostic Methods table ──
+    // ── Engineering Assessment — Page-1 polish sprint: the method/zone
+    // breakdown table + Consensus/Confidence note, cloned from the same
+    // already-rendered Engineering Assessment card the Workspace shows. ──
+    const assessmentHTML = buildAssessmentHTML('assess-why-' + idSuffix);
+
+    // ── ⑧ Diagnostic Methods table ──
     const diagnosticHTML = buildDiagnosticTable(extractDiagnosticRows('diagnostic-table-' + idSuffix));
 
-    // ── ⑧ Transformer Health Index — score, category, band and (Main Tank
+    // ── ⑨ Transformer Health Index — score, category, band and (Main Tank
     // only) the same risk gauge already drawn on screen, captured exactly
     // as the Duval Triangle image is (canvasPngLight, unmodified draw
     // function). OLTC has no composite score in the engine, so it keeps the
@@ -636,7 +689,7 @@
       ${buildBandHTML('thi-band-oltc')}</div>`;
     }
 
-    // ── ⑨ Engineering Interpretation — Summary / Evidence / Engineering
+    // ── ⑩ Engineering Interpretation — Summary / Evidence / Engineering
     // Conclusion, same sentences as always, just regrouped. Text is kept
     // (not just the built HTML) so the merged Final Recommendation card
     // below can reuse the same Engineering Conclusion sentence as its
@@ -646,24 +699,24 @@
     const expectedOutcome = splitInterpretation(interpText).conclusion;
 
     // ── Final Engineering Recommendation — compaction sprint: merged
-    // directly under ⑨ Engineering Interpretation as a highlighted card
+    // directly under ⑩ Engineering Interpretation as a highlighted card
     // instead of its own page-⑫ section (see buildFinalRecommendationHTML
     // doc comment for where every field's value is reused from). ──
     const finalRecHTML = buildFinalRecommendationHTML(idSuffix, topPriority, expectedOutcome, standardsSummary(isOLTC, hasO2));
 
-    // ── ⑩ Supporting Evidence — cloned from the already-rendered evidence
+    // ── ⑪ Supporting Evidence — cloned from the already-rendered evidence
     // blocks (see buildEvidenceHTML). ──
     const evidenceHTML = buildEvidenceHTML('evidence-' + idSuffix);
 
-    // ── ⑪ Engineering References ──
+    // ── ⑫ Engineering References ──
     const referencesHTML = `<ul class="report-references">${buildReferences(isOLTC, hasO2)}</ul>`;
 
-    // ── Footer — compaction sprint: content trimmed to exactly what this
-    // sprint's footer spec allows (TAILAM™ / Community Edition / Engineering
-    // Decision Support Report / Version / Generated Date / Page X of Y —
-    // "Nothing else"). "Generated by Bharadwaj" and the time-of-day stamp
-    // move out of the per-page footer since that information is still shown
-    // once, in full, in the compact Document Information card on Page 1 —
+    // ── Footer — content trimmed to exactly what the footer spec allows
+    // (TAILAM™ / Community Edition / Engineering Decision Support Report /
+    // Version / Generated Date / Page X of Y — "Nothing else"). "Generated
+    // by Bharadwaj" and the time-of-day stamp stay out of the per-page
+    // footer since that information is still shown once, in full, in the
+    // compact Document Information card near the end of the report —
     // no information is lost, only de-duplicated across every page. Real
     // "Page X of Y" still comes from the @page bottom-right margin box (a
     // body-level counter(page) always reads 0 outside that mechanism).
@@ -725,10 +778,11 @@
       body{font-family:'Segoe UI',Arial,Helvetica,sans-serif;color:#161b2e;margin:0;padding:0 0 13mm 0;font-size:14.5px;line-height:1.55;}
       h1,h2,h3{margin:0;}
 
-      /* ── Cover header — compaction sprint: padding and margin reduced so
-         Page 1 has more room left for the Engineering Snapshot / Executive
-         Summary / compact Document Information that must all fit above the
-         Page-2 break. Same premium coloured masthead, same fields. ── */
+      /* ── Cover header — compact padding/margin so Page 1 has maximum room
+         for Transformer Information / Gas Values / Engineering Snapshot /
+         Current Status / Engineering Assessment / Duval Triangle, all of
+         which now flow onto Page 1 with no forced break between them. Same
+         premium coloured masthead, same fields. ── */
       .report-header{background:var(--pdf-blue);color:#fff;padding:14px 20px 12px 20px;border-radius:0 0 8px 8px;margin-bottom:12px;}
       .report-brand{font-size:26px;font-weight:800;letter-spacing:0.5px;}
       .report-brand .tm{font-size:13px;vertical-align:super;}
@@ -739,12 +793,14 @@
       .report-header-meta-label{display:block;font-size:10px;color:#c3cbf0;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:2px;}
       .report-header-meta-value{display:block;font-size:13px;font-weight:700;color:#fff;}
 
-      /* ── Numbered engineering sections — compaction sprint: margin/heading
-         spacing tightened throughout so sections flow without large gaps.
-         page-break-inside:avoid keeps each section's heading glued to its
-         content (no orphan headings); explicit .page-break-before is only
-         applied at the 3 real page boundaries this sprint defines (Page 2 /
-         3 / 4) instead of before nearly every section as before. ── */
+      /* ── Numbered engineering sections. Final polish sprint: no section
+         forces a page break anymore — every forced .page-break-before was
+         removed so pagination follows content naturally (avoids isolated
+         headings and large blank gaps that a fixed break position creates
+         once Transformer Info / Gas Values moved to Page 1). Each section
+         still keeps page-break-inside:avoid so a heading is never stranded
+         alone at the bottom of a page; .page-break-before is kept defined,
+         unused, only in case a future section genuinely needs one. ── */
       .section{margin:0 0 13px 0;page-break-inside:avoid;}
       .section h2{font-size:18.5px;font-weight:700;color:var(--pdf-blue);border-bottom:2px solid var(--pdf-grey-line);padding-bottom:4px;margin-bottom:8px;page-break-after:avoid;display:flex;align-items:baseline;gap:7px;}
       .section h2 .sec-num{font-size:16px;color:var(--pdf-blue);}
@@ -756,21 +812,26 @@
       .meta-label,.info-label{display:block;font-size:10px;color:var(--pdf-grey);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:2px;}
       .meta-value,.info-value{font-size:13px;font-weight:600;color:#161b2e;overflow-wrap:break-word;word-break:break-word;}
 
-      /* ── Compact Document Information card — compaction sprint: replaces
-         the old standalone page-⑬ section. Sits on Page 1, deliberately
-         smaller/quieter than a numbered section (no circled digit, no
-         section-heading styling) since administrative metadata is the
-         least important thing in the report per the design philosophy.
-         Reuses metaRow()'s existing .meta-cell markup, just laid out in a
-         tighter 3-column grid with smaller type. ── */
-      .doc-info-strip{border:1px solid var(--pdf-grey-line);border-radius:8px;padding:8px 10px;background:var(--pdf-grey-bg);margin-bottom:13px;page-break-inside:avoid;}
+      /* ── Compact Document Information card — final polish sprint: moved
+         to the LAST page, after Engineering References and before the
+         Disclaimer/footer, so administrative metadata never interrupts the
+         engineering flow. Deliberately smaller/quieter than a numbered
+         section (no circled digit, no section-heading styling), since it's
+         traceability information, not an engineering finding. Reuses
+         metaRow()'s existing .meta-cell markup in a tight 3-column grid. ── */
+      .doc-info-strip{border:1px solid var(--pdf-grey-line);border-radius:8px;padding:8px 10px;background:var(--pdf-grey-bg);margin-top:13px;margin-bottom:13px;page-break-inside:avoid;}
+      /* Page-1 polish sprint — the 3-field Transformer Information block
+         (Name / Oil Sample Date / Oil Type) sits directly under the header,
+         so it gets a tighter single-row grid instead of the general
+         3-column/multi-row .info-grid used when more fields are present. */
+      .info-grid-compact{grid-template-columns:repeat(3,1fr);}
       .doc-info-strip-title{font-size:9.5px;font-weight:700;color:var(--pdf-grey);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
       .doc-info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px 8px;}
       .doc-info-grid .meta-cell{border:none;background:transparent;padding:0;}
       .doc-info-grid .meta-label{font-size:9px;margin-bottom:1px;}
       .doc-info-grid .meta-value{font-size:11.5px;}
 
-      /* ① Engineering Snapshot — large cards, colour-coded Overall
+      /* ③ Engineering Snapshot — large cards, colour-coded Overall
          Condition card. Gaps/padding trimmed slightly for Page-1 density. */
       .snapshot-grid-pdf{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
       .snapshot-cell-pdf{border:1px solid var(--pdf-grey-line);border-radius:8px;padding:9px 8px;text-align:center;background:var(--pdf-grey-bg);}
@@ -782,10 +843,10 @@
       .sev-pdf-warning{background:var(--pdf-orange-bg);border-color:var(--pdf-orange);} .sev-pdf-warning .snapshot-value-pdf{color:var(--pdf-orange);}
       .sev-pdf-critical{background:var(--pdf-red-bg);border-color:var(--pdf-red);} .sev-pdf-critical .snapshot-value-pdf{color:var(--pdf-red);}
 
-      /* ② Executive Engineering Summary */
+      /* ④ Current Status (Executive Engineering Summary text) */
       .exec-summary-pdf{font-size:14px;line-height:1.65;color:#222;text-align:justify;margin:0;padding:10px 13px;background:var(--pdf-grey-bg);border-left:4px solid var(--pdf-blue);border-radius:4px;}
 
-      /* ③ Diagnostic Analysis (Duval Triangle) — the visual centrepiece.
+      /* ⑥ Diagnostic Analysis (Duval Triangle) — the visual centrepiece.
          Size is UNCHANGED (max-width 430/400px) per this sprint's explicit
          "do not reduce the triangle" instruction; only the margins around
          it are tightened so it doesn't push extra pages. */
@@ -812,8 +873,8 @@
 
       /* ── Tables — generous cell padding for readability, but outer
          margins trimmed so several tables fit per page. Diagnosis and
-         Recommendation columns get the most width; Status stays compact;
-         Reference is narrow so it wraps before Diagnosis ever needs to. ── */
+         Recommendation columns get the most width; Reference is narrow so
+         it wraps before Diagnosis ever needs to. ── */
       table.report-table{width:100%;border-collapse:collapse;margin-bottom:4px;page-break-inside:avoid;}
       table.report-table th,table.report-table td{border:1px solid var(--pdf-grey-line);padding:8px 11px;text-align:left;font-size:13px;line-height:1.4;overflow-wrap:break-word;word-break:break-word;}
       table.report-table th{background:var(--pdf-blue-bg);color:var(--pdf-blue);font-weight:700;font-size:15px;}
@@ -821,15 +882,40 @@
 
       .action-table .col-priority{width:10%;} .action-table .col-recommendation{width:48%;}
       .action-table .col-time{width:18%;} .action-table .col-reference{width:24%;}
-      .diagnostic-table-pdf .col-method{width:13%;} .diagnostic-table-pdf .col-role{width:10%;}
-      .diagnostic-table-pdf .col-diagnosis{width:31%;} .diagnostic-table-pdf .col-agreement{width:18%;}
-      .diagnostic-table-pdf .col-reference{width:13%;} .diagnostic-table-pdf .col-status{width:15%;}
+      /* Polish sprint — Status column removed (every row read "Computed",
+         no information carried); freed width redistributed to Diagnosis
+         and Agreement so both read with less wrapping. */
+      .diagnostic-table-pdf .col-method{width:12%;} .diagnostic-table-pdf .col-role{width:9%;}
+      .diagnostic-table-pdf .col-diagnosis{width:38%;} .diagnostic-table-pdf .col-agreement{width:26%;}
+      .diagnostic-table-pdf .col-reference{width:15%;}
+      .diagnostic-table-pdf th,.diagnostic-table-pdf td{padding:9px 11px;line-height:1.45;}
 
       /* Primary Diagnostic vs Supporting Method — tinted row, bold method
-         name, left border on the primary row only. Presentational only. */
+         name, left border on the primary row only. Presentational only.
+         Supporting rows alternate a faint tint (diag-row-alt) for
+         readability across a longer table. */
       tr.diag-row-primary td{background:var(--pdf-blue-bg);font-weight:700;border-left:4px solid var(--pdf-blue);}
       tr.diag-row-primary td:first-child{padding-left:8px;}
       tr.diag-row-supporting td:first-child{border-left:4px solid transparent;}
+      tr.diag-row-alt td{background:#f7f8fc;}
+
+      /* ② Gas Values — solid professional-blue header (distinct from the
+         lighter tinted headers on other tables, per this sprint's "Gas
+         Values should always appear on Page 1, professional blue table
+         header" requirement), centred values, compact row height. Equal
+         column widths come from the explicit <colgroup> built in JS. A
+         single sample row has no meaningful zebra pattern to alternate. */
+      .gas-table th{background:var(--pdf-blue);color:#fff;text-align:center;}
+      .gas-table th,.gas-table td{padding:7px 6px;font-size:13px;text-align:center;}
+      .gas-table td{font-weight:700;color:#161b2e;}
+
+      /* ⑤ Engineering Assessment — cloned from the already-rendered method/
+         zone breakdown table (assess-why-*): same values as the Diagnostic
+         Methods table below, presented as a compact evidence list. */
+      .assessment-pdf-wrap .evidence-table{width:100%;border-collapse:collapse;margin-bottom:8px;}
+      .assessment-pdf-wrap .evidence-table td{padding:6px 9px;font-size:13px;border-bottom:1px solid var(--pdf-grey-line);}
+      .assessment-pdf-wrap .evidence-table td:first-child{font-weight:700;color:var(--pdf-grey);width:38%;}
+      .assessment-pdf-wrap .why-note{font-size:12px;color:var(--pdf-grey);margin-top:2px;}
 
       .priority-tag{display:inline-block;padding:2px 9px;border-radius:12px;font-size:10.5px;font-weight:700;color:#fff;white-space:nowrap;}
       .priority-high{background:var(--pdf-red);} .priority-medium{background:var(--pdf-orange);} .priority-low{background:var(--pdf-green);}
@@ -840,12 +926,11 @@
       .status-badge-computed{background:var(--pdf-green-bg);color:var(--pdf-green);}
       .status-badge-neutral{background:var(--pdf-grey-bg);color:var(--pdf-grey);}
 
-      /* ⑧ Transformer Health Index — score, category, band and (Main Tank)
-         gauge. Compaction sprint: this used to occupy nearly a full page
-         by itself; padding/gauge size/margins reduced so it comfortably
-         shares Page 3 with Transformer Information, Gas Values and
-         Diagnostic Methods while keeping every element (score, gauge,
-         category, band, interpretation). */
+      /* ⑨ Transformer Health Index — score, category, band and (Main Tank)
+         gauge. Padding/gauge size/margins kept compact so it shares a page
+         naturally with neighbouring sections instead of occupying one on
+         its own, while keeping every element (score, gauge, category,
+         band). */
       .thi-hero-pdf{border:1px solid var(--pdf-grey-line);border-radius:8px;padding:12px;text-align:center;background:var(--pdf-grey-bg);}
       .thi-gauge-pdf{display:block;margin:0 auto 5px auto;max-width:140px;height:auto;}
       .thi-score-value{font-size:26px;font-weight:800;color:#161b2e;line-height:1.1;}
@@ -860,7 +945,7 @@
       .thi-band-seg-pdf:last-child{border-right:none;}
       .thi-band-seg-pdf.active{background:var(--pdf-blue);color:#fff;}
 
-      /* ⑨ Engineering Interpretation — Summary / Evidence / Engineering
+      /* ⑩ Engineering Interpretation — Summary / Evidence / Engineering
          Conclusion, same sentences, tightened spacing so it and the merged
          Final Recommendation card below fit together on Page 4. */
       .interp-block{margin-bottom:9px;}
@@ -869,7 +954,7 @@
       .interpretation-pdf{font-size:13.5px;line-height:1.6;color:#222;text-align:justify;margin:0;}
 
       /* Final Engineering Recommendation card — compaction sprint: merged
-         directly under ⑨ Engineering Interpretation instead of its own
+         directly under ⑩ Engineering Interpretation instead of its own
          page-⑫ section. Highlighted, kept together, never split; shows
          Recommended Action (headline), Priority (badge), and a 3-column
          Reason / Expected Outcome / Applicable Standards grid. */
@@ -881,7 +966,7 @@
       .final-rec-field-label{display:block;font-size:9.5px;color:#c3cbf0;text-transform:uppercase;letter-spacing:0.3px;margin-bottom:3px;}
       .final-rec-field-value{display:block;font-size:12px;font-weight:600;line-height:1.4;overflow-wrap:break-word;word-break:break-word;}
 
-      /* ⑩ Supporting Evidence — compact evidence blocks, cloned from the
+      /* ⑪ Supporting Evidence — compact evidence blocks, cloned from the
          same DOM ui/workspace.js#renderEvidenceBlocks already rendered. */
       .evidence-pdf-wrap .evidence-blocks{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;}
       .evidence-pdf-wrap .evidence-block{background:var(--pdf-grey-bg);border:1px solid var(--pdf-grey-line);border-radius:8px;padding:9px 11px;}
@@ -891,7 +976,7 @@
       .evidence-pdf-wrap .evidence-tags{display:flex;flex-wrap:wrap;gap:5px;}
       .evidence-pdf-wrap .evidence-tag{display:inline-block;padding:2px 9px;border-radius:8px;font-size:11px;font-weight:600;background:#fff;color:#333;border:1px solid var(--pdf-grey-line);}
 
-      /* ⑪ Engineering References — one line per standard, no dedicated page. */
+      /* ⑫ Engineering References — one line per standard, no dedicated page. */
       .report-references{list-style:none;margin:0;padding:0;}
       .report-references li{display:flex;justify-content:space-between;gap:14px;border-bottom:1px solid #eceef7;padding:6px 3px;font-size:12.5px;}
       .ref-name{font-weight:700;color:var(--pdf-blue);white-space:nowrap;}
@@ -929,64 +1014,69 @@
     </header>
 
     <div class="section">
-      <h2><span class="sec-num">①</span> Engineering Snapshot</h2>
-      ${snapshotHTML}
+      <h2><span class="sec-num">①</span> Transformer Information</h2>
+      ${transformerInfoHTML ? `<div class="info-grid info-grid-compact">${transformerInfoHTML}</div>` : '<p class="empty-note">No transformer information entered.</p>'}
     </div>
 
     <div class="section">
-      <h2><span class="sec-num">②</span> Executive Engineering Summary</h2>
-      ${execSummaryHTML}
-    </div>
-
-    <div class="doc-info-strip">
-      <div class="doc-info-strip-title">Document Information</div>
-      <div class="doc-info-grid">${documentInfoHTML}</div>
-    </div>
-
-    <div class="section page-break-before">
-      <h2><span class="sec-num">③</span> Diagnostic Analysis</h2>
-      ${duvalHTML}
-    </div>
-
-    <div class="section">
-      <h2><span class="sec-num">④</span> Immediate Action Plan</h2>
-      ${actionPlanHTML}
-    </div>
-
-    <div class="section page-break-before">
-      <h2><span class="sec-num">⑤</span> Transformer Information</h2>
-      ${transformerInfoHTML ? `<div class="info-grid">${transformerInfoHTML}</div>` : '<p class="empty-note">No transformer information entered.</p>'}
-    </div>
-
-    <div class="section">
-      <h2><span class="sec-num">⑥</span> Gas Values (ppm)</h2>
+      <h2><span class="sec-num">②</span> Gas Values (ppm)</h2>
       ${gasValuesHTML}
     </div>
 
     <div class="section">
-      <h2><span class="sec-num">⑦</span> Diagnostic Methods</h2>
+      <h2><span class="sec-num">③</span> Engineering Snapshot</h2>
+      ${snapshotHTML}
+    </div>
+
+    <div class="section">
+      <h2><span class="sec-num">④</span> Current Status</h2>
+      ${execSummaryHTML}
+    </div>
+
+    <div class="section">
+      <h2><span class="sec-num">⑤</span> Engineering Assessment</h2>
+      ${assessmentHTML}
+    </div>
+
+    <div class="section">
+      <h2><span class="sec-num">⑥</span> Diagnostic Analysis</h2>
+      ${duvalHTML}
+    </div>
+
+    <div class="section">
+      <h2><span class="sec-num">⑦</span> Immediate Action Plan</h2>
+      ${actionPlanHTML}
+    </div>
+
+    <div class="section">
+      <h2><span class="sec-num">⑧</span> Diagnostic Methods</h2>
       ${diagnosticHTML}
     </div>
 
     <div class="section">
-      <h2><span class="sec-num">⑧</span> Transformer Health Index</h2>
+      <h2><span class="sec-num">⑨</span> Transformer Health Index</h2>
       ${thiHTML}
     </div>
 
-    <div class="section page-break-before">
-      <h2><span class="sec-num">⑨</span> Engineering Interpretation</h2>
+    <div class="section">
+      <h2><span class="sec-num">⑩</span> Engineering Interpretation</h2>
       ${interpretationHTML}
       ${finalRecHTML}
     </div>
 
     <div class="section">
-      <h2><span class="sec-num">⑩</span> Supporting Evidence</h2>
+      <h2><span class="sec-num">⑪</span> Supporting Evidence</h2>
       ${evidenceHTML}
     </div>
 
     <div class="section">
-      <h2><span class="sec-num">⑪</span> Engineering References</h2>
+      <h2><span class="sec-num">⑫</span> Engineering References</h2>
       ${referencesHTML}
+    </div>
+
+    <div class="doc-info-strip">
+      <div class="doc-info-strip-title">Document Information</div>
+      <div class="doc-info-grid">${documentInfoHTML}</div>
     </div>
 
     <div class="section disclaimer">
