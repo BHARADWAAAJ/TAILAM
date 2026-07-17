@@ -444,8 +444,16 @@
       '<div class="why-note">OLTC diagnostics rely on Duval Triangle 2 as the primary indicator, corroborated by TGC comparison and diagnostic ratios (no multi-method consensus score exists for OLTC in the engine).</div>');
 
     // ── 3. Operational Decision ──
+    // Consistency fix (PDF review): flags shared by the decision Reason here
+    // and the Engineering Interpretation below. Pure presentation — the
+    // ratio verdicts and TGC flags are unchanged engine outputs.
+    const ratioConcern = (oltcRes.ratios || []).some((r) =>
+      r.value !== null && r.interp && r.interp.cls && r.interp.cls !== 'badge-green');
+    const elevatedEvidence = !duval2.belowTypical && (oltcRes.anyAboveTGC || ratioConcern);
     setTxt('decision-value-oltc', decisionWord);
-    setTxt('decision-reason-oltc', firstSentence(duval2.desc));
+    setTxt('decision-reason-oltc', (duval2.zone === 'N' && elevatedEvidence)
+      ? 'Duval Triangle 2 indicates a normal switching pattern, but elevated gas indicators warrant a trend review at the next maintenance opportunity.'
+      : firstSentence(duval2.desc));
     setTxt('assess-decision-oltc', decisionWord);
 
     // ── Duval Triangle 2 hero (Assessment card) ──
@@ -502,10 +510,23 @@
 
     // ── 6. Engineering Interpretation (Task 8) — professional, passive,
     // approved phrase bank, capped at 120 words.
-    const interp = 'The analysis identifies ' + duval2.name + ' (Duval Triangle 2, Zone ' + duval2.zone + ') as the primary indicator'
-      + (duval2.belowTypical ? '. Gas concentrations remain below typical values, consistent with an early pattern rather than an active fault. ' : '. Gas generation pattern is characteristic of this classification. ')
+    // Consistency fix (PDF review): the conclusion sentence must not
+    // contradict the evidence sentences. Previously a Zone-N result always
+    // ended with "This is the normal gas pattern…" even when the very
+    // previous sentence reported gases EXCEEDING the CIGRE TB 443 limits or
+    // when supporting ratios flagged elevated arcing/thermal activity. The
+    // zone, TGC flags and ratio verdicts are unchanged engine outputs —
+    // only how the narrative combines them is fixed here (flags computed
+    // in section 3 above, shared with the decision Reason).
+    const interpEvidence =
+      (duval2.belowTypical ? 'Gas concentrations remain below typical values, consistent with an early pattern rather than an active fault. ' : 'Gas generation pattern is characteristic of this classification. ')
       + (oltcRes.anyAboveTGC ? 'Evidence supports one or more gases exceeding the CIGRE TB 443 typical concentration limits for this OLTC design. ' : 'All gases remain consistent with CIGRE TB 443 typical concentration limits. ')
-      + firstSentence(duval2.desc);
+      + (ratioConcern && !duval2.belowTypical ? 'Supporting diagnostic ratios indicate elevated arcing or thermal activity relative to typical switching duty. ' : '');
+    const interpConclusion = (duval2.zone === 'N' && elevatedEvidence)
+      ? 'The switching pattern is consistent with normal tap-changer operation; however, the elevated indicators above warrant a repeat sample and trend review at the next maintenance opportunity.'
+      : firstSentence(duval2.desc);
+    const interp = 'The analysis identifies ' + duval2.name + ' (Duval Triangle 2, Zone ' + duval2.zone + ') as the primary indicator. '
+      + interpEvidence + interpConclusion;
     setTxt('interpretation-oltc', capWords(interp, 120));
 
     // ── 7. Supporting Evidence (Task 6) — compact blocks ──

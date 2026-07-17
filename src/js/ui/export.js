@@ -697,7 +697,16 @@
     // Expected Outcome field, instead of authoring new wording. ──
     const interpText = domText('interpretation-' + idSuffix);
     const interpretationHTML = buildInterpretationHTML(interpText);
-    const expectedOutcome = splitInterpretation(interpText).conclusion;
+    let expectedOutcome = splitInterpretation(interpText).conclusion;
+    // Consistency fix (PDF review): Reason and Expected Outcome previously
+    // printed the IDENTICAL sentence when the conclusion also served as the
+    // decision reason. When they match, state the outcome as an outcome.
+    const reasonText = domText('decision-reason-' + idSuffix);
+    if (expectedOutcome && reasonText && expectedOutcome.trim() === reasonText.trim()) {
+      expectedOutcome = isOLTC
+        ? 'Continued normal switching behaviour, confirmed at the next routine oil sample.'
+        : 'Condition maintained under the routine sampling programme.';
+    }
 
     // ── Final Engineering Recommendation — compaction sprint: merged
     // directly under ⑩ Engineering Interpretation as a highlighted card
@@ -712,25 +721,19 @@
     // ── ⑫ Engineering References ──
     const referencesHTML = `<ul class="report-references">${buildReferences(isOLTC, hasO2)}</ul>`;
 
-    // ── Footer — content trimmed to exactly what the footer spec allows
-    // (TAILAM™ / Community Edition / Engineering Decision Support Report /
-    // Version / Generated Date / Page X of Y — "Nothing else"). "Generated
-    // by Bharadwaj" and the time-of-day stamp stay out of the per-page
-    // footer since that information is still shown once, in full, in the
-    // compact Document Information card near the end of the report —
-    // no information is lost, only de-duplicated across every page. Real
-    // "Page X of Y" still comes from the @page bottom-right margin box (a
-    // body-level counter(page) always reads 0 outside that mechanism).
-    // Footer height and @page bottom margin are tightened together in CSS
-    // below so the footer can no longer overlap report content. ──
-    const footerHTML = `
-      <div class="pdf-footer">
-        <span>TAILAM™</span><span class="footer-sep">·</span>
-        <span>${esc(REPORT_META.edition)}</span><span class="footer-sep">·</span>
-        <span>Engineering Decision Support Report</span><span class="footer-sep">·</span>
-        <span>Version ${esc(REPORT_META.version)}</span><span class="footer-sep">·</span>
-        <span>Generated ${esc(now.toLocaleDateString())}</span>
-      </div>`;
+    // ── Footer — layout fix (PDF review): the old position:fixed
+    // .pdf-footer div was anchored inside the CONTENT area, so on a full
+    // page it printed on top of the last lines of body text. The footer
+    // line now lives in the @page @bottom-center margin box — the same
+    // mechanism that already renders "Page X of Y" at @bottom-right — so
+    // it is typeset in the page MARGIN and physically cannot collide with
+    // report content. Same single line, same wording. Browsers without
+    // margin-box support render nothing (same graceful fallback as the
+    // page counter). ──
+    const footerLine = 'TAILAM™ · ' + REPORT_META.edition +
+      ' · Engineering Decision Support Report · Version ' + REPORT_META.version +
+      ' · Generated ' + now.toLocaleDateString();
+    const footerHTML = '';
 
     const reportTitle = isOLTC ? 'OLTC Analysis Report' : 'Main Tank Analysis Report';
     const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
@@ -757,6 +760,13 @@
           font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
           font-size: 8.5pt;
           color: #8a8f9f;
+        }
+        @bottom-center {
+          content: "${footerLine}";
+          font-family: 'Segoe UI', Arial, Helvetica, sans-serif;
+          font-size: 8.5pt;
+          color: #8a8f9f;
+          white-space: nowrap;
         }
       }
       * { box-sizing: border-box; }
@@ -987,14 +997,12 @@
 
       .disclaimer{font-size:11.5px;color:var(--pdf-grey);border-top:1px solid var(--pdf-grey-line);padding-top:8px;margin-top:4px;}
 
-      /* Footer — compaction sprint: reduced to a single slim line reserving
-         only the CSS-matched 15mm @page bottom margin above, so it can
-         never overlap tables/text/images/charts on any page. Content
-         trimmed to exactly what this sprint's footer spec lists. Real
-         "Page X of Y" comes from the @page bottom-right margin box, sharing
-         the same bottom edge so the two read as one footer band. */
-      .pdf-footer{position:fixed;left:12mm;right:12mm;bottom:4mm;font-size:8.5px;color:var(--pdf-grey);text-align:center;border-top:1px solid var(--pdf-grey-line);padding-top:4px;}
-      .footer-sep{margin:0 4px;color:#c7cadd;}
+      /* Footer — now rendered entirely by the @page @bottom-center margin
+         box above (same mechanism as the Page X of Y counter), typeset in
+         the page margin where it can never collide with report content.
+         The old position:fixed .pdf-footer element was removed: fixed
+         elements anchor inside the CONTENT area when printed, which is what
+         let the footer print over the last lines of full pages. */
 
       @media print{
         .duval-figure img{max-width:400px;}
