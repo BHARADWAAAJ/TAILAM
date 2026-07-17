@@ -93,7 +93,10 @@
         if (btn) btn.disabled = false;
       }
     } else {
-      // Email fallback: open the user's mail client fully pre-filled.
+      // Email fallback: try to open the user's mail client fully pre-filled.
+      // mailto: fails SILENTLY when no default mail app is configured (very
+      // common on desktop), so also reveal a "Copy Message" button that
+      // always works — the user can paste it into webmail, WhatsApp, etc.
       const subject = 'TAILAM Feedback — ' + type + (rating ? ' (' + rating + '/5)' : '');
       const body = 'Type: ' + type +
         '\nRating: ' + (rating ? rating + '/5' : '—') +
@@ -101,18 +104,47 @@
         '\nReply-to: ' + (email || '—') +
         '\n\n' + message +
         '\n\n— sent from TAILAM v1.0.0 (Static Browser Edition)';
-      window.location.href = 'mailto:' + FEEDBACK_EMAIL +
+      _lastComposed = 'To: ' + FEEDBACK_EMAIL + '\nSubject: ' + subject + '\n\n' + body;
+      const a = document.createElement('a');
+      a.href = 'mailto:' + FEEDBACK_EMAIL +
         '?subject=' + encodeURIComponent(subject) +
         '&body=' + encodeURIComponent(body);
-      setStatus('Your email app should now open with the message ready to send.', true);
+      a.rel = 'noopener';
+      document.body.appendChild(a); a.click(); a.remove();
+      const copyBtn = el('fb-copy');
+      if (copyBtn) copyBtn.style.display = '';
+      setStatus('If your email app did not open, use "Copy Message Instead" and paste it into any email to ' + FEEDBACK_EMAIL + '.', true);
     }
   }
 
-  /** Bind the star-rating buttons. Call once at startup (app.js). */
+  let _lastComposed = '';
+
+  /** Copy the composed feedback (with the destination address) to the clipboard. */
+  async function copyFeedback() {
+    if (!_lastComposed) { setStatus('Write your message and press "Send Feedback" first.', false); return; }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(_lastComposed);
+      } else {
+        // very old browsers / non-secure contexts
+        const ta = document.createElement('textarea');
+        ta.value = _lastComposed;
+        document.body.appendChild(ta); ta.select();
+        document.execCommand('copy'); ta.remove();
+      }
+      setStatus('Copied! Paste it into any email to ' + FEEDBACK_EMAIL + ' — thank you.', true);
+    } catch {
+      setStatus('Could not copy automatically. Please email ' + FEEDBACK_EMAIL + ' directly.', false);
+    }
+  }
+
+  /** Bind the star-rating buttons and the copy fallback. Call once at startup (app.js). */
   function initFeedback() {
     document.querySelectorAll('#fb-stars .fb-star').forEach((b, i) => {
       b.addEventListener('click', () => setRating(i + 1));
     });
+    const copyBtn = el('fb-copy');
+    if (copyBtn) copyBtn.addEventListener('click', copyFeedback);
   }
 
   window.TAILAM = window.TAILAM || {};

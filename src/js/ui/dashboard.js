@@ -295,6 +295,21 @@
   window.addEventListener('pageshow', (e) => {
     if (e.persisted) redrawVisibleCanvases();
   });
+  // Canvas scrolled out of the viewport and back — the third path where a
+  // browser can discard the canvas's compositor layer (reported on the
+  // deployed GitHub Pages site: "triangle disappears once I scroll down
+  // and come back up"). Repaint whenever a result canvas re-enters view;
+  // redrawVisibleCanvases() is a no-op unless a report exists, and it
+  // repaints from the stored report object — nothing is recomputed.
+  if ('IntersectionObserver' in window) {
+    const canvasIO = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) redrawVisibleCanvases();
+    }, { threshold: 0.05 });
+    ['duval-canvas', 'duval2-canvas', 'risk-canvas'].forEach((id) => {
+      const c = document.getElementById(id);
+      if (c) canvasIO.observe(c);
+    });
+  }
 
   window.TAILAM = window.TAILAM || {};
   window.TAILAM.ui = window.TAILAM.ui || {};
