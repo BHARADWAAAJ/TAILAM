@@ -29,8 +29,8 @@ input::placeholder{color:var(--text3);}
 .breadcrumb-sep svg{display:block;color:var(--text3);}
 .btn:active{transform:translateY(1px) scale(.99);}
 .btn:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none;}
-.btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 10px rgba(76,124,240,.28);}
-.btn-primary:hover{filter:brightness(1.08);transform:translateY(-1.5px);box-shadow:0 8px 20px rgba(76,124,240,.35);}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 2px 10px rgba(28,199,156,.28);}
+.btn-primary:hover{filter:brightness(1.08);transform:translateY(-1.5px);box-shadow:0 8px 20px rgba(28,199,156,.35);}
 .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text);}
 .btn-outline:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1.5px);box-shadow:var(--shadow-sm);}
 .btn-outline-danger{background:transparent;border:1px solid rgba(239,68,68,.4);color:var(--red);}

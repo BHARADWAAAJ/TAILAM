@@ -9,13 +9,15 @@
   'use strict';
 
   /**
-   * Read a numeric input field; blank / invalid / negative-free parse → 0.
-   * (parseFloat semantics preserved from the original implementation.)
+   * Read a numeric input field; blank / invalid / negative → 0.
+   * Gas concentrations (ppm) and tap counts are physically non-negative, so
+   * negative typed values are clamped to 0 — the input's min="0" attribute
+   * only blocks the spinner arrows, not keyboard entry.
    * @param {string} id - element id
    * @returns {number}
    */
   function readNumberField(id) {
-    return parseFloat(document.getElementById(id).value) || 0;
+    return Math.max(0, parseFloat(document.getElementById(id).value) || 0);
   }
 
   /**

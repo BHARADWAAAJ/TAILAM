@@ -21,8 +21,22 @@
   /** Close the Help dialog. */
   function closeHelp() { hide('modal-help'); }
 
+  /**
+   * Close the Duval detail modal through its owner (ui/workspace.js) so its
+   * canvas-repaint bug fix always runs, whichever way the modal was
+   * dismissed. Read lazily — workspace.js loads after this file.
+   */
+  function closeDuvalViaWorkspace() {
+    const ws = window.TAILAM.ui.workspace;
+    if (ws && ws.closeDuvalModal) ws.closeDuvalModal(); else hide('modal-duval');
+  }
+
   /** Close every backdrop-dismissable modal that click/escape can reach. */
-  function closeDismissable() { closeAbout(); closeHelp(); }
+  function closeDismissable() {
+    closeAbout(); closeHelp(); closeDuvalViaWorkspace();
+    const fb = window.TAILAM.ui.feedback; // lazy — loads after this file
+    if (fb && fb.closeFeedback) fb.closeFeedback();
+  }
 
   /**
    * Wire backdrop-click dismissal for modals marked [data-dismissable] and
@@ -30,7 +44,13 @@
    */
   function initDismissableModals() {
     document.querySelectorAll('.modal-overlay[data-dismissable]').forEach(overlay => {
-      overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.style.display = 'none'; });
+      overlay.addEventListener('click', (e) => {
+        if (e.target !== overlay) return;
+        // Route the Duval modal through its owner so the hero canvas is
+        // repainted after the backdrop recomposite (see workspace.js).
+        if (overlay.id === 'modal-duval') closeDuvalViaWorkspace();
+        else overlay.style.display = 'none';
+      });
     });
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDismissable(); });
   }

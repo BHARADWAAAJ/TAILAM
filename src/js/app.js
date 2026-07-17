@@ -20,8 +20,9 @@
            openUnsavedDialog, closeUnsavedDialog, confirmUnsavedExportPDF,
            confirmUnsavedExportExcel, confirmUnsavedDiscard } = window.TAILAM.ui.modals;
   const { openDuvalModal, closeDuvalModal } = window.TAILAM.ui.workspace;
+  const { openFeedback, closeFeedback, submitFeedback, initFeedback } = window.TAILAM.ui.feedback;
   const { runLoadingSequence } = window.TAILAM.ui.loading;
-  const { animateLandingCounters } = window.TAILAM.ui.motion;
+  const { animateLandingCounters, initFlowReveal, initSplash } = window.TAILAM.ui.motion;
 
   /** Bind a click handler by element id. */
   function on(id, handler) {
@@ -73,6 +74,11 @@
   on('nav-oltc',             () => requestNavigate('oltc'));
   on('nav-help',             openHelp);
   on('nav-about',            openAbout);
+  on('nav-feedback',         openFeedback);
+  on('footer-feedback',      openFeedback);
+  on('modal-feedback-close', closeFeedback);
+  on('fb-send',              submitFeedback);
+  on('fb-cancel',            closeFeedback);
   on('modal-help-close',     closeHelp);
   on('modal-about-close',    closeAbout);
   on('landing-btn-main',     () => requestNavigate('main'));
@@ -125,6 +131,9 @@
   if (tfDateEl) tfDateEl.value = new Date().toISOString().split('T')[0];
   initTheme();
   initDismissableModals();
+  initFeedback();
   showLanding();
+  initSplash();
   animateLandingCounters();
+  initFlowReveal();
 })();

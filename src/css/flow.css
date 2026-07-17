@@ -1,0 +1,300 @@
+/* =====================================================================
+   TAILAM — flow.css
+   Flow-animation layer. Pure presentation: continuous "flowing" motion
+   (dash flows, sheens, floats, staggered pops) layered onto existing
+   markup — no new HTML structure, no engineering value touched.
+
+   Reduced motion: base.css's global `prefers-reduced-motion` rule
+   (animation:none !important) and print.css both override everything
+   in this file automatically.
+   ===================================================================== */
+
+/* ---- Keyframes ---- */
+@keyframes dashFlow{to{stroke-dashoffset:-16;}}
+@keyframes heroFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+@keyframes shimmer{0%{background-position:200% center;}100%{background-position:-200% center;}}
+@keyframes sheenSweep{from{transform:translateX(-130%) skewX(-18deg);}to{transform:translateX(230%) skewX(-18deg);}}
+@keyframes popIn{from{opacity:0;transform:translateY(12px) scale(.96);}to{opacity:1;transform:translateY(0) scale(1);}}
+@keyframes bandGlow{0%,100%{box-shadow:0 0 0 0 rgba(255,255,255,0);}50%{box-shadow:inset 0 0 0 2px rgba(255,255,255,.35);}}
+@keyframes flowLine{0%{background-position:0% 0;}100%{background-position:200% 0;}}
+@keyframes stepSlide{from{opacity:0;transform:translateX(-10px);}to{opacity:1;transform:translateX(0);}}
+@keyframes gentleBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+
+/* ---- Hero: diagnostic signals literally flow along their paths ---- */
+.hero-signal path{animation:fadeIn 1s ease both, dashFlow 1.6s linear infinite;}
+.hero-signal-2 path{animation-delay:.15s, .5s;}
+.hero-signal-3 path{animation-delay:.3s, 1s;}
+.landing-hero-art svg{animation:heroFloat 7s ease-in-out infinite;will-change:transform;}
+
+/* ---- Landing headline accent: slow gradient shimmer ---- */
+.accent-text{
+  background:linear-gradient(100deg, var(--accent) 30%, var(--accent-2, var(--accent)) 50%, var(--accent) 70%);
+  background-size:200% auto;
+  -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent; color:transparent;
+  animation:shimmer 6s linear infinite;
+}
+
+/* ---- Buttons: sheen sweep on hover + lift ---- */
+.btn{position:relative;overflow:hidden;transition:transform .2s ease, box-shadow .25s ease;}
+.btn::after{
+  content:'';position:absolute;top:0;bottom:0;left:0;width:45%;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,.22), transparent);
+  transform:translateX(-130%) skewX(-18deg);pointer-events:none;
+}
+.btn:hover::after{animation:sheenSweep .7s ease;}
+.btn:hover{transform:translateY(-1.5px);}
+.btn:active{transform:translateY(0) scale(.985);}
+
+/* ---- Nav links: underline slides in ---- */
+.nav-link{position:relative;}
+.nav-link::before{
+  content:'';position:absolute;left:14px;right:14px;bottom:6px;height:2px;border-radius:2px;
+  background:var(--accent);transform:scaleX(0);transform-origin:left;
+  transition:transform .28s cubic-bezier(.2,.7,.3,1);
+}
+.nav-link:hover::before,.nav-link.active::before{transform:scaleX(1);}
+
+/* ---- Landing cards: lift + sheen sweep across on hover ---- */
+.landing-card{position:relative;overflow:hidden;transition:transform .3s cubic-bezier(.2,.7,.3,1), box-shadow .3s ease, border-color .3s ease;}
+.landing-card::before{
+  content:'';position:absolute;top:0;bottom:0;left:0;width:40%;
+  background:linear-gradient(100deg, transparent, rgba(255,255,255,.06), transparent);
+  transform:translateX(-130%) skewX(-18deg);pointer-events:none;
+}
+.landing-card:hover{transform:translateY(-5px);}
+.landing-card:hover::before{animation:sheenSweep .9s ease;}
+.landing-card-icon{transition:transform .3s cubic-bezier(.2,.7,.3,1);}
+.landing-card:hover .landing-card-icon{transform:translateY(-3px) scale(1.06);}
+
+/* ---- Standards badges: hover float ---- */
+.standards-badge-row span{transition:transform .22s ease, border-color .22s ease, color .22s ease;}
+.standards-badge-row span:hover{transform:translateY(-3px);color:var(--accent);}
+
+/* ---- Results reveal: snapshot items pop in with a stagger ---- */
+.reveal-in .snapshot-item{animation:popIn .5s cubic-bezier(.2,.7,.3,1) both;}
+.reveal-in .snapshot-item:nth-child(1){animation-delay:.10s;}
+.reveal-in .snapshot-item:nth-child(2){animation-delay:.18s;}
+.reveal-in .snapshot-item:nth-child(3){animation-delay:.26s;}
+.reveal-in .snapshot-item:nth-child(4){animation-delay:.34s;}
+.reveal-in .snapshot-item:nth-child(5){animation-delay:.42s;}
+
+/* ---- Assessment strip: a thin energy line flows underneath ---- */
+.assessment-strip{position:relative;}
+.assessment-strip::after{
+  content:'';position:absolute;left:0;right:0;bottom:-1px;height:2px;border-radius:2px;
+  background:linear-gradient(90deg, transparent, var(--accent), var(--accent-2, var(--accent)), transparent);
+  background-size:200% 100%;
+  animation:flowLine 3.2s linear infinite;opacity:.75;
+}
+
+/* ---- THI band: the active segment breathes ---- */
+.thi-band-seg{transition:background .3s ease, color .3s ease;}
+.thi-band-seg.active{animation:bandGlow 2.4s ease-in-out infinite;}
+
+/* ---- Loading overlay: steps slide in as they activate ---- */
+.loading-steps li{opacity:.45;transition:opacity .2s ease;}
+.loading-steps li.active,.loading-steps li.done{opacity:1;}
+.loading-steps li.active{animation:stepSlide .25s ease both;}
+
+/* ---- Empty-state illustration: gentle idle bob ---- */
+.empty-illustration svg{animation:gentleBob 4.5s ease-in-out infinite;}
+
+/* ---- Duval hero canvas: soft focus ring lift on hover ---- */
+.duval-hero-canvas-wrap{transition:transform .3s cubic-bezier(.2,.7,.3,1), box-shadow .3s ease;}
+.duval-hero-canvas-wrap:hover{transform:translateY(-3px);}
+
+/* ---- Scroll-flow reveal (motion.js): sections wait until scrolled into
+       view, then play their existing reveal-in animation ---- */
+.flow-wait,.flow-wait>*{animation-play-state:paused !important;}
+
+/* =====================================================================
+   OPENING SPLASH — the TAILAM mark draws in, wordmark rises, overlay
+   dissolves. Removed from the DOM by ui/motion.js initSplash().
+   ===================================================================== */
+@keyframes triDraw{from{stroke-dashoffset:236;}to{stroke-dashoffset:0;}}
+@keyframes dropIn{0%{opacity:0;transform:translateY(-10px) scale(.5);}60%{opacity:1;transform:translateY(2px) scale(1.06);}100%{opacity:1;transform:translateY(0) scale(1);}}
+@keyframes ringPing{0%{transform:scale(.55);opacity:.55;}100%{transform:scale(1.25);opacity:0;}}
+@keyframes letterRise{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+@keyframes splashLineGrow{from{transform:scaleX(0);}to{transform:scaleX(1);}}
+@keyframes logoBreathe{0%,100%{transform:translateY(0);}50%{transform:translateY(-4px);}}
+
+/* Reduced motion: skip the intro entirely (base.css also freezes all
+   animations, so without this the splash would sit as a blank overlay
+   until JS removes it). */
+@media (prefers-reduced-motion: reduce){.splash{display:none !important;}}
+
+.splash{
+  position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;
+  background:
+    radial-gradient(ellipse 720px 480px at 50% 38%, rgba(76,124,240,.16), transparent 62%),
+    radial-gradient(ellipse 560px 420px at 62% 70%, rgba(45,212,168,.08), transparent 65%),
+    #090d16;
+  opacity:1;transition:opacity .55s ease, visibility .55s ease;
+}
+.splash.splash-leave{opacity:0;visibility:hidden;pointer-events:none;}
+.splash-inner{text-align:center;animation:logoBreathe 5s ease-in-out 1.4s infinite;}
+
+.splash-logo{overflow:visible;display:block;margin:0 auto 18px;}
+.splash-tri{
+  fill:none;stroke:url(#tailamGradSplash);stroke-width:4;stroke-linejoin:round;stroke-linecap:round;
+  stroke-dasharray:236;stroke-dashoffset:236;
+  animation:triDraw 1s cubic-bezier(.4,0,.2,1) .15s forwards;
+}
+.splash-drop{
+  fill:url(#tailamGradSplash);opacity:0;transform-origin:48px 52px;
+  animation:dropIn .55s cubic-bezier(.2,.7,.3,1.3) .95s forwards;
+}
+.splash-ring{
+  fill:none;stroke:rgba(76,124,240,.5);stroke-width:1.4;opacity:0;transform-origin:48px 52px;
+  animation:ringPing 1.8s ease-out 1.35s infinite;
+}
+.splash-ring-2{stroke:rgba(45,212,168,.45);animation-delay:1.95s;}
+
+.splash-word{
+  display:flex;justify-content:center;gap:2px;
+  font-family:'Inter',system-ui,sans-serif;font-weight:800;font-size:38px;letter-spacing:.24em;
+  color:#f2f5fc;text-indent:.24em;
+}
+.splash-word span{display:inline-block;opacity:0;animation:letterRise .5s cubic-bezier(.2,.7,.3,1) forwards;}
+.splash-word span:nth-child(1){animation-delay:1.05s;}
+.splash-word span:nth-child(2){animation-delay:1.13s;}
+.splash-word span:nth-child(3){animation-delay:1.21s;}
+.splash-word span:nth-child(4){animation-delay:1.29s;}
+.splash-word span:nth-child(5){animation-delay:1.37s;}
+.splash-word span:nth-child(6){animation-delay:1.45s;}
+.splash-word .splash-tm{font-size:14px;font-weight:600;letter-spacing:0;align-self:flex-start;margin-top:6px;animation-delay:1.55s;}
+
+.splash-tag{
+  margin:14px auto 0;color:#b9c4dd;font-size:16.5px;font-weight:500;
+  letter-spacing:.04em;line-height:1.55;max-width:640px;padding:0 24px;
+  opacity:0;animation:fadeIn .6s ease 1.7s forwards;
+}
+@media (max-width:560px){.splash-tag{font-size:14px;max-width:420px;}}
+.splash-line{
+  margin:18px auto 0;width:180px;height:2px;border-radius:2px;transform-origin:center;
+  background:linear-gradient(90deg, transparent, #4c7cf0, #2dd4a8, transparent);
+  transform:scaleX(0);animation:splashLineGrow .7s cubic-bezier(.2,.7,.3,1) 1.85s forwards;
+}
+.splash-skip{
+  position:fixed;bottom:20px;right:26px;
+  color:#5b6884;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  opacity:0;animation:fadeIn .6s ease 2s forwards;pointer-events:none;
+}
+@media (max-width:560px){.splash-skip{right:0;left:0;text-align:center;}}
+
+/* =====================================================================
+   Ambient flow touches
+   ===================================================================== */
+/* Landing hero: slow aurora drift behind the content */
+@keyframes auroraDrift{
+  0%,100%{transform:translate(0,0) scale(1);}
+  33%{transform:translate(40px,18px) scale(1.08);}
+  66%{transform:translate(-30px,-12px) scale(.96);}
+}
+.landing-hero::before{
+  content:'';position:absolute;top:-30%;right:-12%;width:60%;height:120%;border-radius:50%;
+  background:radial-gradient(circle, var(--accent-dim) 0%, transparent 65%);
+  animation:auroraDrift 14s ease-in-out infinite;pointer-events:none;
+}
+.landing-hero::after{
+  content:'';position:absolute;bottom:-40%;left:-8%;width:44%;height:100%;border-radius:50%;
+  background:radial-gradient(circle, var(--green-dim, rgba(45,212,168,.10)) 0%, transparent 65%);
+  animation:auroraDrift 18s ease-in-out 2s infinite reverse;pointer-events:none;
+}
+.landing-hero-grid{position:relative;z-index:1;}
+
+/* ---- Duval Triangle: analysis flow on top of the canvas ----
+   The triangle itself is a <canvas> drawn by the frozen charts.js, so all
+   motion lives in CSS overlays layered above/behind it — the pixels the
+   engine draws are never touched.
+   1. A soft teal "scan" band periodically sweeps down the triangle, like a
+      lab instrument reading the sample.
+   2. The radial glow staged behind the triangle (dashboard.css ::before)
+      now breathes slowly instead of sitting static. */
+@keyframes duvalScan{
+  0%{background-position:0 220%;opacity:0;}
+  8%{opacity:1;}
+  46%{background-position:0 -120%;opacity:1;}
+  54%{opacity:0;}
+  100%{background-position:0 -120%;opacity:0;}
+}
+/* NOTE: no mix-blend-mode and no transform animations here — both force
+   the canvas's wrapper into a new compositing layer, which retriggers the
+   documented "Duval triangle vanishes" browser bug (see dashboard.js
+   redrawVisibleCanvases). Opacity + background-position only. */
+@keyframes duvalGlowBreathe{
+  0%,100%{opacity:.6;}
+  50%{opacity:1;}
+}
+.duval-hero-canvas-wrap::after{
+  content:'';position:absolute;inset:0 0 30px 0;/* stops above the hint text */
+  border-radius:var(--r-md);pointer-events:none;z-index:2;
+  background:linear-gradient(180deg,
+    transparent 0%, rgba(45,212,168,.08) 42%,
+    rgba(79,227,189,.16) 50%, rgba(45,212,168,.08) 58%, transparent 100%);
+  background-size:100% 220%;background-repeat:no-repeat;
+  animation:duvalScan 5.2s ease-in-out 1.2s infinite;
+}
+html[data-theme="light"] .duval-hero-canvas-wrap::after{
+  background:linear-gradient(180deg,
+    transparent 0%, rgba(11,157,120,.05) 42%,
+    rgba(11,157,120,.11) 50%, rgba(11,157,120,.05) 58%, transparent 100%);
+  background-size:100% 220%;background-repeat:no-repeat;}
+.duval-hero-canvas-wrap::before{animation:duvalGlowBreathe 4.6s ease-in-out infinite;}
+
+/* Same scan inside the enlarged Duval modal (no hint text there) */
+.duval-modal-canvas-wrap::after{
+  content:'';position:absolute;inset:0;border-radius:10px;pointer-events:none;z-index:2;
+  background:linear-gradient(180deg,
+    transparent 0%, rgba(45,212,168,.07) 42%,
+    rgba(79,227,189,.14) 50%, rgba(45,212,168,.07) 58%, transparent 100%);
+  background-size:100% 220%;background-repeat:no-repeat;
+  animation:duvalScan 5.2s ease-in-out .8s infinite;
+}
+
+/* Nav logo: soft glow pulse */
+@keyframes logoGlow{0%,100%{box-shadow:0 2px 8px rgba(28,199,156,.3);}50%{box-shadow:0 2px 16px rgba(28,199,156,.55);}}
+.nav-logo{animation:logoGlow 3.5s ease-in-out infinite;}
+
+/* Footer logo spacing */
+.footer-logo{display:flex;justify-content:center;margin-bottom:8px;}
+.footer-logo svg{opacity:.9;}
+
+/* ---- Feedback dialog ---- */
+.fb-field-block{margin-bottom:14px;}
+.fb-label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;}
+.fb-stars{display:flex;gap:4px;}
+.fb-star{
+  appearance:none;background:none;border:none;cursor:pointer;padding:2px 3px;
+  font-size:26px;line-height:1;color:var(--text3);opacity:.5;
+  transition:color .15s ease, opacity .15s ease, transform .15s cubic-bezier(.2,.7,.3,1.4);
+}
+.fb-star:hover{transform:scale(1.18);opacity:.9;}
+.fb-star.on{color:var(--accent);opacity:1;text-shadow:0 0 14px var(--accent-glow);}
+.fb-star:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px;}
+#modal-feedback textarea{
+  width:100%;padding:11px 13px;background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--r-sm);color:var(--text);font-family:var(--font-ui);font-size:14px;
+  resize:vertical;min-height:110px;
+}
+#modal-feedback textarea:hover{border-color:var(--text3);}
+#modal-feedback textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim);background:var(--card);}
+.fb-status{min-height:18px;margin-top:12px;font-size:13px;font-weight:600;}
+.fb-status.ok{color:var(--accent);}
+.fb-status.err{color:var(--red);}
+.footer-feedback-link{
+  appearance:none;background:none;border:none;cursor:pointer;padding:0;
+  color:var(--accent);font-size:12px;font-weight:600;font-family:var(--font-ui);
+  transition:color .2s ease;
+}
+.footer-feedback-link:hover{color:var(--accent-2);text-decoration:underline;}
+
+/* Designer credit → LinkedIn (footer + About dialog) */
+.designer-link{
+  display:inline-flex;align-items:center;gap:5px;color:var(--accent);
+  font-weight:600;text-decoration:none;transition:color .2s ease;
+}
+.designer-link svg{opacity:.85;transition:transform .25s cubic-bezier(.2,.7,.3,1), opacity .2s ease;}
+.designer-link:hover{color:var(--accent-2);}
+.designer-link:hover svg{transform:translateY(-2px);opacity:1;}

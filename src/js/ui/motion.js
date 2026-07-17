@@ -37,7 +37,66 @@
     });
   }
 
+  /**
+   * Scroll-flow reveal (flow.css): landing sections that start below the
+   * fold get their existing .reveal-in animation paused (.flow-wait) until
+   * they scroll into view, so the page "flows" in as you read it.
+   * Progressive enhancement — without IntersectionObserver (or with JS off)
+   * the original load-time reveal plays unchanged. Purely decorative.
+   */
+  function initFlowReveal() {
+    if (!('IntersectionObserver' in window)) return;
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduceMotion) return;
+    const blocks = document.querySelectorAll('#view-landing .reveal-in');
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.remove('flow-wait');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.18 });
+    blocks.forEach((el) => {
+      // only pause blocks that start below the viewport; the hero plays at once
+      if (el.getBoundingClientRect().top > window.innerHeight) {
+        el.classList.add('flow-wait');
+        io.observe(el);
+      }
+    });
+  }
+
+  /**
+   * Opening splash screen (flow.css .splash): plays the logo draw-in intro
+   * once per browser session, then removes itself from the DOM entirely.
+   * Skippable by click or any key; skipped outright under reduced motion,
+   * when sessionStorage is unavailable it simply plays on every load.
+   * Purely decorative — the app underneath is fully initialised regardless.
+   */
+  function initSplash() {
+    const el = document.getElementById('splash-screen');
+    if (!el) return;
+    const reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    let seen = false;
+    try { seen = sessionStorage.getItem('tailam-splash') === '1'; } catch { /* private mode etc. */ }
+    if (reduceMotion || seen) { el.remove(); return; }
+    try { sessionStorage.setItem('tailam-splash', '1'); } catch { /* ignore */ }
+
+    el.setAttribute('aria-hidden', 'false');
+    let gone = false;
+    function dismiss() {
+      if (gone) return;
+      gone = true;
+      el.classList.add('splash-leave');
+      window.removeEventListener('keydown', dismiss);
+      setTimeout(() => el.remove(), 600);
+    }
+    el.addEventListener('click', dismiss);
+    window.addEventListener('keydown', dismiss);
+    setTimeout(dismiss, 3200); // auto-dismiss after the full sequence
+  }
+
   window.TAILAM = window.TAILAM || {};
   window.TAILAM.ui = window.TAILAM.ui || {};
-  window.TAILAM.ui.motion = { animateLandingCounters };
+  window.TAILAM.ui.motion = { animateLandingCounters, initFlowReveal, initSplash };
 })();

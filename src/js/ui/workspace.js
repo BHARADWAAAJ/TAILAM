@@ -613,6 +613,15 @@
   function closeDuvalModal() {
     const overlay = document.getElementById('modal-duval');
     if (overlay) overlay.style.display = 'none';
+    // Bug fix — opening/closing the modal (backdrop-filter blur) forces a
+    // recomposite that can drop the hero canvas bitmap in some browsers
+    // (same root cause as the visibilitychange/pageshow redraws in
+    // dashboard.js). Repaint the visible hero canvases from the SAME
+    // already-computed report objects — nothing is recomputed.
+    const dashboard = window.TAILAM.ui.dashboard;
+    if (dashboard && dashboard.redrawVisibleCanvases) {
+      requestAnimationFrame(() => dashboard.redrawVisibleCanvases());
+    }
   }
 
   window.TAILAM = window.TAILAM || {};

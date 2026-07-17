@@ -260,10 +260,47 @@
     if (c2h2El && !c2h2El.value) c2h2El.value = mtReport.g.c2h2 || '';
   }
 
+  /**
+   * Bug fix — "Duval Triangle vanishes after some time" report. Browsers
+   * can reclaim a background/idle tab's canvas GPU layer to save memory;
+   * when the tab is hidden for a while (switched away, minimised, screen
+   * locked) and then shown again, a previously-drawn <canvas> can come
+   * back blank even though nothing in this app touched it — the drawing
+   * commands were never re-run, only the compositor's copy was discarded.
+   * This redraws ONLY the canvases (never any text/table DOM, never an
+   * engineering value) for whichever panel is currently showing results,
+   * using the SAME unmodified draw functions against the SAME
+   * already-computed report object already held in memory since the last
+   * analysis — nothing is recomputed or altered.
+   */
+  function redrawVisibleCanvases() {
+    const resultsMainEl = document.getElementById('results-main');
+    if (mtReport && resultsMainEl && resultsMainEl.style.display !== 'none') {
+      drawRiskGauge(mtReport.risk);
+      drawDuvalTriangle('duval-canvas', mtReport.duval);
+    }
+    const resultsOltcEl = document.getElementById('results-oltc');
+    if (otReport && resultsOltcEl && resultsOltcEl.style.display !== 'none') {
+      drawDuvalTriangle2('duval2-canvas', otReport.og);
+    }
+  }
+
+  // Tab returns to the foreground after being hidden ("some time" later).
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') redrawVisibleCanvases();
+  });
+  // Page restored from the browser's back/forward cache (bfcache) — some
+  // browsers discard canvas layers on this path even without a visibility
+  // change, e.g. after using Back/Forward to leave and return to the tab.
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) redrawVisibleCanvases();
+  });
+
   window.TAILAM = window.TAILAM || {};
   window.TAILAM.ui = window.TAILAM.ui || {};
   window.TAILAM.ui.dashboard = {
     getMtReport, getOtReport, isMainDirty, isOltcDirty, markMainExported, markOltcExported,
-    analyzeMain, renderMainTank, clearMain, analyzeOltc, renderOltc, clearOltc, syncCrossContamDefaults
+    analyzeMain, renderMainTank, clearMain, analyzeOltc, renderOltc, clearOltc, syncCrossContamDefaults,
+    redrawVisibleCanvases
   };
 })();

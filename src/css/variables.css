@@ -14,9 +14,9 @@
   --border:rgba(148,163,204,0.12); --border-strong:rgba(148,163,204,0.22);
   --text:#eef1f8; --text2:#a7b0c9; --text3:#717a99;
 
-  /* ── Electric Blue accent (signature colour) ── */
-  --accent:#4c7cf0; --accent-2:#6a93ff; --accent-dim:rgba(76,124,240,0.16);
-  --accent-glow:rgba(76,124,240,0.35);
+  /* ── Signal Teal accent (signature colour — from the splash gradient) ── */
+  --accent:#1cc79c; --accent-2:#4fe3bd; --accent-dim:rgba(45,212,168,0.16);
+  --accent-glow:rgba(45,212,168,0.35);
 
   /* ── Engineering status colours — meaningful only ── */
   --green:#2dd4a8; --green-dim:rgba(45,212,168,0.14);
@@ -28,7 +28,7 @@
   --shadow-sm:0 1px 3px rgba(3,6,16,0.35);
   --shadow:0 6px 24px rgba(3,6,16,0.38);
   --shadow-lg:0 16px 44px rgba(3,6,16,0.46);
-  --shadow-accent:0 8px 26px rgba(76,124,240,0.22);
+  --shadow-accent:0 8px 26px rgba(45,212,168,0.22);
 
   /* ── Typography ── */
   --font-ui:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;
@@ -45,8 +45,8 @@ html[data-theme="light"]{
   --border:rgba(21,32,66,0.09); --border-strong:rgba(21,32,66,0.16);
   --text:#131a30; --text2:#4d5779; --text3:#7b84a3;
 
-  --accent:#3457d5; --accent-2:#4c7cf0; --accent-dim:rgba(52,87,213,0.10);
-  --accent-glow:rgba(52,87,213,0.22);
+  --accent:#0b9d78; --accent-2:#1cc79c; --accent-dim:rgba(11,157,120,0.10);
+  --accent-glow:rgba(11,157,120,0.22);
 
   --green:#0f9d78; --green-dim:rgba(15,157,120,0.12);
   --yellow:#c98a00; --yellow-dim:rgba(201,138,0,0.14);
@@ -56,7 +56,7 @@ html[data-theme="light"]{
   --shadow-sm:0 1px 2px rgba(21,32,66,0.06);
   --shadow:0 6px 20px rgba(21,32,66,0.08);
   --shadow-lg:0 18px 40px rgba(21,32,66,0.12);
-  --shadow-accent:0 8px 22px rgba(52,87,213,0.14);
+  --shadow-accent:0 8px 22px rgba(11,157,120,0.14);
 
   --grid-line:rgba(21,32,66,0.55);
 }
