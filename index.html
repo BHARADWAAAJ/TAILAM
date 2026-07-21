@@ -324,21 +324,6 @@
         </div>
       </details>
 
-      <!-- "Show Detailed Calculations" toggle — screen-only engineering
-           transparency feature. OFF by default every session (never
-           persisted). Controls visibility of #detailed-main only; computes
-           nothing itself. See src/js/ui/detailed-calcs.js. -->
-      <div class="detailed-toggle-bar no-print">
-        <label class="detailed-toggle-switch">
-          <input type="checkbox" id="toggle-detailed-main" autocomplete="off" aria-label="Show Detailed Calculations" aria-describedby="detailed-toggle-desc-main">
-          <span class="detailed-toggle-track"><span class="detailed-toggle-thumb"></span></span>
-        </label>
-        <div class="detailed-toggle-copy">
-          <span class="detailed-toggle-title">Show Detailed Calculations</span>
-          <span class="detailed-toggle-sub" id="detailed-toggle-desc-main">Reveal every formula, substitution and threshold behind this assessment.</span>
-        </div>
-      </div>
-
       <!-- Assessment Completed strip — informational only, no calculations.
            Timestamp is intentionally not repeated here: it is shown once,
            immediately below, in the Status Banner (Assessment Date / Time). -->
@@ -427,16 +412,23 @@
       </div>
 
       <!-- 5.5 — DETAILED ENGINEERING CALCULATIONS.
-           The WHOLE section (heading included) is hidden by default via
-           `hidden` on this outer card, so the professional view never shows
-           an empty "Detailed Engineering Calculations" heading with nothing
-           under it. Visibility controlled solely by the toggle above.
-           Populated by ui/detailed-calcs.js from the SAME report object
-           every other section on this page reads — no engineering value is
-           computed here. no-print: screen-only, exports are unaffected. -->
-      <div class="card no-print" id="detailed-main-section" hidden>
-        <h2 class="section-title">Detailed Engineering Calculations</h2>
-        <div id="detailed-main" class="detailed-calcs"></div>
+           The button sits immediately above the content it controls (not a
+           separate control elsewhere on the page) so clicking it and seeing
+           the change happen are visually adjacent. The card/heading/button
+           are always visible; only the calculations content div is hidden,
+           OFF by default every session (never persisted). Populated by
+           ui/detailed-calcs.js from the SAME report object every other
+           section on this page reads — no engineering value is computed
+           here. no-print: screen-only, exports are unaffected. -->
+      <div class="card no-print" id="detailed-main-section">
+        <div class="detailed-calcs-header">
+          <div>
+            <h2 class="section-title">Detailed Engineering Calculations</h2>
+            <p class="detailed-calcs-sub">Every formula, substitution and threshold behind this assessment.</p>
+          </div>
+          <button type="button" class="btn btn-outline detailed-calcs-btn" id="btn-toggle-detailed-main" aria-expanded="false" aria-controls="detailed-main">Show Detailed Calculations</button>
+        </div>
+        <div id="detailed-main" class="detailed-calcs" hidden></div>
       </div>
 
       <!-- 6 — ENGINEERING INTERPRETATION -->
@@ -705,21 +697,6 @@
         </div>
       </details>
 
-      <!-- "Show Detailed Calculations" toggle — screen-only engineering
-           transparency feature. OFF by default every session (never
-           persisted). Controls visibility of #detailed-oltc only; computes
-           nothing itself. See src/js/ui/detailed-calcs.js. -->
-      <div class="detailed-toggle-bar no-print">
-        <label class="detailed-toggle-switch">
-          <input type="checkbox" id="toggle-detailed-oltc" autocomplete="off" aria-label="Show Detailed Calculations" aria-describedby="detailed-toggle-desc-oltc">
-          <span class="detailed-toggle-track"><span class="detailed-toggle-thumb"></span></span>
-        </label>
-        <div class="detailed-toggle-copy">
-          <span class="detailed-toggle-title">Show Detailed Calculations</span>
-          <span class="detailed-toggle-sub" id="detailed-toggle-desc-oltc">Reveal every formula, substitution and threshold behind this assessment.</span>
-        </div>
-      </div>
-
       <!-- Assessment Completed strip — informational only, no calculations.
            Timestamp is intentionally not repeated here: it is shown once,
            immediately below, in the Status Banner (Assessment Date / Time). -->
@@ -799,9 +776,15 @@
            See the Main Tank panel for the full rationale. Populated by
            ui/detailed-calcs.js from the SAME OLTC report object every other
            section here reads — no engineering value is computed. -->
-      <div class="card no-print" id="detailed-oltc-section" hidden>
-        <h2 class="section-title">Detailed Engineering Calculations</h2>
-        <div id="detailed-oltc" class="detailed-calcs"></div>
+      <div class="card no-print" id="detailed-oltc-section">
+        <div class="detailed-calcs-header">
+          <div>
+            <h2 class="section-title">Detailed Engineering Calculations</h2>
+            <p class="detailed-calcs-sub">Every formula, substitution and threshold behind this assessment.</p>
+          </div>
+          <button type="button" class="btn btn-outline detailed-calcs-btn" id="btn-toggle-detailed-oltc" aria-expanded="false" aria-controls="detailed-oltc">Show Detailed Calculations</button>
+        </div>
+        <div id="detailed-oltc" class="detailed-calcs" hidden></div>
       </div>
 
       <!-- 6 — ENGINEERING INTERPRETATION -->

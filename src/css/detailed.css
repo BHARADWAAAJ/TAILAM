@@ -1,61 +1,36 @@
 /* =====================================================================
    TAILAM — detailed.css
-   "Show Detailed Calculations" feature — the Engineering Workbook view.
-
-   Phase 1 (scaffolding only): toggle control styling + the workbook card
-   grid/placeholder look. No engineering content lives in this file — it
-   is presentation only, same rule as every other CSS file in src/css/.
-   Screen-only feature: every element this file styles is also marked
-   .no-print in index.html, so PDF/print output is unaffected.
+   "Detailed Engineering Calculations" feature — the Engineering Workbook
+   view. The toggle is a real <button> immediately above the content it
+   reveals (inside the same card), not a separate control elsewhere on the
+   page. No engineering content lives in this file — it is presentation
+   only, same rule as every other CSS file in src/css/. Screen-only
+   feature: every element this file styles is also marked .no-print in
+   index.html, so PDF/print output is unaffected.
    ===================================================================== */
 
-/* ---- Toggle bar (sits directly under the Engineering Snapshot card) ---- */
-.detailed-toggle-bar{
-  display:flex; align-items:center; gap:14px;
-  padding:14px 20px; margin:0 0 18px;
-  background:var(--card); border:1px solid var(--border); border-radius:var(--r-md);
+/* ---- Detailed Engineering Calculations — header + toggle button ----
+   The button sits immediately above the content it reveals (inside the
+   same card, directly above the grid below), not in a separate location —
+   clicking it and seeing the change happen are visually adjacent. */
+.detailed-calcs-header{
+  display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+  flex-wrap:wrap; margin-bottom:14px;
 }
-.detailed-toggle-copy{display:flex; flex-direction:column; gap:2px;}
-.detailed-toggle-title{font-size:13.5px; font-weight:700; color:var(--text);}
-.detailed-toggle-sub{font-size:12px; color:var(--text2);}
+.detailed-calcs-sub{font-size:12px; color:var(--text2); margin-top:4px;}
+.detailed-calcs-btn{flex:none; white-space:nowrap;}
 
-/* Custom switch — a native checkbox visually hidden, track+thumb styled */
-.detailed-toggle-switch{position:relative; display:inline-flex; flex:none; cursor:pointer;}
-.detailed-toggle-switch input{
-  position:absolute; opacity:0; width:100%; height:100%; margin:0; cursor:pointer;
-}
-.detailed-toggle-track{
-  width:40px; height:22px; border-radius:20px;
-  background:var(--bg2); border:1px solid var(--border-strong);
-  display:inline-block; position:relative; transition:background .2s ease, border-color .2s ease;
-}
-.detailed-toggle-thumb{
-  position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%;
-  background:var(--text3); transition:transform .2s cubic-bezier(.2,.7,.3,1), background .2s ease;
-}
-.detailed-toggle-switch input:checked + .detailed-toggle-track{
-  background:var(--accent-dim); border-color:var(--accent);
-}
-.detailed-toggle-switch input:checked + .detailed-toggle-track .detailed-toggle-thumb{
-  transform:translateX(18px); background:var(--accent);
-}
-.detailed-toggle-switch input:focus-visible + .detailed-toggle-track{
-  outline:2px solid var(--accent); outline-offset:2px;
-}
-
-/* ---- Detailed calculations section ----
-   `hidden` is applied to the whole outer .card (#detailed-main-section /
-   #detailed-oltc-section in index.html), not just the grid below, so the
-   professional view never shows an empty "Detailed Engineering
-   Calculations" heading with nothing under it. Native [hidden] can be
-   overridden by any author display rule of equal specificity, so the hide
-   rule is stated explicitly here rather than relied upon implicitly. */
-#detailed-main-section[hidden], #detailed-oltc-section[hidden]{display:none;}
-
+/* ---- Detailed calculations content grid ----
+   `hidden` is applied to this grid element itself (#detailed-main /
+   #detailed-oltc in index.html) — the card and its heading/button stay
+   visible always. Native [hidden] can be overridden by any author display
+   rule of equal specificity, so the hide rule is stated explicitly here
+   rather than relied upon implicitly. */
 .detailed-calcs{
   display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));
   gap:16px; align-items:start;
 }
+.detailed-calcs[hidden]{display:none;}
 /* Utility: a card that spans every column (wide tables, equations) */
 .workbook-card-wide{ grid-column:1 / -1; }
 

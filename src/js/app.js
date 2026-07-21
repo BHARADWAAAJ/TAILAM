@@ -151,23 +151,33 @@
   wirePrimaryDiagnosisToggle('primary-diagnosis-main');
   wirePrimaryDiagnosisToggle('primary-diagnosis-oltc');
 
-  // ── "Show Detailed Calculations" toggle ──
-  // Pure visibility control: shows/hides the whole pre-rendered detailed-
-  // calculations card (heading included, so the professional view never
-  // shows an empty heading) for whichever panel it belongs to. Content is
-  // populated separately by ui/detailed-calcs.js. No engineering value is
-  // computed or altered here. Defaults to OFF and is never persisted —
-  // every new session/reload starts unchecked, per spec.
-  function wireDetailedToggle(toggleId, sectionId) {
-    const toggle = document.getElementById(toggleId);
-    const section = document.getElementById(sectionId);
-    if (!toggle || !section) return;
-    toggle.checked = false;
-    section.hidden = true;
-    toggle.addEventListener('change', () => { section.hidden = !toggle.checked; });
+  // ── "Detailed Engineering Calculations" toggle button ──
+  // A real <button>, positioned immediately above the calculations content
+  // it reveals (previously a separate switch far above this section, near
+  // the Engineering Snapshot — reported as hard to discover/associate with
+  // the section it controlled, since a user could run an analysis, not see
+  // it, and have no visible cue connecting the switch to this card further
+  // down the page). Button + heading are always visible; only the content
+  // div toggles `hidden`, so clicking the button and seeing the change are
+  // adjacent. Content is populated separately by ui/detailed-calcs.js. No
+  // engineering value is computed or altered here. Defaults to collapsed
+  // and is never persisted — every new session/reload starts collapsed.
+  function wireDetailedToggleButton(buttonId, contentId) {
+    const btn = document.getElementById(buttonId);
+    const content = document.getElementById(contentId);
+    if (!btn || !content) return;
+    content.hidden = true;
+    btn.setAttribute('aria-expanded', 'false');
+    btn.textContent = 'Show Detailed Calculations';
+    btn.addEventListener('click', () => {
+      content.hidden = !content.hidden;
+      btn.setAttribute('aria-expanded', String(!content.hidden));
+      btn.textContent = content.hidden ? 'Show Detailed Calculations' : 'Hide Detailed Calculations';
+      if (!content.hidden) content.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    });
   }
-  wireDetailedToggle('toggle-detailed-main', 'detailed-main-section');
-  wireDetailedToggle('toggle-detailed-oltc', 'detailed-oltc-section');
+  wireDetailedToggleButton('btn-toggle-detailed-main', 'detailed-main');
+  wireDetailedToggleButton('btn-toggle-detailed-oltc', 'detailed-oltc');
 
   // keyboard access for the nav brand's "go home" role="button"
   const navBrandEl = document.getElementById('nav-brand');
