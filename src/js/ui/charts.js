@@ -64,6 +64,48 @@
   // changes as a result.
   const T2_MARKER_COLOR = '#eab308';
 
+  // ── Fault-type palette bridge (presentation only) ────────────────────
+  // The on-screen renderer (ui/duval-svg.js) reads the fault-type colour
+  // tokens from variables.css natively. The canvas below (retained ONLY for
+  // off-screen PDF/Excel export) can't use CSS var(), so it resolves the
+  // SAME tokens to concrete values here — keeping every surface on one
+  // colour system. Nothing geometric is touched: only fill/stroke colour,
+  // fill opacity and the marker style change. Zone→token map is identical
+  // to ui/duval-svg.js's ZONE_TOKEN (single fault-type language).
+  const ZONE_TOKEN = { PD:'--fault-partial-discharge', D1:'--fault-discharge-low-energy',
+    D2:'--fault-discharge-high-energy', DT:'--fault-thermal-electrical', N:'--fault-normal',
+    X1:'--fault-thermal-low', X3:'--fault-thermal-electrical', T1:'--fault-thermal-low',
+    T2:'--fault-thermal-medium', T3:'--fault-thermal-high' };
+  function cssVar(name, fallback) {
+    try { const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim(); return v || fallback; }
+    catch (e) { return fallback; }
+  }
+  const FILL_OP = parseFloat(cssVar('--fault-fill-opacity', '0.22')) || 0.22;
+  const FILL_OP_ACTIVE = parseFloat(cssVar('--fault-fill-opacity-active', '0.45')) || 0.45;
+  const STROKE_W = parseFloat(cssVar('--fault-stroke-width', '1.25')) || 1.25;
+  const STROKE_W_ACTIVE = parseFloat(cssVar('--fault-stroke-width-active', '2.25')) || 2.25;
+  // Resolve each Triangle 1 / Triangle 2 zone's fill/border hue to a concrete
+  // colour so the canvas fills, the swatch legend (ui/duval-legend.js reads
+  // z.color) and the exported PDF/Excel all share the fault-type palette.
+  [T1_ZONES, T2_ZONES].forEach((set) => set.forEach((z) => { z.color = cssVar(ZONE_TOKEN[z.id], z.color); }));
+
+  /** Draw one fault zone polygon on the canvas: translucent hue fill + crisp
+   *  hue border, with the detected zone emphasised. Presentation helper —
+   *  callers still supply the same vertex geometry. */
+  function fillZonePath(ctx, isActive, hue, scale) {
+    ctx.globalAlpha = isActive ? FILL_OP_ACTIVE : FILL_OP;
+    ctx.fillStyle = hue; ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = hue; ctx.lineWidth = (isActive ? STROKE_W_ACTIVE : STROKE_W) * scale; ctx.stroke();
+  }
+
+  /** Draw the white-core / fault-hue-ring result marker + zone label. */
+  function drawMarker(ctx, pt, hue, zoneLabel, scale) {
+    ctx.beginPath(); ctx.arc(pt.x, pt.y, 15 * scale, 0, Math.PI * 2); ctx.fillStyle = hue; ctx.globalAlpha = 0.28; ctx.fill(); ctx.globalAlpha = 1;
+    ctx.beginPath(); ctx.arc(pt.x, pt.y, 7 * scale, 0, Math.PI * 2); ctx.fillStyle = '#fff'; ctx.fill(); ctx.strokeStyle = hue; ctx.lineWidth = 3 * scale; ctx.stroke();
+    ctx.font = `bold ${11 * scale}px sans-serif`; ctx.fillStyle = hue; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillText(zoneLabel, pt.x, pt.y - 13 * scale);
+  }
+
   /**
    * Draw Duval Triangle 1 (main tank) with an optional sample marker.
    * @param {string} canvasId
@@ -75,10 +117,12 @@
     const ctx = canvas.getContext('2d');
     const W = canvas.width, H = canvas.height;
     ctx.clearRect(0, 0, W, H);
-    // Scale-based rendering: 520px is the on-screen canvas width (index.html's
-    // duval-canvas), so scale === 1 there — identical to the previous fixed-
-    // pixel look. ui/export.js's off-screen high-resolution PDF canvas is
-    // wider, so scale grows with it and every font/lineWidth/radius/offset
+    // Scale-based rendering: this function is now export-only (the on-screen
+    // triangle is the SVG component in ui/duval-svg.js). 520px matches
+    // index.html's hidden #duval-canvas export sink, so scale === 1 there —
+    // identical to the original on-screen fixed-pixel look this function
+    // used to produce. ui/export.js's off-screen high-resolution PDF canvas
+    // is wider, so scale grows with it and every font/lineWidth/radius/offset
     // below grows proportionally. Triangle geometry (pad, vertex/zone/marker
     // coordinates, bary2canvas) is completely untouched by this — only how
     // large things are drawn changes, never where.
@@ -95,12 +139,13 @@
     const outlineColor = dark ? 'rgba(255,255,255,0.80)' : 'rgba(0,0,0,0.75)';
     const gridColor = dark ? 'rgba(255,255,255,0.13)' : 'rgba(0,0,0,0.13)';
     const zones = T1_ZONES;
+    const activeZone = marker && marker.zone;
     zones.forEach(zone => {
       ctx.beginPath();
       const p0 = bary2canvas(...zone.verts[0]); ctx.moveTo(p0.x, p0.y);
       zone.verts.slice(1).forEach(v => { const p = bary2canvas(...v); ctx.lineTo(p.x, p.y); });
-      ctx.closePath(); ctx.fillStyle = zone.color; ctx.fill();
-      ctx.strokeStyle = borderColor; ctx.lineWidth = 0.8 * scale; ctx.stroke();
+      ctx.closePath();
+      fillZonePath(ctx, zone.id === activeZone, zone.color, scale);
     });
     ctx.beginPath(); ctx.moveTo(Ax,Ay); ctx.lineTo(Bx,By); ctx.lineTo(Cx,Cy); ctx.closePath();
     ctx.strokeStyle = outlineColor; ctx.lineWidth = 2 * scale; ctx.stroke();
@@ -133,10 +178,8 @@
     });
     if (marker && marker.total > 0) {
       const pt = bary2canvas(marker.pCH4, marker.pC2H4, marker.pC2H2);
-      const mc = T1_MARKER_COLOR[marker.zone] || '#ef4444';
-      ctx.beginPath(); ctx.arc(pt.x,pt.y,14 * scale,0,Math.PI*2); ctx.strokeStyle=mc; ctx.globalAlpha=0.30; ctx.lineWidth=4 * scale; ctx.stroke(); ctx.globalAlpha=1.0;
-      ctx.beginPath(); ctx.arc(pt.x,pt.y,8 * scale,0,Math.PI*2); ctx.fillStyle=mc; ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=2 * scale; ctx.stroke();
-      ctx.font=`bold ${11 * scale}px sans-serif`; ctx.fillStyle=mc; ctx.textAlign='center'; ctx.textBaseline='bottom'; ctx.fillText(marker.zone, pt.x, pt.y - 12 * scale);
+      const mc = cssVar(ZONE_TOKEN[marker.zone], T1_MARKER_COLOR[marker.zone] || '#ef4444');
+      drawMarker(ctx, pt, mc, marker.zone, scale);
     }
   }
 
@@ -151,10 +194,12 @@
     const ctx = canvas.getContext('2d');
     const W = canvas.width, H = canvas.height;
     ctx.clearRect(0,0,W,H);
-    // Scale-based rendering: 520px is the on-screen canvas width, so scale
-    // === 1 there (identical to the previous fixed-pixel look). Geometry
-    // (pad, vertex/zone/marker coordinates, b2c) is untouched — only how
-    // large text/strokes/markers are drawn changes.
+    // Scale-based rendering: 520px is the canvas width this function was
+    // originally sized for, so scale === 1 there (identical to the original
+    // fixed-pixel look). Not currently called from anywhere in the app (no
+    // UI surfaces Duval Triangle 4 yet) — kept frozen and unmodified.
+    // Geometry (pad, vertex/zone/marker coordinates, b2c) is untouched —
+    // only how large text/strokes/markers are drawn changes.
     const scale = W / 520;
     const pad = 68, tW = W - pad*2, tH = (Math.sqrt(3)/2)*tW;
     const Ax=W/2, Ay=pad, Bx=pad, By=pad+tH, Cx=W-pad, Cy=pad+tH;
@@ -224,10 +269,12 @@
     const ctx = canvas.getContext('2d');
     const W = canvas.width, H = canvas.height;
     ctx.clearRect(0,0,W,H);
-    // Scale-based rendering: 520px is the on-screen canvas width, so scale
-    // === 1 there (identical to the previous fixed-pixel look). Geometry
-    // (pad, vertex/zone/marker coordinates, b2c) is untouched — only how
-    // large text/strokes/markers are drawn changes.
+    // Scale-based rendering: this function is now export-only (the on-screen
+    // triangle is the SVG component in ui/duval-svg.js). 520px matches
+    // index.html's hidden #duval2-canvas export sink, so scale === 1 there —
+    // identical to the original on-screen fixed-pixel look. Geometry (pad,
+    // vertex/zone/marker coordinates, b2c) is untouched — only how large
+    // text/strokes/markers are drawn changes.
     const scale = W / 520;
     const pad = 68, tW = W - pad*2, tH = (Math.sqrt(3)/2)*tW;
     const Ax=W/2, Ay=pad, Bx=pad, By=pad+tH, Cx=W-pad, Cy=pad+tH;   // CH₄ / C₂H₂ / C₂H₄
@@ -239,11 +286,13 @@
     const gridColor = dark ? 'rgba(255,255,255,0.13)' : 'rgba(0,0,0,0.13)';
     // Zones [%CH4, %C2H4, %C2H2] — N is an inner quadrilateral, D1 an L-shape at the C₂H₂ corner
     const zones2 = T2_ZONES;
+    const d2 = calcDuval2(g); // detected zone (pure engine call) — used to emphasise its polygon and label the marker
     zones2.forEach(z => {
       ctx.beginPath();
       const p0=b2c(...z.verts[0]); ctx.moveTo(p0.x,p0.y);
       z.verts.slice(1).forEach(v => { const p=b2c(...v); ctx.lineTo(p.x,p.y); });
-      ctx.closePath(); ctx.fillStyle=z.color; ctx.fill(); ctx.strokeStyle=borderColor; ctx.lineWidth=0.9 * scale; ctx.stroke();
+      ctx.closePath();
+      fillZonePath(ctx, z.id === d2.zone, z.color, scale);
     });
     ctx.beginPath(); ctx.moveTo(Ax,Ay); ctx.lineTo(Bx,By); ctx.lineTo(Cx,Cy); ctx.closePath();
     ctx.strokeStyle=outlineColor; ctx.lineWidth=2 * scale; ctx.stroke();
@@ -270,13 +319,8 @@
     if (total === 0) return;
     const pm=100*g.ch4/total, pe4=100*g.c2h4/total, pe2=100*g.c2h2/total;
     const pt = b2c(pm,pe4,pe2);
-    const grad = ctx.createRadialGradient(pt.x,pt.y,0,pt.x,pt.y,18 * scale);
-    grad.addColorStop(0,'rgba(234,179,8,0.5)'); grad.addColorStop(1,'rgba(234,179,8,0)');
-    ctx.beginPath(); ctx.arc(pt.x,pt.y,18 * scale,0,Math.PI*2); ctx.fillStyle=grad; ctx.fill();
-    ctx.beginPath(); ctx.arc(pt.x,pt.y,8 * scale,0,Math.PI*2); ctx.fillStyle=T2_MARKER_COLOR; ctx.fill(); ctx.strokeStyle='#000'; ctx.lineWidth=1.5 * scale; ctx.stroke();
-    const d2 = calcDuval2(g);
-    ctx.font=`bold ${11 * scale}px sans-serif`; ctx.fillStyle=dark?'#fff':'#111'; ctx.textAlign='center'; ctx.textBaseline='bottom';
-    ctx.fillText(d2.zone, pt.x, pt.y - 12 * scale);
+    const mc = cssVar(ZONE_TOKEN[d2.zone], T2_MARKER_COLOR);
+    drawMarker(ctx, pt, mc, d2.zone, scale);
   }
 
   /**
@@ -320,6 +364,6 @@
     // of hand-copied colour literals. Nothing here is new data; every value
     // was already defined above this line.
     T1_ZONES, T1_LABEL_COLOR, T1_MARKER_COLOR,
-    T2_ZONES, T2_LABEL_COLOR, T2_MARKER_COLOR
+    T2_ZONES, T2_LABEL_COLOR, T2_MARKER_COLOR, T2_LABEL_POS
   };
 })();

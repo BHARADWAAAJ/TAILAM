@@ -39,6 +39,40 @@
 
   /* ── Blueprint background wash (opacity kept below 4% — see base.css) ── */
   --grid-line:rgba(148,163,204,0.55);
+
+  /* ═══════════════════════════════════════════════════════════════════════
+     FAULT-TYPE ENGINEERING COLOR SYSTEM
+     These tokens encode FAULT TYPE, never health severity. Health severity
+     stays with the Transformer Health Index, confidence, alarms and the
+     recommendation system (which keep the --green/--yellow/--orange/--red
+     status colours above — deliberately a separate visual language).
+     Family logic: electrical/discharge = cool hues, thermal = warm hues,
+     mixed thermal+electrical = the violet bridge, normal = neutral teal.
+     Reusable across diagnostic visualizations (Duval Triangles 1 & 2 today).
+     Theme-independent on purpose: the hues are used as translucent fills +
+     opaque borders that read on both the dark and light app backgrounds,
+     so they are defined once here and not overridden in the light theme.
+     ─────────────────────────────────────────────────────────────────────── */
+  /* Electrical / discharge family — cool, by rising energy */
+  --fault-partial-discharge:     #38bdf8;   /* PD */
+  --fault-discharge-low-energy:  #3b82f6;   /* D1 */
+  --fault-discharge-high-energy: #6366f1;   /* D2 */
+  /* Mixed electrical + thermal — violet bridge */
+  --fault-thermal-electrical:    #a855f7;   /* DT (Triangle 1) · X3 (Triangle 2, coking-or-arcing) */
+  /* Thermal family — warm, by rising temperature */
+  --fault-thermal-low:           #eab308;   /* < 300 °C  (T1 · OLTC X1) */
+  --fault-thermal-medium:        #f79242;   /* 300–700 °C (T2) */
+  --fault-thermal-high:          #f0596a;   /* > 700 °C   (T3) */
+  /* Non-fault state */
+  --fault-normal:                #2dd4a8;   /* normal operation (OLTC N) */
+
+  /* ── Fault-graphic RENDERING tokens (opacity / stroke only — no colour) ──
+     Kept separate from the colour tokens above so any fault visualization
+     shares one resting/active treatment. */
+  --fault-fill-opacity:          0.22;      /* resting zone fill */
+  --fault-fill-opacity-active:   0.45;      /* detected zone fill */
+  --fault-stroke-width:          1.25px;    /* resting zone border */
+  --fault-stroke-width-active:   2.25px;    /* detected zone border */
 }
 html[data-theme="light"]{
   --bg:#f3f5fb; --bg2:#ffffff; --card:#ffffff; --card2:#f0f3fb;

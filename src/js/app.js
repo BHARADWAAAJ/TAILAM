@@ -109,16 +109,65 @@
   on('unsaved-cancel',       closeUnsavedDialog);
 
   // Duval Triangle hero → detail modal (click or keyboard activate)
-  on('duval-canvas',  () => openDuvalModal('main'));
-  on('duval2-canvas', () => openDuvalModal('oltc'));
+  on('duval-svg-main', () => openDuvalModal('main'));
+  on('duval-svg-oltc', () => openDuvalModal('oltc'));
   on('modal-duval-close',     closeDuvalModal);
   on('duval-modal-close-btn', closeDuvalModal);
-  ['duval-canvas', 'duval2-canvas'].forEach((id) => {
+  ['duval-svg-main', 'duval-svg-oltc'].forEach((id) => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDuvalModal(id === 'duval-canvas' ? 'main' : 'oltc'); }
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDuvalModal(id === 'duval-svg-main' ? 'main' : 'oltc'); }
     });
   });
+
+  // ── Primary Diagnosis <details> — explicit keyboard support + ARIA sync ──
+  // No role="button" is set on the <summary> — deliberately. The HTML-ARIA
+  // spec once allowed it as an IE11-polyfill accommodation but later removed
+  // that allowance (w3c/html-aria#85 / PR #213); TAILAM doesn't support IE.
+  // Worse, an explicit role="button" is actively harmful in one of TAILAM's
+  // three officially supported browsers: macOS Safari + VoiceOver then
+  // treats <summary> as a plain button and drops the expanded/collapsed
+  // state announcement entirely. The native implicit semantics (whatever a
+  // given engine exposes) are left alone; what this function adds is purely
+  // behavioral — Enter/Space activation, since native keyboard support for
+  // <summary> is documented as inconsistent across engines — and the
+  // aria-expanded sync, which the same spec discussion endorses keeping in
+  // sync with the `open` attribute (that part is not the harmful bit).
+  // aria-expanded stays synced via the `toggle` event, which also fires for
+  // the programmatic auto-expand dashboard.js performs after each analysis,
+  // so no separate sync call is needed there. Presentation/accessibility
+  // only — no engineering value involved.
+  function wirePrimaryDiagnosisToggle(detailsId) {
+    const details = document.getElementById(detailsId);
+    const summary = details && details.querySelector(':scope > summary');
+    if (!details || !summary) return;
+    const syncAria = () => summary.setAttribute('aria-expanded', String(details.open));
+    syncAria();
+    details.addEventListener('toggle', syncAria);
+    summary.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); details.open = !details.open; }
+    });
+  }
+  wirePrimaryDiagnosisToggle('primary-diagnosis-main');
+  wirePrimaryDiagnosisToggle('primary-diagnosis-oltc');
+
+  // ── "Show Detailed Calculations" toggle ──
+  // Pure visibility control: shows/hides the whole pre-rendered detailed-
+  // calculations card (heading included, so the professional view never
+  // shows an empty heading) for whichever panel it belongs to. Content is
+  // populated separately by ui/detailed-calcs.js. No engineering value is
+  // computed or altered here. Defaults to OFF and is never persisted —
+  // every new session/reload starts unchecked, per spec.
+  function wireDetailedToggle(toggleId, sectionId) {
+    const toggle = document.getElementById(toggleId);
+    const section = document.getElementById(sectionId);
+    if (!toggle || !section) return;
+    toggle.checked = false;
+    section.hidden = true;
+    toggle.addEventListener('change', () => { section.hidden = !toggle.checked; });
+  }
+  wireDetailedToggle('toggle-detailed-main', 'detailed-main-section');
+  wireDetailedToggle('toggle-detailed-oltc', 'detailed-oltc-section');
 
   // keyboard access for the nav brand's "go home" role="button"
   const navBrandEl = document.getElementById('nav-brand');

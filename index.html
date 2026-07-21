@@ -15,6 +15,8 @@
 <link rel="stylesheet" href="src/css/components.css">
 <link rel="stylesheet" href="src/css/dashboard.css">
 <link rel="stylesheet" href="src/css/flow.css">
+<link rel="stylesheet" href="src/css/detailed.css">
+<link rel="stylesheet" href="src/css/duval.css">
 <link rel="stylesheet" href="src/css/print.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js" defer></script>
 </head>
@@ -286,6 +288,57 @@
         </div>
       </div>
 
+      <!-- ══════════════ PRIMARY DIAGNOSIS (Duval Triangle 1) ══════════════
+           Promoted out of the Engineering Assessment card so the primary
+           diagnostic visualization appears exactly once, immediately after
+           the Engineering Snapshot. <details open> auto-expands; dashboard.js
+           re-opens it on every analysis, so a manual collapse never carries
+           over (state is never persisted). Presentation only — the SVG host,
+           caption and legend keep their original ids. -->
+      <details class="card primary-diagnosis" id="primary-diagnosis-main" open>
+        <summary class="primary-diagnosis-summary">
+          <span class="section-title as-summary">Primary Diagnosis</span>
+          <span class="primary-diagnosis-sub">Duval Triangle 1 · IEC 60599</span>
+          <span class="chev"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 8.6 12 15l6.4-6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>
+        </summary>
+        <div class="primary-diagnosis-body">
+          <div class="duval-hero">
+            <div class="duval-hero-canvas-wrap">
+              <div id="duval-svg-main" class="duval-svg-host" tabindex="0" role="button" aria-label="Open Duval Triangle 1 detail view"></div>
+              <div class="duval-hero-hint">Click triangle to enlarge</div>
+            </div>
+            <div class="duval-caption">
+              <div class="duval-caption-title">Duval Triangle 1</div>
+              <div class="duval-caption-kicker">Current Diagnostic Zone</div>
+              <div id="hero-duval-zone-main" class="result-box zs-zone">—</div>
+              <div id="hero-duval-name-main" class="duval-caption-fault">—</div>
+              <div class="duval-caption-standard">IEC 60599</div>
+              <div class="zs-gas-list duval-caption-gas">
+                <div class="zs-gas-row"><span>CH₄</span><span id="hero-dp-ch4-main">—</span></div>
+                <div class="zs-gas-row"><span>C₂H₄</span><span id="hero-dp-c2h4-main">—</span></div>
+                <div class="zs-gas-row"><span>C₂H₂</span><span id="hero-dp-c2h2-main">—</span></div>
+              </div>
+            </div>
+          </div>
+          <div id="duval-legend-main"></div>
+        </div>
+      </details>
+
+      <!-- "Show Detailed Calculations" toggle — screen-only engineering
+           transparency feature. OFF by default every session (never
+           persisted). Controls visibility of #detailed-main only; computes
+           nothing itself. See src/js/ui/detailed-calcs.js. -->
+      <div class="detailed-toggle-bar no-print">
+        <label class="detailed-toggle-switch">
+          <input type="checkbox" id="toggle-detailed-main" autocomplete="off" aria-label="Show Detailed Calculations" aria-describedby="detailed-toggle-desc-main">
+          <span class="detailed-toggle-track"><span class="detailed-toggle-thumb"></span></span>
+        </label>
+        <div class="detailed-toggle-copy">
+          <span class="detailed-toggle-title">Show Detailed Calculations</span>
+          <span class="detailed-toggle-sub" id="detailed-toggle-desc-main">Reveal every formula, substitution and threshold behind this assessment.</span>
+        </div>
+      </div>
+
       <!-- Assessment Completed strip — informational only, no calculations.
            Timestamp is intentionally not repeated here: it is shown once,
            immediately below, in the Status Banner (Assessment Date / Time). -->
@@ -321,27 +374,6 @@
           <div class="assessment-item"><div class="ai-label">Confidence</div><div class="ai-value" id="assess-confidence-main">—</div></div>
           <div class="assessment-item"><div class="ai-label">Agreement</div><div class="ai-value" id="assess-agreement-main">—</div></div>
         </div>
-
-        <div class="duval-hero">
-          <div class="duval-hero-canvas-wrap">
-            <canvas id="duval-canvas" width="520" height="480" class="duval-hero-canvas" tabindex="0" role="button" aria-label="Open Duval Triangle 1 detail view"></canvas>
-            <div class="duval-hero-hint">Click triangle to enlarge</div>
-          </div>
-          <div class="duval-caption">
-            <div class="duval-caption-title">Duval Triangle 1</div>
-            <div class="duval-caption-kicker">Current Diagnostic Zone</div>
-            <div id="hero-duval-zone-main" class="result-box zs-zone">—</div>
-            <div id="hero-duval-name-main" class="duval-caption-fault">—</div>
-            <div class="duval-caption-standard">IEC 60599</div>
-            <div class="zs-gas-list duval-caption-gas">
-              <div class="zs-gas-row"><span>CH₄</span><span id="hero-dp-ch4-main">—</span></div>
-              <div class="zs-gas-row"><span>C₂H₄</span><span id="hero-dp-c2h4-main">—</span></div>
-              <div class="zs-gas-row"><span>C₂H₂</span><span id="hero-dp-c2h2-main">—</span></div>
-            </div>
-          </div>
-        </div>
-
-        <div id="duval-legend-main"></div>
 
         <details class="why-toggle">
           <summary>Why? <span class="chev"><svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 8.6 12 15l6.4-6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span></summary>
@@ -392,6 +424,19 @@
           <summary>Why? <span class="chev"><svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 8.6 12 15l6.4-6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span></summary>
           <div id="thi-why-main" class="why-body"></div>
         </details>
+      </div>
+
+      <!-- 5.5 — DETAILED ENGINEERING CALCULATIONS.
+           The WHOLE section (heading included) is hidden by default via
+           `hidden` on this outer card, so the professional view never shows
+           an empty "Detailed Engineering Calculations" heading with nothing
+           under it. Visibility controlled solely by the toggle above.
+           Populated by ui/detailed-calcs.js from the SAME report object
+           every other section on this page reads — no engineering value is
+           computed here. no-print: screen-only, exports are unaffected. -->
+      <div class="card no-print" id="detailed-main-section" hidden>
+        <h2 class="section-title">Detailed Engineering Calculations</h2>
+        <div id="detailed-main" class="detailed-calcs"></div>
       </div>
 
       <!-- 6 — ENGINEERING INTERPRETATION -->
@@ -627,6 +672,54 @@
         </div>
       </div>
 
+      <!-- ══════════════ PRIMARY DIAGNOSIS (Duval Triangle 2) ══════════════
+           Promoted out of the Engineering Assessment card (see the Main Tank
+           panel for the full rationale). <details open> auto-expands and is
+           re-opened by dashboard.js on every OLTC analysis. -->
+      <details class="card primary-diagnosis" id="primary-diagnosis-oltc" open>
+        <summary class="primary-diagnosis-summary">
+          <span class="section-title as-summary">Primary Diagnosis</span>
+          <span class="primary-diagnosis-sub">Duval Triangle 2 · IEC 60599:2022 Fig. B.4</span>
+          <span class="chev"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 8.6 12 15l6.4-6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>
+        </summary>
+        <div class="primary-diagnosis-body">
+          <div class="duval-hero">
+            <div class="duval-hero-canvas-wrap">
+              <div id="duval-svg-oltc" class="duval-svg-host" tabindex="0" role="button" aria-label="Open Duval Triangle 2 detail view"></div>
+              <div class="duval-hero-hint">Click triangle to enlarge</div>
+            </div>
+            <div class="duval-caption">
+              <div class="duval-caption-title">Duval Triangle 2</div>
+              <div class="duval-caption-kicker">Current Diagnostic Zone</div>
+              <div id="hero-duval2-zone-oltc" class="result-box zs-zone">—</div>
+              <div id="hero-duval2-name-oltc" class="duval-caption-fault">—</div>
+              <div class="duval-caption-standard">IEC 60599</div>
+              <div class="zs-gas-list duval-caption-gas">
+                <div class="zs-gas-row"><span>CH₄</span><span id="hero-d2p-ch4-oltc">—</span></div>
+                <div class="zs-gas-row"><span>C₂H₄</span><span id="hero-d2p-c2h4-oltc">—</span></div>
+                <div class="zs-gas-row"><span>C₂H₂</span><span id="hero-d2p-c2h2-oltc">—</span></div>
+              </div>
+            </div>
+          </div>
+          <div id="duval-legend-oltc"></div>
+        </div>
+      </details>
+
+      <!-- "Show Detailed Calculations" toggle — screen-only engineering
+           transparency feature. OFF by default every session (never
+           persisted). Controls visibility of #detailed-oltc only; computes
+           nothing itself. See src/js/ui/detailed-calcs.js. -->
+      <div class="detailed-toggle-bar no-print">
+        <label class="detailed-toggle-switch">
+          <input type="checkbox" id="toggle-detailed-oltc" autocomplete="off" aria-label="Show Detailed Calculations" aria-describedby="detailed-toggle-desc-oltc">
+          <span class="detailed-toggle-track"><span class="detailed-toggle-thumb"></span></span>
+        </label>
+        <div class="detailed-toggle-copy">
+          <span class="detailed-toggle-title">Show Detailed Calculations</span>
+          <span class="detailed-toggle-sub" id="detailed-toggle-desc-oltc">Reveal every formula, substitution and threshold behind this assessment.</span>
+        </div>
+      </div>
+
       <!-- Assessment Completed strip — informational only, no calculations.
            Timestamp is intentionally not repeated here: it is shown once,
            immediately below, in the Status Banner (Assessment Date / Time). -->
@@ -662,27 +755,6 @@
           <div class="assessment-item"><div class="ai-label">Confidence</div><div class="ai-value" id="assess-confidence-oltc">—</div></div>
           <div class="assessment-item"><div class="ai-label">Agreement</div><div class="ai-value" id="assess-agreement-oltc">—</div></div>
         </div>
-
-        <div class="duval-hero">
-          <div class="duval-hero-canvas-wrap">
-            <canvas id="duval2-canvas" width="520" height="480" class="duval-hero-canvas" tabindex="0" role="button" aria-label="Open Duval Triangle 2 detail view"></canvas>
-            <div class="duval-hero-hint">Click triangle to enlarge</div>
-          </div>
-          <div class="duval-caption">
-            <div class="duval-caption-title">Duval Triangle 2</div>
-            <div class="duval-caption-kicker">Current Diagnostic Zone</div>
-            <div id="hero-duval2-zone-oltc" class="result-box zs-zone">—</div>
-            <div id="hero-duval2-name-oltc" class="duval-caption-fault">—</div>
-            <div class="duval-caption-standard">IEC 60599</div>
-            <div class="zs-gas-list duval-caption-gas">
-              <div class="zs-gas-row"><span>CH₄</span><span id="hero-d2p-ch4-oltc">—</span></div>
-              <div class="zs-gas-row"><span>C₂H₄</span><span id="hero-d2p-c2h4-oltc">—</span></div>
-              <div class="zs-gas-row"><span>C₂H₂</span><span id="hero-d2p-c2h2-oltc">—</span></div>
-            </div>
-          </div>
-        </div>
-
-        <div id="duval-legend-oltc"></div>
 
         <details class="why-toggle">
           <summary>Why? <span class="chev"><svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 8.6 12 15l6.4-6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span></summary>
@@ -721,6 +793,15 @@
           <summary>Why? <span class="chev"><svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 8.6 12 15l6.4-6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span></summary>
           <div id="thi-why-oltc" class="why-body"></div>
         </details>
+      </div>
+
+      <!-- 5.5 — DETAILED ENGINEERING CALCULATIONS.
+           See the Main Tank panel for the full rationale. Populated by
+           ui/detailed-calcs.js from the SAME OLTC report object every other
+           section here reads — no engineering value is computed. -->
+      <div class="card no-print" id="detailed-oltc-section" hidden>
+        <h2 class="section-title">Detailed Engineering Calculations</h2>
+        <div id="detailed-oltc" class="detailed-calcs"></div>
       </div>
 
       <!-- 6 — ENGINEERING INTERPRETATION -->
@@ -814,6 +895,18 @@
   </div>
 
   </div><!-- /view-workspace -->
+
+  <!-- Off-screen export-canvas sink. The on-screen Duval triangles are now
+       SVG (ui/duval-svg.js); these hidden canvases exist ONLY so the frozen
+       PDF/Excel export pipeline (ui/export.js) can keep drawing into
+       #duval-canvas / #duval2-canvas by id and reading them via toDataURL,
+       exactly as before. Positioned off-screen (not display:none, which some
+       browsers skip when rasterizing a canvas) — never visible, never
+       printed. ui/export.js and ui/charts.js are unchanged in structure. -->
+  <div class="export-canvas-sink" aria-hidden="true" style="position:fixed;left:-99999px;top:0">
+    <canvas id="duval-canvas" width="520" height="480"></canvas>
+    <canvas id="duval2-canvas" width="520" height="480"></canvas>
+  </div>
 
   <footer>
     <div class="footer-logo" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 40 40"><defs><linearGradient id="tailamGradFoot" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--green)"/></linearGradient></defs><path d="M20 6 35 33H5Z" fill="none" stroke="url(#tailamGradFoot)" stroke-width="2.4" stroke-linejoin="round"/><path d="M20 17c3 3.7 4.7 6.1 4.7 8.4a4.7 4.7 0 1 1-9.4 0c0-2.3 1.7-4.7 4.7-8.4Z" fill="url(#tailamGradFoot)"/></svg></div>
@@ -913,8 +1006,8 @@
   </div>
 
   <!-- Duval Triangle detail modal — shared by Main Tank (Triangle 1) and OLTC
-       (Triangle 2). Re-renders the SAME unchanged drawDuvalTriangle/2()
-       functions into a second, larger canvas; no new diagnostics. -->
+       (Triangle 2). Re-renders the SAME ui/duval-svg.js component, larger,
+       from the SAME already-computed report data; no new diagnostics. -->
   <div class="modal-overlay no-print" id="modal-duval" data-dismissable>
     <div class="modal-box modal-wide">
       <button class="modal-close" id="modal-duval-close" aria-label="Close"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
@@ -922,7 +1015,7 @@
       <div class="modal-sub" id="duval-modal-subtitle"></div>
 
       <div class="duval-modal-canvas-wrap">
-        <canvas id="duval-modal-canvas" width="560" height="520" class="duval-modal-canvas"></canvas>
+        <div id="duval-svg-modal" class="duval-svg-host"></div>
       </div>
 
       <div id="duval-legend-modal"></div>
@@ -1014,9 +1107,11 @@
 <script src="src/js/ui/cards.js"></script>
 <script src="src/js/ui/charts.js"></script>
 <script src="src/js/ui/duval-legend.js"></script>
+<script src="src/js/ui/duval-svg.js"></script>
 <script src="src/js/ui/dialogs.js"></script>
 <script src="src/js/ui/modals.js"></script>
 <script src="src/js/ui/workspace.js"></script>
+<script src="src/js/ui/detailed-calcs.js"></script>
 <script src="src/js/ui/dashboard.js"></script>
 <script src="src/js/ui/export.js"></script>
 <script src="src/js/ui/loading.js"></script>

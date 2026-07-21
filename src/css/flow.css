@@ -204,10 +204,11 @@
 }
 .landing-hero-grid{position:relative;z-index:1;}
 
-/* ---- Duval Triangle: analysis flow on top of the canvas ----
-   The triangle itself is a <canvas> drawn by the frozen charts.js, so all
-   motion lives in CSS overlays layered above/behind it — the pixels the
-   engine draws are never touched.
+/* ---- Duval Triangle: analysis flow on top of the triangle ----
+   The on-screen triangle is the SVG component in ui/duval-svg.js (a <canvas>
+   is retained only off-screen, for PDF/Excel export), so all motion here
+   lives in CSS overlays layered above/behind it — the geometry the SVG
+   component draws is never touched.
    1. A soft teal "scan" band periodically sweeps down the triangle, like a
       lab instrument reading the sample.
    2. The radial glow staged behind the triangle (dashboard.css ::before)
@@ -219,10 +220,11 @@
   54%{opacity:0;}
   100%{background-position:0 -120%;opacity:0;}
 }
-/* NOTE: no mix-blend-mode and no transform animations here — both force
-   the canvas's wrapper into a new compositing layer, which retriggers the
-   documented "Duval triangle vanishes" browser bug (see dashboard.js
-   redrawVisibleCanvases). Opacity + background-position only. */
+/* NOTE: no mix-blend-mode and no transform animations here. Historically
+   (when the on-screen triangle was a <canvas>) this specifically avoided
+   retriggering the "Duval triangle vanishes" canvas-eviction bug; the SVG
+   component isn't subject to that bug, but opacity/background-position-only
+   animation remains the lighter-weight choice, so the constraint is kept. */
 @keyframes duvalGlowBreathe{
   0%,100%{opacity:.6;}
   50%{opacity:1;}

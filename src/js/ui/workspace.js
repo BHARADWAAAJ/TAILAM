@@ -286,7 +286,7 @@
         triangle: 'triangle1',
         container: 'duval-legend-main',
         currentZone: duval.zone,
-        highlightTargetId: 'duval-canvas'
+        highlightTargetId: 'duval-svg-main'
       });
     }
 
@@ -473,7 +473,7 @@
         triangle: 'triangle2',
         container: 'duval-legend-oltc',
         currentZone: duval2.zone,
-        highlightTargetId: 'duval2-canvas'
+        highlightTargetId: 'duval-svg-oltc'
       });
     }
 
@@ -587,7 +587,7 @@
       const duval = mt.duval;
       setTxt('duval-modal-title', 'Duval Triangle 1 — Main Tank');
       setTxt('duval-modal-subtitle', 'IEC 60599:2022 — CH₄ / C₂H₄ / C₂H₂');
-      charts.drawDuvalTriangle('duval-modal-canvas', duval);
+      window.TAILAM.ui.duvalSvg.render({ container:'duval-svg-modal', triangle:'triangle1', marker:duval });
       setTxt('duval-modal-point', duval.total
         ? ('Zone ' + duval.zone + ' — CH₄ ' + duval.pCH4.toFixed(1) + '% · C₂H₄ ' + duval.pC2H4.toFixed(1) + '% · C₂H₂ ' + duval.pC2H2.toFixed(1) + '%')
         : 'No point plotted — insufficient gas data.');
@@ -600,7 +600,7 @@
           triangle: 'triangle1',
           container: 'duval-legend-modal',
           currentZone: duval.zone,
-          highlightTargetId: 'duval-modal-canvas'
+          highlightTargetId: 'duval-svg-modal'
         });
       }
     } else {
@@ -609,7 +609,7 @@
       const duval2 = ot.duval2;
       setTxt('duval-modal-title', 'Duval Triangle 2 — OLTC');
       setTxt('duval-modal-subtitle', 'IEC 60599:2022 Fig. B.4 — CH₄ / C₂H₄ / C₂H₂');
-      charts.drawDuvalTriangle2('duval-modal-canvas', ot.og);
+      window.TAILAM.ui.duvalSvg.render({ container:'duval-svg-modal', triangle:'triangle2', marker:duval2 });
       setTxt('duval-modal-point', 'Zone ' + duval2.zone + ' — CH₄ ' + duval2.pCH4.toFixed(1) + '% · C₂H₄ ' + duval2.pC2H4.toFixed(1) + '% · C₂H₂ ' + duval2.pC2H2.toFixed(1) + '%');
       setTxt('duval-modal-explanation', duval2.desc);
       setTxt('duval-modal-reference', 'IEC 60599:2022 — Figure B.4 (Duval Triangle 2, OLTC)');
@@ -622,7 +622,7 @@
           triangle: 'triangle2',
           container: 'duval-legend-modal',
           currentZone: duval2.zone,
-          highlightTargetId: 'duval-modal-canvas'
+          highlightTargetId: 'duval-svg-modal'
         });
       }
     }
@@ -635,10 +635,11 @@
     const overlay = document.getElementById('modal-duval');
     if (overlay) overlay.style.display = 'none';
     // Bug fix — opening/closing the modal (backdrop-filter blur) forces a
-    // recomposite that can drop the hero canvas bitmap in some browsers
-    // (same root cause as the visibilitychange/pageshow redraws in
-    // dashboard.js). Repaint the visible hero canvases from the SAME
-    // already-computed report objects — nothing is recomputed.
+    // recomposite that can drop a <canvas> bitmap in some browsers (same
+    // root cause as the visibilitychange/pageshow redraws in dashboard.js).
+    // The Duval triangles are SVG now and aren't affected; this call is only
+    // still meaningful for the risk-gauge canvas — from the SAME
+    // already-computed report object, nothing is recomputed.
     const dashboard = window.TAILAM.ui.dashboard;
     if (dashboard && dashboard.redrawVisibleCanvases) {
       requestAnimationFrame(() => dashboard.redrawVisibleCanvases());

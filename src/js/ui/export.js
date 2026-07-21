@@ -794,15 +794,14 @@
          Current Status / Engineering Assessment / Duval Triangle, all of
          which now flow onto Page 1 with no forced break between them. Same
          premium coloured masthead, same fields. ── */
-      .report-header{background:var(--pdf-blue);color:#fff;padding:14px 20px 12px 20px;border-radius:0 0 8px 8px;margin-bottom:12px;}
-      .report-brand{font-size:26px;font-weight:800;letter-spacing:0.5px;}
-      .report-brand .tm{font-size:13px;vertical-align:super;}
-      .report-subtitle{font-size:12.5px;color:#dbe1f7;margin-top:2px;}
-      .report-doctype{font-size:11.5px;font-weight:700;color:#fff;margin-top:7px;text-transform:uppercase;letter-spacing:0.6px;opacity:0.92;}
-      .report-header-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:11px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.25);}
+      /* Data-first header (branding sprint): slim, unbranded, reads as a
+         document title block rather than a product advertisement. */
+      .report-header{padding:0 0 10px 0;border-bottom:2.5px solid var(--pdf-blue);margin-bottom:14px;}
+      .report-doctype{font-size:19px;font-weight:800;color:#161b2e;letter-spacing:0.2px;}
+      .report-header-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:9px;}
       .report-header-meta-cell{overflow-wrap:break-word;word-break:break-word;}
-      .report-header-meta-label{display:block;font-size:10px;color:#c3cbf0;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:2px;}
-      .report-header-meta-value{display:block;font-size:13px;font-weight:700;color:#fff;}
+      .report-header-meta-label{display:block;font-size:10px;color:var(--pdf-grey);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:2px;}
+      .report-header-meta-value{display:block;font-size:13px;font-weight:700;color:#161b2e;}
 
       /* ── Numbered engineering sections. Final polish sprint: no section
          forces a page break anymore — every forced .page-break-before was
@@ -997,6 +996,11 @@
 
       .disclaimer{font-size:11.5px;color:var(--pdf-grey);border-top:1px solid var(--pdf-grey-line);padding-top:8px;margin-top:4px;}
 
+      /* Branding end-note — small, quiet, last thing in the report. */
+      .brand-endnote{margin-top:14px;padding-top:8px;border-top:1px solid var(--pdf-grey-line);text-align:center;font-size:9.5px;color:var(--pdf-grey);line-height:1.7;page-break-inside:avoid;}
+      .brand-endnote-name{font-size:11px;font-weight:800;letter-spacing:0.6px;color:#3b415c;}
+      .brand-endnote .tm{font-size:7px;vertical-align:super;}
+
       /* Footer — now rendered entirely by the @page @bottom-center margin
          box above (same mechanism as the Page X of Y counter), typeset in
          the page margin where it can never collide with report content.
@@ -1006,19 +1010,20 @@
 
       @media print{
         .duval-figure img{max-width:400px;}
-        .report-header{border-radius:0;}
       }
     </style></head><body>
 
+    <!-- Data-first header (branding sprint): no product branding on Page 1 —
+         just the document title and the identifying data the reader needs.
+         Full TAILAM branding now lives in the small end-note on the last
+         page, after all engineering content. -->
     <header class="report-header">
-      <div class="report-brand">TAILAM<span class="tm">™</span></div>
-      <div class="report-subtitle">Transformer Assessment for Insulating Liquid Analysis &amp; Monitoring</div>
-      <div class="report-doctype">Engineering Decision Support Report</div>
+      <div class="report-doctype">${esc(moduleLabel)} Report</div>
       <div class="report-header-meta">
         <div class="report-header-meta-cell"><span class="report-header-meta-label">Transformer Name</span><span class="report-header-meta-value">${esc(info.name || 'Unnamed Transformer')}</span></div>
         <div class="report-header-meta-cell"><span class="report-header-meta-label">Analysis Module</span><span class="report-header-meta-value">${esc(moduleLabel)}</span></div>
         <div class="report-header-meta-cell"><span class="report-header-meta-label">Date</span><span class="report-header-meta-value">${esc(now.toLocaleDateString())}</span></div>
-        <div class="report-header-meta-cell"><span class="report-header-meta-label">Version</span><span class="report-header-meta-value">${esc(REPORT_META.version)} (${esc(REPORT_META.edition)})</span></div>
+        <div class="report-header-meta-cell"><span class="report-header-meta-label">Report Number</span><span class="report-header-meta-value">${esc(reportNumber)}</span></div>
       </div>
     </header>
 
@@ -1089,7 +1094,16 @@
     </div>
 
     <div class="section disclaimer">
-      For engineering guidance only — not a substitute for the judgement of a qualified transformer engineer. TAILAM™ ${esc(REPORT_META.version)} (${esc(REPORT_META.edition)}, Static Browser Edition, Build ${esc(REPORT_META.build)}). Report ${esc(reportNumber)}.
+      For engineering guidance only — not a substitute for the judgement of a qualified transformer engineer. Report ${esc(reportNumber)}.
+    </div>
+
+    <!-- Branding end-note (branding sprint): all product identity moved
+         here, after every engineering section, in small type. -->
+    <div class="brand-endnote">
+      <div class="brand-endnote-name">TAILAM<span class="tm">™</span></div>
+      <div>Transformer Assessment for Insulating Liquid Analysis &amp; Monitoring</div>
+      <div>Version ${esc(REPORT_META.version)} · ${esc(REPORT_META.edition)} · Static Browser Edition · Build ${esc(REPORT_META.build)} · Rule-Based Engineering Intelligence</div>
+      <div>bharadwaaaj.github.io/TAILAM · Designed by Bharadwaj Muppala · linkedin.com/in/bharadwajmuppala</div>
     </div>
 
     ${footerHTML}

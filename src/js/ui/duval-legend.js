@@ -17,8 +17,8 @@
  *    already surfaced today in the Duval detail modal via duval.desc /
  *    duval2.desc). Nothing is re-authored or invented.
  *  - The hover highlight and click tooltip are informational only; they
- *    never call an engine function, never redraw the base triangle canvas,
- *    and never alter marker/zone/gas data in any way.
+ *    never call an engine function, never touch the on-screen SVG's marker
+ *    or zone geometry, and never alter marker/zone/gas data in any way.
  *
  * Plain script — publishes on window.TAILAM.ui.duvalLegend.
  * Depends on window.TAILAM.utils.helpers, window.TAILAM.ui.charts (load
@@ -113,7 +113,7 @@
    * @param {'triangle1'|'triangle2'} triangleKey
    * @param {?string} [currentZone] - current diagnosed zone code, if any,
    *   used only to colour the Current Sample swatch to match the live
-   *   on-canvas marker for that exact zone.
+   *   result marker (ui/duval-svg.js) for that exact zone.
    * @returns {?{standard:string, zones:Array, currentSample:object}}
    */
   function getLegendData(triangleKey, currentZone) {
@@ -138,78 +138,39 @@
     };
   }
 
-  // ── Hover-highlight overlay (desktop only, very subtle, read-only) ─────
-  // Draws a soft highlight of one zone's boundary on a transparent overlay
-  // canvas placed over the base triangle canvas. Never touches the base
-  // canvas itself, so the live diagnostic marker is always preserved
-  // untouched. Uses the SAME zone vertex data + the SAME simple screen-
-  // placement formula (pad=68, equilateral layout) already used identically
-  // three times inside ui/charts.js — no zone boundary or diagnostic value
-  // is computed or altered here.
+  // ── Hover-highlight (desktop only, very subtle, read-only) ─────────────
+  // Cleanup note: the on-screen triangle is now the SVG component in
+  // ui/duval-svg.js (Duval SVG migration), not a <canvas>. The previous
+  // version of this file drew a highlight on a second, transparently
+  // overlaid <canvas> sized to the base canvas's .width/.height — that
+  // mechanism no longer has a canvas to size against and was a duplicate
+  // rendering path in any case (a second geometry-projection routine
+  // re-deriving what ui/duval-svg.js already draws). Replaced with a plain
+  // DOM class toggle on the matching zone <polygon> already present in the
+  // live SVG (data-zone="<id>", written by ui/duval-svg.js), reusing the
+  // SAME fault-type emphasis tokens (--fault-fill-opacity-active /
+  // --fault-stroke-width-active) the detected-zone highlight already uses —
+  // see .fz.legend-hover in src/css/duval.css. No zone boundary or
+  // diagnostic value is computed or altered here; targetId now names the
+  // SVG host container (e.g. 'duval-svg-main'), not a canvas.
 
-  const HIGHLIGHT_FILL = 'rgba(37,99,235,0.10)';
-  const HIGHLIGHT_STROKE = 'rgba(37,99,235,0.85)';
-
-  function triangleVertices(W, H) {
-    const pad = 68, tW = W - pad * 2, tH = (Math.sqrt(3) / 2) * tW;
-    return { Ax: W / 2, Ay: pad, Bx: pad, By: pad + tH, Cx: W - pad, Cy: pad + tH };
+  function findZonePolygon(hostId, zoneId) {
+    const host = document.getElementById(hostId);
+    if (!host || !zoneId) return null;
+    return host.querySelector('.fz[data-zone="' + zoneId + '"]');
   }
 
-  function zoneVerts(triangleKey, zoneId) {
-    const zones = triangleKey === 'triangle2' ? charts.T2_ZONES : charts.T1_ZONES;
-    const z = (zones || []).find((zz) => zz.id === zoneId);
-    return z ? z.verts : null;
+  /** Add the hover-highlight class to `zoneId`'s polygon inside `hostId`. */
+  function highlightZone(hostId, triangleKey, zoneId) {
+    const poly = findZonePolygon(hostId, zoneId);
+    if (poly) poly.classList.add('legend-hover');
   }
 
-  function getOverlay(canvasId) {
-    const base = document.getElementById(canvasId);
-    if (!base || !base.parentElement) return null;
-    const wrap = base.parentElement;
-    let overlay = wrap.querySelector('.duval-legend-highlight-overlay[data-for="' + canvasId + '"]');
-    if (!overlay) {
-      overlay = document.createElement('canvas');
-      overlay.className = 'duval-legend-highlight-overlay';
-      overlay.setAttribute('data-for', canvasId);
-      overlay.setAttribute('aria-hidden', 'true');
-      const cs = window.getComputedStyle(wrap);
-      if (cs.position === 'static') wrap.style.position = 'relative';
-      wrap.appendChild(overlay);
-    }
-    if (overlay.width !== base.width || overlay.height !== base.height) {
-      overlay.width = base.width; overlay.height = base.height;
-    }
-    return overlay;
-  }
-
-  /** Draw a subtle highlight of `zoneId`'s boundary over `canvasId`. No-op off desktop-pointer devices. */
-  function highlightZone(canvasId, triangleKey, zoneId) {
-    if (!zoneId) return;
-    const overlay = getOverlay(canvasId);
-    const verts = zoneVerts(triangleKey, zoneId);
-    if (!overlay || !verts) return;
-    const ctx = overlay.getContext('2d');
-    const W = overlay.width, H = overlay.height;
-    ctx.clearRect(0, 0, W, H);
-    const { Ax, Ay, Bx, By, Cx, Cy } = triangleVertices(W, H);
-    function b2c(v) {
-      const a = v[0] / 100, b = v[1] / 100, c = v[2] / 100;
-      return { x: a * Ax + b * Cx + c * Bx, y: a * Ay + b * Cy + c * By };
-    }
-    ctx.beginPath();
-    const p0 = b2c(verts[0]);
-    ctx.moveTo(p0.x, p0.y);
-    verts.slice(1).forEach((v) => { const p = b2c(v); ctx.lineTo(p.x, p.y); });
-    ctx.closePath();
-    ctx.fillStyle = HIGHLIGHT_FILL; ctx.fill();
-    ctx.strokeStyle = HIGHLIGHT_STROKE; ctx.lineWidth = Math.max(2, 2.5 * (W / 520)); ctx.stroke();
-  }
-
-  /** Clear any highlight drawn on `canvasId`'s overlay. */
-  function clearHighlight(canvasId) {
-    const base = document.getElementById(canvasId);
-    if (!base || !base.parentElement) return;
-    const overlay = base.parentElement.querySelector('.duval-legend-highlight-overlay[data-for="' + canvasId + '"]');
-    if (overlay) overlay.getContext('2d').clearRect(0, 0, overlay.width, overlay.height);
+  /** Remove any hover-highlight class within `hostId`. */
+  function clearHighlight(hostId) {
+    const host = document.getElementById(hostId);
+    if (!host) return;
+    host.querySelectorAll('.fz.legend-hover').forEach((p) => p.classList.remove('legend-hover'));
   }
 
   // Single, module-scope "click outside closes the open tooltip" listener —
@@ -252,7 +213,7 @@
    * @param {'triangle1'|'triangle2'} opts.triangle
    * @param {string|Element} opts.container - element or element id to render into
    * @param {?string} [opts.currentZone] - current diagnosed zone code (colours the Current Sample swatch)
-   * @param {?string} [opts.highlightTargetId] - id of the on-screen <canvas> to subtly highlight on hover/focus
+   * @param {?string} [opts.highlightTargetId] - id of the on-screen SVG host (duval-svg.js container) to subtly highlight on hover/focus
    */
   function renderDuvalLegend(opts) {
     opts = opts || {};

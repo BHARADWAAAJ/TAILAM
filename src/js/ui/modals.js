@@ -23,8 +23,10 @@
 
   /**
    * Close the Duval detail modal through its owner (ui/workspace.js) so its
-   * canvas-repaint bug fix always runs, whichever way the modal was
-   * dismissed. Read lazily — workspace.js loads after this file.
+   * post-close repaint always runs, whichever way the modal was dismissed.
+   * The Duval triangles are SVG and don't need this; only the risk-gauge
+   * <canvas> (redrawVisibleCanvases) can still be affected by the backdrop
+   * recomposite. Read lazily — workspace.js loads after this file.
    */
   function closeDuvalViaWorkspace() {
     const ws = window.TAILAM.ui.workspace;
@@ -46,8 +48,8 @@
     document.querySelectorAll('.modal-overlay[data-dismissable]').forEach(overlay => {
       overlay.addEventListener('click', (e) => {
         if (e.target !== overlay) return;
-        // Route the Duval modal through its owner so the hero canvas is
-        // repainted after the backdrop recomposite (see workspace.js).
+        // Route the Duval modal through its owner so the risk-gauge canvas
+        // is repainted after the backdrop recomposite (see workspace.js).
         if (overlay.id === 'modal-duval') closeDuvalViaWorkspace();
         else overlay.style.display = 'none';
       });

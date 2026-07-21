@@ -97,6 +97,23 @@
 /* ── Workspace grid: left input form / right engineering workspace ── */
 .workspace-grid{display:grid;grid-template-columns:400px 1fr;gap:24px;align-items:start;margin-bottom:36px;}
 @media(max-width:980px){.workspace-grid{grid-template-columns:1fr;}}
+/* Desktop centring fix: while the empty-state placeholder is showing, the
+   classic two-column layout (input left, workspace right) stays. Once an
+   analysis has run (the placeholder gets inline display:none and the
+   results block is shown), the grid collapses to ONE centred column so the
+   result dashboard sits in the middle of the screen instead of shifted
+   right of the 400px input column. Pure CSS (:has) — no JS, no workflow
+   change; browsers without :has simply keep the current two-column layout,
+   and ≤980px (mobile/tablet) is untouched because this rule is scoped to
+   ≥981px only. */
+@media(min-width:981px){
+  .workspace-grid:has(.workspace-right > .empty-state[style*="none"]){
+    grid-template-columns:1fr;
+    max-width:880px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+}
 .workspace-left .grid-3,.workspace-left .grid-4{grid-template-columns:repeat(2,1fr);}
 @media(max-width:460px){.workspace-left .grid-3,.workspace-left .grid-4{grid-template-columns:1fr;}}
 

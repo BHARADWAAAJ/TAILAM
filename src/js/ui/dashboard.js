@@ -23,7 +23,10 @@
   const { calcAgreement } = window.TAILAM.engine.consensus;
   const { calcRiskScore, healthCategoryFor } = window.TAILAM.engine.thi;
   const { getRecommendation } = window.TAILAM.engine.recommendations;
-  const { drawDuvalTriangle, drawDuvalTriangle2, drawRiskGauge } = window.TAILAM.ui.charts;
+  // Note: drawDuvalTriangle/drawDuvalTriangle2 (charts.js) are no longer used
+  // here — the on-screen triangle is duvalSvg.render() below; those two
+  // canvas functions are now called only from ui/export.js (off-screen).
+  const { drawRiskGauge } = window.TAILAM.ui.charts;
   const { setText, setResultBox, flagHTML } = window.TAILAM.ui.cards;
   const { notify } = window.TAILAM.ui.dialogs;
   const { GAS_LABELS, fmtRatio, getResultClass, CONDITION_CLASS_MAP } = window.TAILAM.utils.helpers;
@@ -71,11 +74,19 @@
     document.getElementById('empty-main').style.display = 'none';
     const resultsMainEl = document.getElementById('results-main');
     resultsMainEl.style.display = 'block';
-    // Bug fix — render (which draws duval-canvas) only AFTER the panel is
-    // unhidden, never while results-main is still display:none. See the
-    // matching comment in analyzeOltc() and the bug-fix report for the full
-    // root-cause explanation; no drawing math or engineering value changed.
+    // Bug fix — render only AFTER the panel is unhidden, never while
+    // results-main is still display:none. Historically this was about the
+    // on-screen Duval canvas specifically; the on-screen triangle is SVG now
+    // (ui/duval-svg.js, immune to that class of bug), but renderMainTank
+    // still draws the risk-gauge <canvas> here too, so the ordering is kept.
+    // See the matching comment in analyzeOltc(); no drawing math or
+    // engineering value changed.
     renderMainTank(mtReport);
+    // Primary Diagnosis auto-expands on every analysis — a prior manual
+    // collapse never carries over (state is not persisted). Done here (per
+    // analysis) rather than in renderMainTank so a theme redraw doesn't
+    // force it back open.
+    const pdMain = document.getElementById('primary-diagnosis-main'); if (pdMain) pdMain.open = true;
     // Design sprint — restart the CSS fade-in-up animation every run (class
     // toggle only; no engineering value touched, see base.css .reveal-in).
     resultsMainEl.classList.remove('reveal-in'); void resultsMainEl.offsetWidth; resultsMainEl.classList.add('reveal-in');
@@ -97,7 +108,10 @@
     setText('ov-agreement', agree.agreeLevel);
     setText('ov-rec', rec);
 
-    drawDuvalTriangle('duval-canvas', duval);
+    // On-screen Duval Triangle 1 is now vector SVG (ui/duval-svg.js) built
+    // from the SAME frozen geometry tables; the canvas renderer is retained
+    // only for off-screen export. Same marker/zone values as before.
+    if (window.TAILAM.ui.duvalSvg) window.TAILAM.ui.duvalSvg.render({ container:'duval-svg-main', triangle:'triangle1', marker:duval });
     setResultBox('duval-zone-box', duval.zone, getResultClass(duval.zone));
     setText('duval-zone-name', duval.name);
     setText('duval-zone-desc', duval.desc);
@@ -155,6 +169,11 @@
     // decision/action-plan/interpretation/evidence/diagnostic-table sections
     // from this same report object. Presentation only — see ui/workspace.js.
     if (window.TAILAM.ui.workspace) window.TAILAM.ui.workspace.renderMainWorkspace(rp);
+
+    // "Show Detailed Calculations" — Engineering Workbook view (Phase 1
+    // scaffold: placeholder cards only). Presentation only, hidden by
+    // default — see ui/detailed-calcs.js.
+    if (window.TAILAM.ui.detailedCalcs) window.TAILAM.ui.detailedCalcs.renderMainDetailed(rp);
   }
 
   /** Clear the main-tank inputs and hide its results. */
@@ -184,16 +203,21 @@
     document.getElementById('empty-oltc').style.display = 'none';
     const resultsOltcEl = document.getElementById('results-oltc');
     resultsOltcEl.style.display = 'block';
-    // Bug fix — render (which draws duval2-canvas) only AFTER the panel is
-    // unhidden, never while results-oltc is still display:none. Root cause:
-    // .duval-hero-canvas-wrap is the only reveal-in target animated directly
-    // (scaleIn, a transform) on the canvas's immediate parent; combined with
-    // drawing into that canvas while its whole subtree was still hidden, the
-    // browser could promote the wrapper to a fresh compositing layer AFTER
-    // the bitmap was already painted, losing it once the animation settled.
-    // Drawing after display:block removes the hidden-canvas/animation race —
-    // same single draw call, same drawDuvalTriangle2()/engine values.
+    // Bug fix (historical) — render only AFTER the panel is unhidden, never
+    // while results-oltc is still display:none. Root cause was specific to
+    // the on-screen Duval canvas: .duval-hero-canvas-wrap is the reveal-in
+    // target animated directly (scaleIn, a transform) on the canvas's
+    // immediate parent, and drawing into that canvas while its whole
+    // subtree was still hidden let the browser promote the wrapper to a
+    // fresh compositing layer AFTER the bitmap was painted, losing it once
+    // the animation settled. The on-screen triangle is SVG now (immune to
+    // this) and renderOltc draws no canvas at all (OLTC has no composite
+    // THI gauge) — the ordering is no longer load-bearing here, but is kept
+    // to match analyzeMain()'s structure and because unhide-then-render
+    // remains the safer default regardless.
     renderOltc(otReport);
+    // Primary Diagnosis auto-expands on every analysis (see analyzeMain).
+    const pdOltc = document.getElementById('primary-diagnosis-oltc'); if (pdOltc) pdOltc.open = true;
     // Design sprint — same reveal animation as Main Tank (presentation only).
     resultsOltcEl.classList.remove('reveal-in'); void resultsOltcEl.offsetWidth; resultsOltcEl.classList.add('reveal-in');
     resultsOltcEl.scrollIntoView({ behavior:'smooth' });
@@ -206,7 +230,9 @@
   function renderOltc(rp) {
     const { og, duval2, oltcRes, xcontam } = rp;
 
-    drawDuvalTriangle2('duval2-canvas', og);
+    // On-screen Duval Triangle 2 is now vector SVG (ui/duval-svg.js) built
+    // from the SAME frozen geometry; canvas retained only for export.
+    if (window.TAILAM.ui.duvalSvg) window.TAILAM.ui.duvalSvg.render({ container:'duval-svg-oltc', triangle:'triangle2', marker:duval2 });
     // Below-typical (§9): show the zone but in the healthy style — it is not an active fault
     setResultBox('d2-zone-box',
       duval2.belowTypical ? duval2.zone + ' (below typical — normal)' : duval2.zone,
@@ -238,6 +264,11 @@
     // decision/action-plan/interpretation/evidence/diagnostic-table sections
     // from this same report object. Presentation only — see ui/workspace.js.
     if (window.TAILAM.ui.workspace) window.TAILAM.ui.workspace.renderOltcWorkspace(rp);
+
+    // "Show Detailed Calculations" — Engineering Workbook view (Phase 1
+    // scaffold: placeholder cards only). Presentation only, hidden by
+    // default — see ui/detailed-calcs.js.
+    if (window.TAILAM.ui.detailedCalcs) window.TAILAM.ui.detailedCalcs.renderOltcDetailed(rp);
   }
 
   /** Clear the OLTC inputs and hide its results. */
@@ -274,14 +305,13 @@
    * analysis — nothing is recomputed or altered.
    */
   function redrawVisibleCanvases() {
+    // Only the risk gauge is still a <canvas>. The Duval triangles are now
+    // SVG (ui/duval-svg.js), which the browser never evicts, so they no
+    // longer need the visibility / bfcache / scroll repaint this function
+    // was written for — just the gauge does.
     const resultsMainEl = document.getElementById('results-main');
     if (mtReport && resultsMainEl && resultsMainEl.style.display !== 'none') {
       drawRiskGauge(mtReport.risk);
-      drawDuvalTriangle('duval-canvas', mtReport.duval);
-    }
-    const resultsOltcEl = document.getElementById('results-oltc');
-    if (otReport && resultsOltcEl && resultsOltcEl.style.display !== 'none') {
-      drawDuvalTriangle2('duval2-canvas', otReport.og);
     }
   }
 
@@ -305,7 +335,7 @@
     const canvasIO = new IntersectionObserver((entries) => {
       if (entries.some((e) => e.isIntersecting)) redrawVisibleCanvases();
     }, { threshold: 0.05 });
-    ['duval-canvas', 'duval2-canvas', 'risk-canvas'].forEach((id) => {
+    ['risk-canvas'].forEach((id) => {
       const c = document.getElementById(id);
       if (c) canvasIO.observe(c);
     });

@@ -101,19 +101,18 @@ html[data-theme="dark"] .sev-tag.sev-attention{color:var(--yellow);}
 .engineering-references{margin:0;padding-left:18px;color:var(--text2);font-size:13px;line-height:2;}
 
 /* ══════════════════════════════════════════════════════════════════
-   Duval Triangle hero — the Duval Triangle is now the primary visual
-   of the Engineering Assessment card. Desktop: triangle capped at
-   520px beside a zone-summary column. Tablet/mobile: stacks, 100%
-   width. Aspect ratio is preserved by the canvas's own width/height
-   attributes (charts.js reads canvas.width/height directly) — only
-   CSS width is constrained here, height follows automatically.
+   Duval Triangle hero — the Duval Triangle is the primary diagnostic
+   visualization, in its own "Primary Diagnosis" section (index.html).
+   Desktop: triangle capped at 520px beside a zone-summary column.
+   Tablet/mobile: stacks, 100% width. The on-screen triangle is the SVG
+   component in ui/duval-svg.js (viewBox="0 0 520 480", scales via CSS
+   width with height:auto) — see src/css/duval.css for the .duval-svg-host
+   sizing/interactive rules. This block keeps only the layout wrapper. ══
    ══════════════════════════════════════════════════════════════════ */
 .duval-hero{display:flex;flex-direction:column;align-items:center;gap:0;margin-top:18px;padding-top:18px;border-top:1px solid var(--border);}
 .duval-hero-canvas-wrap{position:relative;max-width:520px;width:100%;}
-.duval-hero-canvas{display:block;width:100%;height:auto;max-width:520px;cursor:pointer;transition:box-shadow .15s,border-color .15s;}
-.duval-hero-canvas:hover,.duval-hero-canvas:focus{box-shadow:0 0 0 3px var(--accent-dim);border-color:var(--accent);outline:none;}
 .duval-hero-hint{text-align:center;font-size:11.5px;color:var(--text3);margin-top:8px;}
-@media(max-width:860px){.duval-hero-canvas-wrap{max-width:100%;}.duval-hero-canvas{max-width:100%;}}
+@media(max-width:860px){.duval-hero-canvas-wrap{max-width:100%;}}
 
 /* Task 4 — professional figure-caption block beneath the triangle */
 .duval-caption{width:100%;max-width:520px;margin-top:20px;padding-top:18px;border-top:1px solid var(--border);text-align:center;}
@@ -139,13 +138,12 @@ html[data-theme="dark"] .sev-tag.sev-attention{color:var(--yellow);}
 
 /* Duval Triangle detail modal */
 .modal-box.modal-wide{max-width:640px;}
-/* Legend sprint — canvas now sits in a position:relative wrapper (matches
-   the existing .duval-hero-canvas-wrap pattern above) so the hover-highlight
-   overlay canvas ui/duval-legend.js creates on demand can be positioned
-   exactly over it. Centering/max-width moved from the canvas to the wrap;
-   the canvas itself is unchanged in every other respect. */
+/* Wrapper sits in a position:relative box (matches .duval-hero-canvas-wrap
+   above) so the legend's hover-highlight (ui/duval-legend.js, a class toggle
+   on the live SVG polygon — see src/css/duval.css) has a positioned ancestor.
+   Visual background/border/radius for the modal's SVG host lives in
+   duval.css alongside the rest of the component's styling. */
 .duval-modal-canvas-wrap{position:relative;max-width:560px;margin:14px auto;}
-.duval-modal-canvas{display:block;width:100%;height:auto;background:var(--bg2);border-radius:10px;border:1px solid var(--border);}
 .duval-modal-facts{display:flex;flex-direction:column;gap:12px;margin-top:6px;}
 .duval-modal-fact > div:last-child{font-size:13px;color:var(--text2);line-height:1.6;margin-top:3px;}
 
@@ -173,7 +171,6 @@ html[data-theme="dark"] .sev-tag.sev-attention{color:var(--yellow);}
 .duval-legend-tooltip[hidden]{display:none;}
 .duval-legend-tooltip-title{font-weight:700;color:var(--text);margin-bottom:4px;}
 .duval-legend-note{margin-top:12px;font-size:11px;color:var(--text3);line-height:1.55;}
-.duval-legend-highlight-overlay{position:absolute;inset:0;pointer-events:none;width:100%;height:100%;}
 @media(max-width:860px){.duval-legend-grid{grid-template-columns:repeat(3,1fr);}}
 @media(max-width:480px){.duval-legend{max-width:100%;}.duval-legend-grid{grid-template-columns:repeat(2,1fr);}}
 
@@ -235,7 +232,7 @@ html[data-theme="dark"] .sev-tag.sev-attention{color:var(--yellow);}
 
 /* Task 12 — Accessibility: visible keyboard focus on every interactive element */
 a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,
-.duval-hero-canvas:focus-visible,summary:focus-visible,[tabindex]:focus-visible{
+summary:focus-visible,[tabindex]:focus-visible{
   outline:2px solid var(--accent);outline-offset:2px;
 }
 
@@ -324,7 +321,6 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,
   background:radial-gradient(closest-side, var(--accent-dim), transparent 72%);
   opacity:.9;pointer-events:none;
 }
-.duval-hero-canvas{border-radius:var(--r-md);}
 .duval-caption{border-top-color:var(--border-strong);}
 
 /* Operational Decision — the "what do I do now" card gets an accent card2
@@ -340,7 +336,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,
    evidence, not headline content. */
 .raw-calculations,.engineering-references{opacity:.94;}
 
-/* Duval Triangle canvas reveal — plays once when results first render
-   ("Duval point grows into place"). Pure opacity/scale on the CANVAS
-   ELEMENT itself; the pixels drawn inside it (charts.js) are untouched. */
+/* Duval Triangle reveal — plays once when results first render ("Duval
+   point grows into place"). Pure opacity/scale on the wrapper; the SVG
+   geometry inside it (ui/duval-svg.js) is untouched. */
 .reveal-in .duval-hero-canvas-wrap{animation:scaleIn .55s cubic-bezier(.2,.8,.3,1) .15s both;}
