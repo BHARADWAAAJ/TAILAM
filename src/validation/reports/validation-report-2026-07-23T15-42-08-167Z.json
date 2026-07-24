@@ -1,0 +1,1145 @@
+{
+  "generatedAt": "2026-07-23T15:42:08.167Z",
+  "methods": {
+    "Duval Triangle 1": {
+      "method": "Duval Triangle 1",
+      "datasetCount": 3,
+      "evaluated": 2,
+      "pass": 2,
+      "fail": 0,
+      "skipped": 1,
+      "accuracy": 100,
+      "overallStatus": "PASS",
+      "results": [
+        {
+          "datasetId": "DUVAL1-REF-001",
+          "status": "SKIPPED",
+          "provenance": "published-standard",
+          "reason": "Placeholder dataset — pending a published-standard reference value (see its \"todo\" field). Not counted toward pass/fail or accuracy."
+        },
+        {
+          "datasetId": "DUVAL1-SNAP-001",
+          "status": "PASS",
+          "pass": true,
+          "provenance": "engine-snapshot",
+          "checks": [
+            {
+              "field": "zone",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "T2",
+              "expected": "T2"
+            },
+            {
+              "field": "result",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Thermal Fault 300–700 °C",
+              "expected": "Thermal Fault 300–700 °C"
+            },
+            {
+              "field": "ratio.pCH4",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 58.82352941176471,
+              "expected": 58.8235,
+              "tolerance": 0.01,
+              "delta": 0.00002941176470727669
+            },
+            {
+              "field": "ratio.pC2H4",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 39.21568627450981,
+              "expected": 39.2157,
+              "tolerance": 0.01,
+              "delta": 0.000013725490191518475
+            },
+            {
+              "field": "ratio.pC2H2",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 1.9607843137254901,
+              "expected": 1.9608,
+              "tolerance": 0.01,
+              "delta": 0.000015686274509985054
+            },
+            {
+              "field": "ratio.total",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 102,
+              "expected": 102,
+              "tolerance": 0.01,
+              "delta": 0
+            }
+          ]
+        },
+        {
+          "datasetId": "DUVAL1-SNAP-002",
+          "status": "PASS",
+          "pass": true,
+          "provenance": "engine-snapshot",
+          "checks": [
+            {
+              "field": "zone",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "DT",
+              "expected": "DT"
+            },
+            {
+              "field": "result",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Thermal + Electrical Fault",
+              "expected": "Thermal + Electrical Fault"
+            },
+            {
+              "field": "ratio.pCH4",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 28.26086956521739,
+              "expected": 28.2609,
+              "tolerance": 0.01,
+              "delta": 0.000030434782608779187
+            },
+            {
+              "field": "ratio.pC2H4",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 54.347826086956516,
+              "expected": 54.3478,
+              "tolerance": 0.01,
+              "delta": 0.000026086956516735427
+            },
+            {
+              "field": "ratio.pC2H2",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 17.391304347826086,
+              "expected": 17.3913,
+              "tolerance": 0.01,
+              "delta": 0.000004347826084938333
+            },
+            {
+              "field": "ratio.total",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 460,
+              "expected": 460,
+              "tolerance": 0.01,
+              "delta": 0
+            }
+          ]
+        }
+      ]
+    },
+    "Duval Triangle 2 (OLTC)": {
+      "method": "Duval Triangle 2 (OLTC)",
+      "datasetCount": 5,
+      "evaluated": 4,
+      "pass": 4,
+      "fail": 0,
+      "skipped": 1,
+      "accuracy": 100,
+      "overallStatus": "PASS",
+      "results": [
+        {
+          "datasetId": "DUVAL2-REF-001",
+          "status": "SKIPPED",
+          "provenance": "published-standard",
+          "reason": "Placeholder dataset — pending a published-standard reference value (see its \"todo\" field). Not counted toward pass/fail or accuracy."
+        },
+        {
+          "datasetId": "DUVAL2-SNAP-001",
+          "status": "PASS",
+          "pass": true,
+          "provenance": "engine-snapshot",
+          "checks": [
+            {
+              "field": "zone",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "N",
+              "expected": "N"
+            },
+            {
+              "field": "result",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Normal Operation",
+              "expected": "Normal Operation"
+            },
+            {
+              "field": "ratio.pCH4",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 10,
+              "expected": 10,
+              "tolerance": 0.01,
+              "delta": 0
+            },
+            {
+              "field": "ratio.pC2H4",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 15,
+              "expected": 15,
+              "tolerance": 0.01,
+              "delta": 0
+            },
+            {
+              "field": "ratio.pC2H2",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 75,
+              "expected": 75,
+              "tolerance": 0.01,
+              "delta": 0
+            },
+            {
+              "field": "ratio.total",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 100,
+              "expected": 100,
+              "tolerance": 0.01,
+              "delta": 0
+            }
+          ]
+        },
+        {
+          "datasetId": "DUVAL2-SNAP-002",
+          "status": "PASS",
+          "pass": true,
+          "provenance": "engine-snapshot",
+          "checks": [
+            {
+              "field": "zone",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "D1",
+              "expected": "D1"
+            },
+            {
+              "field": "result",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Abnormal Arcing (D1)",
+              "expected": "Abnormal Arcing (D1)"
+            },
+            {
+              "field": "ratio.pCH4",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 1,
+              "expected": 1,
+              "tolerance": 0.01,
+              "delta": 0
+            },
+            {
+              "field": "ratio.pC2H4",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 2,
+              "expected": 2,
+              "tolerance": 0.01,
+              "delta": 0
+            },
+            {
+              "field": "ratio.pC2H2",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 97,
+              "expected": 97,
+              "tolerance": 0.01,
+              "delta": 0
+            },
+            {
+              "field": "ratio.total",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 100,
+              "expected": 100,
+              "tolerance": 0.01,
+              "delta": 0
+            }
+          ]
+        },
+        {
+          "datasetId": "DUVAL2-SNAP-003",
+          "status": "PASS",
+          "pass": true,
+          "provenance": "engine-snapshot",
+          "checks": [
+            {
+              "field": "zone",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "T2",
+              "expected": "T2"
+            },
+            {
+              "field": "result",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Severe Coking of Contacts > 300 °C (T2)",
+              "expected": "Severe Coking of Contacts > 300 °C (T2)"
+            },
+            {
+              "field": "ratio.pCH4",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 55.55555555555556,
+              "expected": 55.5556,
+              "tolerance": 0.01,
+              "delta": 0.000044444444441182895
+            },
+            {
+              "field": "ratio.pC2H4",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 41.66666666666667,
+              "expected": 41.6667,
+              "tolerance": 0.01,
+              "delta": 0.00003333333332733446
+            },
+            {
+              "field": "ratio.pC2H2",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 2.7777777777777777,
+              "expected": 2.7778,
+              "tolerance": 0.01,
+              "delta": 0.000022222222222367805
+            },
+            {
+              "field": "ratio.total",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 36,
+              "expected": 36,
+              "tolerance": 0.01,
+              "delta": 0
+            }
+          ]
+        },
+        {
+          "datasetId": "DUVAL2-SNAP-004",
+          "status": "PASS",
+          "pass": true,
+          "provenance": "engine-snapshot",
+          "checks": [
+            {
+              "field": "zone",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "T3",
+              "expected": "T3"
+            },
+            {
+              "field": "result",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Severe Coking of Contacts > 700 °C (T3)",
+              "expected": "Severe Coking of Contacts > 700 °C (T3)"
+            },
+            {
+              "field": "ratio.pCH4",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 2.4096385542168677,
+              "expected": 2.4096,
+              "tolerance": 0.01,
+              "delta": 0.000038554216867492386
+            },
+            {
+              "field": "ratio.pC2H4",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 96.3855421686747,
+              "expected": 96.3855,
+              "tolerance": 0.01,
+              "delta": 0.00004216867471029673
+            },
+            {
+              "field": "ratio.pC2H2",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 1.2048192771084338,
+              "expected": 1.2048,
+              "tolerance": 0.01,
+              "delta": 0.000019277108433746193
+            },
+            {
+              "field": "ratio.total",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 415,
+              "expected": 415,
+              "tolerance": 0.01,
+              "delta": 0
+            }
+          ]
+        }
+      ]
+    },
+    "Rogers Ratio": {
+      "method": "Rogers Ratio",
+      "datasetCount": 3,
+      "evaluated": 2,
+      "pass": 2,
+      "fail": 0,
+      "skipped": 1,
+      "accuracy": 100,
+      "overallStatus": "PASS",
+      "results": [
+        {
+          "datasetId": "ROGERS-REF-001",
+          "status": "SKIPPED",
+          "provenance": "published-standard",
+          "reason": "Placeholder dataset — pending a published-standard reference value (see its \"todo\" field). Not counted toward pass/fail or accuracy."
+        },
+        {
+          "datasetId": "ROGERS-SNAP-001",
+          "status": "PASS",
+          "pass": true,
+          "provenance": "engine-snapshot",
+          "checks": [
+            {
+              "field": "zone",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Indeterminate",
+              "expected": "Indeterminate"
+            },
+            {
+              "field": "result",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Indeterminate — see individual ratios",
+              "expected": "Indeterminate — see individual ratios"
+            },
+            {
+              "field": "ratio.R1",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 1.2,
+              "expected": 1.2,
+              "tolerance": 0.01,
+              "delta": 0
+            },
+            {
+              "field": "ratio.R2",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 0.3333333333333333,
+              "expected": 0.3333,
+              "tolerance": 0.01,
+              "delta": 0.00003333333333332966
+            },
+            {
+              "field": "ratio.R3",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 2,
+              "expected": 2,
+              "tolerance": 0.01,
+              "delta": 0
+            },
+            {
+              "field": "ratio.R4",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 0.05,
+              "expected": 0.05,
+              "tolerance": 0.01,
+              "delta": 0
+            },
+            {
+              "field": "ratio.code",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "2010",
+              "expected": "2010"
+            }
+          ]
+        },
+        {
+          "datasetId": "ROGERS-SNAP-002",
+          "status": "PASS",
+          "pass": true,
+          "provenance": "engine-snapshot",
+          "checks": [
+            {
+              "field": "zone",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Indeterminate",
+              "expected": "Indeterminate"
+            },
+            {
+              "field": "result",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Indeterminate — see individual ratios",
+              "expected": "Indeterminate — see individual ratios"
+            },
+            {
+              "field": "ratio.R1",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 0.8666666666666667,
+              "expected": 0.8667,
+              "tolerance": 0.01,
+              "delta": 0.00003333333333332966
+            },
+            {
+              "field": "ratio.R2",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 0.11538461538461539,
+              "expected": 0.1154,
+              "tolerance": 0.01,
+              "delta": 0.000015384615384611555
+            },
+            {
+              "field": "ratio.R3",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 16.666666666666668,
+              "expected": 16.6667,
+              "tolerance": 0.01,
+              "delta": 0.00003333333333088717
+            },
+            {
+              "field": "ratio.R4",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 0.32,
+              "expected": 0.32,
+              "tolerance": 0.01,
+              "delta": 0
+            },
+            {
+              "field": "ratio.code",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "1020",
+              "expected": "1020"
+            }
+          ]
+        }
+      ]
+    },
+    "IEC 60599 Three-Ratio": {
+      "method": "IEC 60599 Three-Ratio",
+      "datasetCount": 3,
+      "evaluated": 2,
+      "pass": 2,
+      "fail": 0,
+      "skipped": 1,
+      "accuracy": 100,
+      "overallStatus": "PASS",
+      "results": [
+        {
+          "datasetId": "IEC-REF-001",
+          "status": "SKIPPED",
+          "provenance": "published-standard",
+          "reason": "Placeholder dataset — pending a published-standard reference value (see its \"todo\" field). Not counted toward pass/fail or accuracy."
+        },
+        {
+          "datasetId": "IEC-SNAP-001",
+          "status": "PASS",
+          "pass": true,
+          "provenance": "engine-snapshot",
+          "checks": [
+            {
+              "field": "zone",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "T2",
+              "expected": "T2"
+            },
+            {
+              "field": "result",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Thermal 300–700°C",
+              "expected": "Thermal 300–700°C"
+            },
+            {
+              "field": "ratio.r1",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 0.05,
+              "expected": 0.05,
+              "tolerance": 0.01,
+              "delta": 0
+            },
+            {
+              "field": "ratio.r2",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 1.2,
+              "expected": 1.2,
+              "tolerance": 0.01,
+              "delta": 0
+            },
+            {
+              "field": "ratio.r3",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 2,
+              "expected": 2,
+              "tolerance": 0.01,
+              "delta": 0
+            }
+          ]
+        },
+        {
+          "datasetId": "IEC-SNAP-002",
+          "status": "PASS",
+          "pass": true,
+          "provenance": "engine-snapshot",
+          "checks": [
+            {
+              "field": "zone",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Indeterminate",
+              "expected": "Indeterminate"
+            },
+            {
+              "field": "result",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Indeterminate",
+              "expected": "Indeterminate"
+            },
+            {
+              "field": "ratio.r1",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 0.32,
+              "expected": 0.32,
+              "tolerance": 0.01,
+              "delta": 0
+            },
+            {
+              "field": "ratio.r2",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 0.8666666666666667,
+              "expected": 0.8667,
+              "tolerance": 0.01,
+              "delta": 0.00003333333333332966
+            },
+            {
+              "field": "ratio.r3",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 16.666666666666668,
+              "expected": 16.6667,
+              "tolerance": 0.01,
+              "delta": 0.00003333333333088717
+            }
+          ]
+        }
+      ]
+    },
+    "IEEE C57.104": {
+      "method": "IEEE C57.104",
+      "datasetCount": 3,
+      "evaluated": 2,
+      "pass": 2,
+      "fail": 0,
+      "skipped": 1,
+      "accuracy": 100,
+      "overallStatus": "PASS",
+      "results": [
+        {
+          "datasetId": "IEEE-REF-001",
+          "status": "SKIPPED",
+          "provenance": "published-standard",
+          "reason": "Placeholder dataset — pending a published-standard reference value (see its \"todo\" field). Not counted toward pass/fail or accuracy."
+        },
+        {
+          "datasetId": "IEEE-SNAP-001",
+          "status": "PASS",
+          "pass": true,
+          "provenance": "engine-snapshot",
+          "checks": [
+            {
+              "field": "zone",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "2",
+              "expected": "2"
+            },
+            {
+              "field": "result",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Condition 2 — Caution",
+              "expected": "Condition 2 — Caution"
+            }
+          ]
+        },
+        {
+          "datasetId": "IEEE-SNAP-002",
+          "status": "PASS",
+          "pass": true,
+          "provenance": "engine-snapshot",
+          "checks": [
+            {
+              "field": "zone",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "3",
+              "expected": "3"
+            },
+            {
+              "field": "result",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Condition 3 — High",
+              "expected": "Condition 3 — High"
+            }
+          ]
+        }
+      ]
+    },
+    "Key Gas + TDCG": {
+      "method": "Key Gas + TDCG",
+      "datasetCount": 3,
+      "evaluated": 2,
+      "pass": 2,
+      "fail": 0,
+      "skipped": 1,
+      "accuracy": 100,
+      "overallStatus": "PASS",
+      "results": [
+        {
+          "datasetId": "KEYGAS-REF-001",
+          "status": "SKIPPED",
+          "provenance": "published-standard",
+          "reason": "Placeholder dataset — pending a published-standard reference value (see its \"todo\" field). Not counted toward pass/fail or accuracy."
+        },
+        {
+          "datasetId": "KEYGAS-SNAP-001",
+          "status": "PASS",
+          "pass": true,
+          "provenance": "engine-snapshot",
+          "checks": [
+            {
+              "field": "zone",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "N",
+              "expected": "N"
+            },
+            {
+              "field": "result",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Normal / Inconclusive",
+              "expected": "Normal / Inconclusive"
+            },
+            {
+              "field": "ratio.TDCG",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 472,
+              "expected": 472,
+              "tolerance": 0.01,
+              "delta": 0
+            },
+            {
+              "field": "ratio.tdcgCond",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 1,
+              "expected": 1,
+              "tolerance": 0.01,
+              "delta": 0
+            }
+          ]
+        },
+        {
+          "datasetId": "KEYGAS-SNAP-002",
+          "status": "PASS",
+          "pass": true,
+          "provenance": "engine-snapshot",
+          "checks": [
+            {
+              "field": "zone",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "D1",
+              "expected": "D1"
+            },
+            {
+              "field": "result",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Low Energy Discharge",
+              "expected": "Low Energy Discharge"
+            },
+            {
+              "field": "ratio.TDCG",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 1225,
+              "expected": 1225,
+              "tolerance": 0.01,
+              "delta": 0
+            },
+            {
+              "field": "ratio.tdcgCond",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 2,
+              "expected": 2,
+              "tolerance": 0.01,
+              "delta": 0
+            }
+          ]
+        }
+      ]
+    },
+    "Doernenburg": {
+      "method": "Doernenburg",
+      "datasetCount": 3,
+      "evaluated": 2,
+      "pass": 2,
+      "fail": 0,
+      "skipped": 1,
+      "accuracy": 100,
+      "overallStatus": "PASS",
+      "results": [
+        {
+          "datasetId": "DOERN-REF-001",
+          "status": "SKIPPED",
+          "provenance": "published-standard",
+          "reason": "Placeholder dataset — pending a published-standard reference value (see its \"todo\" field). Not counted toward pass/fail or accuracy."
+        },
+        {
+          "datasetId": "DOERN-SNAP-001",
+          "status": "PASS",
+          "pass": true,
+          "provenance": "engine-snapshot",
+          "checks": [
+            {
+              "field": "zone",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Thermal",
+              "expected": "Thermal"
+            },
+            {
+              "field": "result",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Thermal Decomposition",
+              "expected": "Thermal Decomposition"
+            },
+            {
+              "field": "ratio.R1",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 1.2,
+              "expected": 1.2,
+              "tolerance": 0.01,
+              "delta": 0
+            },
+            {
+              "field": "ratio.R2",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 0.05,
+              "expected": 0.05,
+              "tolerance": 0.01,
+              "delta": 0
+            },
+            {
+              "field": "ratio.R3",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 0.03333333333333333,
+              "expected": 0.0333,
+              "tolerance": 0.01,
+              "delta": 0.00003333333333332966
+            }
+          ]
+        },
+        {
+          "datasetId": "DOERN-SNAP-002",
+          "status": "PASS",
+          "pass": true,
+          "provenance": "engine-snapshot",
+          "checks": [
+            {
+              "field": "zone",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Arcing",
+              "expected": "Arcing"
+            },
+            {
+              "field": "result",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Electrical Arcing / Discharge",
+              "expected": "Electrical Arcing / Discharge"
+            },
+            {
+              "field": "ratio.R1",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 0.8666666666666667,
+              "expected": 0.8667,
+              "tolerance": 0.01,
+              "delta": 0.00003333333333332966
+            },
+            {
+              "field": "ratio.R2",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 0.32,
+              "expected": 0.32,
+              "tolerance": 0.01,
+              "delta": 0
+            },
+            {
+              "field": "ratio.R3",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 0.6153846153846154,
+              "expected": 0.6154,
+              "tolerance": 0.01,
+              "delta": 0.00001538461538452829
+            },
+            {
+              "field": "ratio.R4",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 0.1875,
+              "expected": 0.1875,
+              "tolerance": 0.01,
+              "delta": 0
+            }
+          ]
+        }
+      ]
+    },
+    "CIGRE 5-Key-Ratio": {
+      "method": "CIGRE 5-Key-Ratio",
+      "datasetCount": 3,
+      "evaluated": 2,
+      "pass": 2,
+      "fail": 0,
+      "skipped": 1,
+      "accuracy": 100,
+      "overallStatus": "PASS",
+      "results": [
+        {
+          "datasetId": "CIGRE-REF-001",
+          "status": "SKIPPED",
+          "provenance": "published-standard",
+          "reason": "Placeholder dataset — pending a published-standard reference value (see its \"todo\" field). Not counted toward pass/fail or accuracy."
+        },
+        {
+          "datasetId": "CIGRE-SNAP-001",
+          "status": "PASS",
+          "pass": true,
+          "provenance": "engine-snapshot",
+          "checks": [
+            {
+              "field": "result",
+              "method": "exactMatch",
+              "pass": true,
+              "actual": "[\"R1 — Thermal Fault\"]",
+              "expected": "[\"R1 — Thermal Fault\"]"
+            },
+            {
+              "field": "ratio.k1",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 0.1,
+              "expected": 0.1,
+              "tolerance": 0.01,
+              "delta": 0
+            },
+            {
+              "field": "ratio.k2",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 0.8333333333333334,
+              "expected": 0.8333,
+              "tolerance": 0.01,
+              "delta": 0.00003333333333332966
+            },
+            {
+              "field": "ratio.r1",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 2,
+              "expected": 2,
+              "tolerance": 0.01,
+              "delta": 0
+            },
+            {
+              "field": "ratio.r2",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 10,
+              "expected": 10,
+              "tolerance": 0.01,
+              "delta": 0
+            },
+            {
+              "field": "ratio.r3",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 0.04,
+              "expected": 0.04,
+              "tolerance": 0.01,
+              "delta": 0
+            }
+          ]
+        },
+        {
+          "datasetId": "CIGRE-SNAP-002",
+          "status": "PASS",
+          "pass": true,
+          "provenance": "engine-snapshot",
+          "checks": [
+            {
+              "field": "result",
+              "method": "exactMatch",
+              "pass": true,
+              "actual": "[\"K1 — Electrical Discharge\",\"R1 — Thermal Fault\"]",
+              "expected": "[\"K1 — Electrical Discharge\",\"R1 — Thermal Fault\"]"
+            },
+            {
+              "field": "ratio.k1",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 5.333333333333333,
+              "expected": 5.3333,
+              "tolerance": 0.01,
+              "delta": 0.00003333333333266353
+            },
+            {
+              "field": "ratio.k2",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 1.1538461538461537,
+              "expected": 1.1538,
+              "tolerance": 0.01,
+              "delta": 0.00004615384615380691
+            },
+            {
+              "field": "ratio.r1",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 16.666666666666668,
+              "expected": 16.6667,
+              "tolerance": 0.01,
+              "delta": 0.00003333333333088717
+            },
+            {
+              "field": "ratio.r2",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 10,
+              "expected": 10,
+              "tolerance": 0.01,
+              "delta": 0
+            },
+            {
+              "field": "ratio.r3",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 0.5333333333333333,
+              "expected": 0.5333,
+              "tolerance": 0.01,
+              "delta": 0.00003333333333332966
+            }
+          ]
+        }
+      ]
+    },
+    "Transformer Health Index": {
+      "method": "Transformer Health Index",
+      "datasetCount": 2,
+      "evaluated": 2,
+      "pass": 2,
+      "fail": 0,
+      "skipped": 0,
+      "accuracy": 100,
+      "overallStatus": "PASS",
+      "results": [
+        {
+          "datasetId": "THI-SNAP-001",
+          "status": "PASS",
+          "pass": true,
+          "provenance": "engine-snapshot",
+          "checks": [
+            {
+              "field": "result",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Attention",
+              "expected": "Attention"
+            },
+            {
+              "field": "ratio.risk",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 34,
+              "expected": 34,
+              "tolerance": 0.01,
+              "delta": 0
+            }
+          ]
+        },
+        {
+          "datasetId": "THI-SNAP-002",
+          "status": "PASS",
+          "pass": true,
+          "provenance": "engine-snapshot",
+          "checks": [
+            {
+              "field": "result",
+              "method": "stringMatch",
+              "pass": true,
+              "actual": "Attention",
+              "expected": "Attention"
+            },
+            {
+              "field": "ratio.risk",
+              "method": "floatTolerance",
+              "pass": true,
+              "actual": 50,
+              "expected": 50,
+              "tolerance": 0.01,
+              "delta": 0
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "totals": {
+    "datasetCount": 28,
+    "evaluated": 20,
+    "pass": 20,
+    "fail": 0,
+    "skipped": 8,
+    "accuracy": 100,
+    "status": "PASS"
+  }
+}

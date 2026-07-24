@@ -22,7 +22,7 @@
   const { openDuvalModal, closeDuvalModal } = window.TAILAM.ui.workspace;
   const { openFeedback, closeFeedback, submitFeedback, initFeedback } = window.TAILAM.ui.feedback;
   const { runLoadingSequence } = window.TAILAM.ui.loading;
-  const { animateLandingCounters, initFlowReveal, initSplash } = window.TAILAM.ui.motion;
+  const { animateLandingCounters, initFlowReveal, initSplash, initEngineeringEgg, initGoldEasterEgg } = window.TAILAM.ui.motion;
 
   /** Bind a click handler by element id. */
   function on(id, handler) {
@@ -151,39 +151,232 @@
   wirePrimaryDiagnosisToggle('primary-diagnosis-main');
   wirePrimaryDiagnosisToggle('primary-diagnosis-oltc');
 
-  // ── "Detailed Engineering Calculations" toggle button ──
-  // A real <button>, positioned immediately above the calculations content
-  // it reveals (previously a separate switch far above this section, near
-  // the Engineering Snapshot — reported as hard to discover/associate with
-  // the section it controlled, since a user could run an analysis, not see
-  // it, and have no visible cue connecting the switch to this card further
-  // down the page). Button + heading are always visible; only the content
-  // div toggles `hidden`, so clicking the button and seeing the change are
-  // adjacent. Content is populated separately by ui/detailed-calcs.js. No
-  // engineering value is computed or altered here. Defaults to collapsed
-  // and is never persisted — every new session/reload starts collapsed.
-  function wireDetailedToggleButton(buttonId, contentId) {
-    const btn = document.getElementById(buttonId);
-    const content = document.getElementById(contentId);
-    if (!btn || !content) return;
-    content.hidden = true;
-    btn.setAttribute('aria-expanded', 'false');
-    btn.textContent = 'Show Detailed Calculations';
-    btn.addEventListener('click', () => {
-      content.hidden = !content.hidden;
-      btn.setAttribute('aria-expanded', String(!content.hidden));
-      btn.textContent = content.hidden ? 'Show Detailed Calculations' : 'Hide Detailed Calculations';
-      if (!content.hidden) content.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    });
+  // ── "Engineering Workbook" modal ──
+  // The Detailed Engineering Calculations content used to expand inline in
+  // the dashboard, which made the page very long and forced a full scroll
+  // back to the top to collapse it. It now opens in a large modal overlay
+  // instead — the dashboard behind is untouched and stays exactly where it
+  // was; only the modal's own body scrolls. Content is populated separately
+  // by ui/detailed-calcs.js (into #detailed-main / #detailed-oltc, now
+  // nested inside #modal-workbook's body) — no engineering value is
+  // computed or altered here, this is the launcher/chrome only.
+  //
+  // #modal-workbook deliberately has no [data-dismissable]: that generic
+  // mechanism (modals.js#initDismissableModals) only ever calls
+  // `overlay.style.display = 'none'` for modals it doesn't special-case,
+  // which would leave the scroll-lock applied and the focus-trap listener
+  // attached forever after a backdrop-click close. Simpler and safer to
+  // keep this modal's open/close/focus-trap/scroll-lock entirely
+  // self-contained here, rather than teaching modals.js about a second
+  // "close via owner" special case.
+  let _workbookLastFocused = null;
+  let _workbookKeydownHandler = null;
+  let _workbookCurrentPanel = null;
+  // In-memory only (module-level variable, never written to storage) — so
+  // reopening the modal later in the SAME page session restores where the
+  // user left off, but a page reload naturally forgets it, per spec.
+  const _workbookScrollPos = { main: 0, oltc: 0 };
+  // Fixed per panel — the primary diagnostic method never changes for a
+  // given panel (Main Tank is always Duval Triangle 1, OLTC always Duval
+  // Triangle 2), so this is static metadata, not derived from scroll.
+  const WORKBOOK_META = {
+    main: { transformer: 'Main Tank', faultMethod: 'Duval Triangle 1' },
+    oltc: { transformer: 'OLTC', faultMethod: 'Duval Triangle 2' }
+  };
+
+  /** Every currently visible, focusable element inside a container, in DOM order. */
+  function focusableIn(container) {
+    return Array.from(container.querySelectorAll(
+      'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+    )).filter((el) => el.offsetParent !== null);
   }
-  wireDetailedToggleButton('btn-toggle-detailed-main', 'detailed-main');
-  wireDetailedToggleButton('btn-toggle-detailed-oltc', 'detailed-oltc');
+
+  /** Toggle one step's collapsed state (default expanded, per spec). */
+  function toggleWorkbookStep(stepEl) {
+    if (!stepEl) return;
+    const collapsed = stepEl.classList.toggle('collapsed');
+    const head = stepEl.querySelector('.wb-step-head');
+    if (head) head.setAttribute('aria-expanded', String(!collapsed));
+  }
+
+  /** Scroll smoothly to a target id inside the workbook, auto-expanding it first if it was a collapsed step. Silently no-ops at either end of the workbook (no earlier/later step exists) — by design, not an error. */
+  function jumpToWorkbookTarget(targetId) {
+    const target = document.getElementById(targetId);
+    if (!target) return;
+    if (target.classList.contains('wb-step') && target.classList.contains('collapsed')) toggleWorkbookStep(target);
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  /** Reading-progress fill/percentage, computed from the modal body's own scroll (never the underlying dashboard, which is scroll-locked). */
+  function updateWorkbookProgress(body) {
+    const fill = document.getElementById('wb-progress-fill');
+    const pctEl = document.getElementById('wb-progress-pct');
+    if (!fill || !pctEl) return;
+    const max = body.scrollHeight - body.clientHeight;
+    const pct = max > 0 ? Math.min(100, Math.max(0, Math.round((body.scrollTop / max) * 100))) : 0;
+    fill.style.width = pct + '%';
+    pctEl.textContent = pct + '%';
+  }
+
+  /** Highlight whichever chapter is nearest the top of the (currently visible panel's) Table of Contents. */
+  function updateWorkbookScrollspy(body) {
+    if (!_workbookCurrentPanel) return;
+    const activeContent = document.getElementById(_workbookCurrentPanel === 'main' ? 'detailed-main' : 'detailed-oltc');
+    if (!activeContent) return;
+    const chapters = Array.from(activeContent.querySelectorAll('.wb-method'));
+    const bodyRect = body.getBoundingClientRect();
+    let currentId = chapters.length ? chapters[0].id : null;
+    chapters.forEach((chEl) => { if (chEl.getBoundingClientRect().top - bodyRect.top <= 80) currentId = chEl.id; });
+    activeContent.querySelectorAll('.wb-toc-link').forEach((a) => { a.classList.toggle('active', a.dataset.target === currentId); });
+  }
+
+  /** Scroll handler — progress bar, scrollspy and scroll-memory, all from one
+   *  scroll event. These are cheap reads (scrollTop / a getBoundingClientRect
+   *  per chapter) plus class/style writes; no DOM is recreated, so running
+   *  directly on scroll is fine and avoids any rAF-in-hidden-tab stall. */
+  function onWorkbookBodyScroll(e) {
+    const body = e.currentTarget;
+    updateWorkbookProgress(body);
+    updateWorkbookScrollspy(body);
+    if (_workbookCurrentPanel) _workbookScrollPos[_workbookCurrentPanel] = body.scrollTop;
+  }
+
+  /** Close the Engineering Workbook modal: save scroll position, unlock scroll, drop the trap, restore focus. */
+  function closeWorkbookModal() {
+    const overlay = document.getElementById('modal-workbook');
+    if (!overlay || overlay.style.display === 'none' || !overlay.style.display) return;
+    const body = overlay.querySelector('.modal-workbook-body');
+    if (body) {
+      if (_workbookCurrentPanel) _workbookScrollPos[_workbookCurrentPanel] = body.scrollTop;
+      body.removeEventListener('scroll', onWorkbookBodyScroll);
+    }
+    overlay.style.display = 'none';
+    document.body.style.overflow = '';
+    if (_workbookKeydownHandler) { document.removeEventListener('keydown', _workbookKeydownHandler); _workbookKeydownHandler = null; }
+    if (_workbookLastFocused && typeof _workbookLastFocused.focus === 'function') _workbookLastFocused.focus();
+    _workbookLastFocused = null;
+    _workbookCurrentPanel = null;
+  }
+
+  /**
+   * Open the Engineering Workbook modal, showing whichever panel's
+   * already-rendered content is relevant. Never touches #detailed-main's or
+   * #detailed-oltc's innerHTML — that's rendered once per analysis by
+   * ui/detailed-calcs.js; opening/closing the modal only toggles `hidden`
+   * and reads/writes scroll position, so no DOM is recreated on open/close.
+   * @param {'main'|'oltc'} panel
+   */
+  function openWorkbookModal(panel) {
+    const overlay = document.getElementById('modal-workbook');
+    if (!overlay) return;
+    const mainContent = document.getElementById('detailed-main');
+    const oltcContent = document.getElementById('detailed-oltc');
+    if (mainContent) mainContent.hidden = panel !== 'main';
+    if (oltcContent) oltcContent.hidden = panel !== 'oltc';
+    _workbookCurrentPanel = panel;
+
+    const meta = WORKBOOK_META[panel] || {};
+    const transformerEl = document.getElementById('modal-workbook-transformer');
+    const faultMethodEl = document.getElementById('modal-workbook-fault-method');
+    if (transformerEl) transformerEl.textContent = meta.transformer || '—';
+    if (faultMethodEl) faultMethodEl.textContent = meta.faultMethod || '—';
+
+    // Restore focus to THIS panel's launch button on close — captured
+    // deterministically by id rather than from document.activeElement,
+    // which a mouse click doesn't reliably leave on the button (notably on
+    // macOS Safari/Firefox), so the spec's "focus returns to the launch
+    // button" holds however the modal was opened.
+    _workbookLastFocused = document.getElementById('btn-toggle-detailed-' + panel) || document.activeElement;
+    overlay.style.display = 'flex';
+    document.body.style.overflow = 'hidden'; // background dashboard no longer scrolls; scroll position is preserved untouched
+
+    const box = overlay.querySelector('.modal-box');
+    const body = overlay.querySelector('.modal-workbook-body');
+    const closeBtn = document.getElementById('modal-workbook-close');
+    if (closeBtn) closeBtn.focus();
+
+    if (body) {
+      body.scrollTop = _workbookScrollPos[panel] || 0; // restore this-session position (0 the first time, or after a reload)
+      updateWorkbookProgress(body);
+      updateWorkbookScrollspy(body);
+      body.addEventListener('scroll', onWorkbookBodyScroll);
+    }
+
+    _workbookKeydownHandler = (e) => {
+      if (e.key === 'Escape') { e.preventDefault(); closeWorkbookModal(); return; }
+      if (e.key === 'Tab' && box) {
+        const focusable = focusableIn(box);
+        if (!focusable.length) return;
+        const first = focusable[0], last = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }
+      // Enter/Space activates a focused, keyboard-operable step header (role="button").
+      if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.dataset && e.target.dataset.action === 'toggle-step') {
+        e.preventDefault(); toggleWorkbookStep(e.target.closest('.wb-step'));
+      }
+    };
+    document.addEventListener('keydown', _workbookKeydownHandler);
+  }
+
+  // Single delegated click handler for every workbook navigation control —
+  // Table of Contents links, Expand All / Collapse All, per-step collapse
+  // toggles, Previous/Next. Registered once, on document: ui/detailed-
+  // calcs.js completely replaces #detailed-main/#detailed-oltc's innerHTML
+  // on every analysis, which would silently drop any listeners bound
+  // directly to those buttons — delegation from a stable ancestor (here,
+  // document itself) is unaffected by that replacement.
+  document.addEventListener('click', (e) => {
+    const el = e.target.closest('[data-action]');
+    if (!el) return;
+    const action = el.dataset.action;
+    if (action === 'jump-to') { e.preventDefault(); jumpToWorkbookTarget(el.dataset.target); }
+    else if (action === 'toggle-step') { toggleWorkbookStep(el.closest('.wb-step')); }
+    else if (action === 'expand-all' || action === 'collapse-all') {
+      const scope = el.closest('.detailed-calcs');
+      if (!scope) return;
+      scope.querySelectorAll('.wb-step').forEach((s) => {
+        s.classList.toggle('collapsed', action === 'collapse-all');
+        const head = s.querySelector('.wb-step-head');
+        if (head) head.setAttribute('aria-expanded', String(action !== 'collapse-all'));
+      });
+    }
+  });
+
+  on('btn-toggle-detailed-main', () => openWorkbookModal('main'));
+  on('btn-toggle-detailed-oltc', () => openWorkbookModal('oltc'));
+  on('modal-workbook-close', closeWorkbookModal);
+  // Backdrop click — only when the click lands on the overlay itself, not the box inside it.
+  (function () {
+    const overlay = document.getElementById('modal-workbook');
+    if (overlay) overlay.addEventListener('click', (e) => { if (e.target === overlay) closeWorkbookModal(); });
+  })();
 
   // keyboard access for the nav brand's "go home" role="button"
   const navBrandEl = document.getElementById('nav-brand');
   if (navBrandEl) navBrandEl.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); requestNavigate('landing'); }
   });
+
+  // Sticky top nav — toggles `.is-scrolled` (shadow + tint + blur) once the
+  // page has scrolled past a small threshold; clean/flat at rest. rAF-throttled
+  // since scroll fires far more often than the UI needs to repaint.
+  (function initStickyNav() {
+    const nav = document.querySelector('.topnav');
+    if (!nav) return;
+    const THRESHOLD = 8;
+    let ticking = false;
+    function apply() {
+      ticking = false;
+      nav.classList.toggle('is-scrolled', window.scrollY > THRESHOLD);
+    }
+    window.addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(apply);
+    }, { passive: true });
+    apply();
+  })();
 
   // ── First-load initialisation ──
   const tfDateEl = document.getElementById('tf-date');
@@ -195,4 +388,6 @@
   initSplash();
   animateLandingCounters();
   initFlowReveal();
+  initEngineeringEgg();
+  initGoldEasterEgg();
 })();

@@ -94,3 +94,23 @@ html[data-theme="light"]{
 
   --grid-line:rgba(21,32,66,0.55);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   "GOLD MODE" — hidden easter egg (ui/motion.js initGoldEasterEgg).
+   Re-skins ONLY the brand accent (buttons, links, highlights, hero glow).
+   The health/status palette (--green/--yellow/--orange/--red) and the
+   fault-type colour system are deliberately left untouched, so no diagnostic
+   or engineering meaning changes — this is a purely cosmetic accent swap.
+   Placed after the light-theme block so equal-specificity rules win by
+   source order; the light-gold variant is more specific and wins on its own.
+   ─────────────────────────────────────────────────────────────────────── */
+html.theme-gold{
+  --accent:#e0a81e; --accent-2:#f5c94c; --accent-dim:rgba(234,179,8,0.16);
+  --accent-glow:rgba(234,179,8,0.38);
+  --shadow-accent:0 8px 26px rgba(234,179,8,0.24);
+}
+html.theme-gold[data-theme="light"]{
+  --accent:#b07d0a; --accent-2:#c98a00; --accent-dim:rgba(176,125,10,0.12);
+  --accent-glow:rgba(176,125,10,0.24);
+  --shadow-accent:0 8px 22px rgba(176,125,10,0.16);
+}

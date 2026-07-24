@@ -20,11 +20,169 @@
 @keyframes stepSlide{from{opacity:0;transform:translateX(-10px);}to{opacity:1;transform:translateX(0);}}
 @keyframes gentleBob{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
 
-/* ---- Hero: diagnostic signals literally flow along their paths ---- */
-.hero-signal path{animation:fadeIn 1s ease both, dashFlow 1.6s linear infinite;}
-.hero-signal-2 path{animation-delay:.15s, .5s;}
-.hero-signal-3 path{animation-delay:.3s, 1s;}
+/* ---- Hero illustration: gentle float ---- */
 .landing-hero-art svg{animation:heroFloat 7s ease-in-out infinite;will-change:transform;}
+
+/* ---- Hero art hover: soft accent glow lift (Part 9 polish) ---- */
+.landing-hero-art svg{transition:filter .45s ease;}
+.landing-hero-art:hover svg{filter:drop-shadow(0 0 18px var(--accent-glow, rgba(45,212,168,.25)));}
+
+/* ---- Dissolved-gas particles: slow rise inside the oil window ---- */
+@keyframes gasRise{
+  0%{transform:translateY(0);opacity:0;}
+  12%{opacity:.75;}
+  78%{opacity:.75;}
+  100%{transform:translateY(-96px);opacity:0;}
+}
+.hero-gas{animation:gasRise 7s linear infinite;opacity:0;}
+.hero-gas-2{animation-duration:8.5s;animation-delay:2.2s;}
+.hero-gas-3{animation-duration:7.6s;animation-delay:4.1s;}
+.hero-gas-4{animation-duration:9s;animation-delay:1.3s;}
+
+/* ---- Nameplate indicator lamps: slow alternate blink ---- */
+@keyframes lampBlink{0%,100%{opacity:.25;}50%{opacity:1;}}
+.hero-lamp{animation:lampBlink 3.6s ease-in-out infinite;}
+.hero-lamp-2{animation-delay:1.8s;}
+
+/* ---- Numbered sensor nodes ----
+   pointer-events only on the node groups (the rest of the art stays
+   non-interactive). Unvisited = accent; hover/focus = brighter glow;
+   visited (.hero-node-done) = yellow, per the branding mockup. */
+.landing-hero-art svg{pointer-events:none;}
+.hero-node{pointer-events:all;cursor:pointer;outline:none;}
+.hero-node-link{stroke:var(--accent);stroke-width:1.6;stroke-dasharray:3 5;opacity:.7;
+  animation:dashFlow 1.6s linear infinite;transition:stroke .25s ease;}
+.hero-node-glow{stroke:var(--accent);stroke-width:1.3;opacity:.35;
+  animation:softPulse 2.4s ease-in-out infinite;transition:stroke .25s ease,opacity .25s ease;}
+.hero-node-badge{fill:var(--card);stroke:var(--accent);stroke-width:2;
+  transition:stroke .25s ease,fill .25s ease,filter .25s ease;}
+.hero-node-num{fill:var(--accent);font-family:var(--font-ui,Inter,system-ui,sans-serif);
+  font-size:12px;font-weight:800;transition:fill .25s ease;pointer-events:none;}
+.hero-node:hover .hero-node-badge,
+.hero-node:focus-visible .hero-node-badge{filter:drop-shadow(0 0 7px var(--accent-glow));}
+.hero-node:focus-visible .hero-node-glow{opacity:.9;stroke-width:2;}
+.hero-node.hero-node-done .hero-node-badge{fill:var(--yellow-dim);stroke:var(--yellow);}
+.hero-node.hero-node-done .hero-node-num{fill:var(--yellow);}
+.hero-node.hero-node-done .hero-node-glow{stroke:var(--yellow);}
+.hero-node.hero-node-done .hero-node-link{stroke:var(--yellow);}
+.hero-node.hero-node-done:hover .hero-node-badge,
+.hero-node.hero-node-done:focus-visible .hero-node-badge{filter:drop-shadow(0 0 7px var(--yellow-dim));}
+
+/* ---- Component tooltip (positioned by ui/motion.js) ---- */
+.hero-tip{
+  position:absolute;z-index:5;max-width:230px;padding:10px 13px;border-radius:10px;
+  background:var(--card);border:1px solid var(--border-strong,var(--border));
+  box-shadow:var(--shadow);font-size:12px;line-height:1.55;color:var(--text2);
+  pointer-events:none;
+}
+.hero-tip b{display:block;color:var(--text);font-size:12.5px;margin-bottom:3px;}
+
+/* ---- Easter-egg discovery hint ---- */
+.hero-egg-hint{
+  margin-top:10px;padding:8px 16px;border-radius:12px;font-size:12px;color:var(--text2);
+  border:1px dashed color-mix(in srgb, var(--yellow) 55%, transparent);
+  background:var(--yellow-dim);
+}
+.hero-egg-hint b{color:var(--text);font-weight:700;}
+
+/* ---- Easter-egg card: "Engineering Mode Enabled" — celebratory reveal ---- */
+@keyframes eggPop{0%{opacity:0;transform:scale(.85);}60%{opacity:1;transform:scale(1.03);}100%{opacity:1;transform:scale(1);}}
+@keyframes eggBadgePop{0%{transform:scale(0) rotate(-90deg);}70%{transform:scale(1.18) rotate(8deg);}100%{transform:scale(1) rotate(0);}}
+@keyframes eggChipIn{from{opacity:0;transform:translateY(9px);}to{opacity:1;transform:translateY(0);}}
+@keyframes eggGlowPulse{0%,100%{box-shadow:0 0 0 0 var(--accent-glow), var(--shadow-lg);}50%{box-shadow:0 0 34px 4px var(--accent-glow), var(--shadow-lg);}}
+.hero-egg{
+  position:absolute;inset:0;z-index:4;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;border-radius:var(--r-lg);padding:24px;
+  background:color-mix(in srgb, var(--card) 90%, transparent);
+  backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
+  border:1px solid var(--accent-glow, var(--border));
+  opacity:0;transition:opacity .5s ease;pointer-events:none;
+}
+.hero-egg.hero-egg-show{opacity:1;animation:eggPop .55s cubic-bezier(.2,.8,.3,1.2) both, eggGlowPulse 2.6s ease-in-out .6s infinite;}
+.hero-egg-badge{
+  width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:var(--accent-dim);border:2px solid var(--accent);color:var(--accent);
+  font-size:24px;font-weight:800;margin-bottom:12px;
+}
+.hero-egg-show .hero-egg-badge{animation:eggBadgePop .5s cubic-bezier(.2,.8,.3,1.4) .12s both;}
+.hero-egg-title{
+  font-size:20px;font-weight:800;letter-spacing:.01em;margin-bottom:8px;
+  background:linear-gradient(100deg,var(--accent) 20%,var(--accent-2,var(--accent)) 80%);
+  -webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;
+}
+.hero-egg-sub{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;}
+.hero-egg-list{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;justify-content:center;gap:6px 8px;max-width:340px;}
+.hero-egg-list li{font-size:11.5px;font-weight:600;color:var(--text2);background:var(--card2);
+  border:1px solid var(--border);border-radius:14px;padding:4px 11px;}
+.hero-egg-show .hero-egg-list li{opacity:0;animation:eggChipIn .35s ease forwards;}
+.hero-egg-show .hero-egg-list li:nth-child(1){animation-delay:.30s;}
+.hero-egg-show .hero-egg-list li:nth-child(2){animation-delay:.38s;}
+.hero-egg-show .hero-egg-list li:nth-child(3){animation-delay:.46s;}
+.hero-egg-show .hero-egg-list li:nth-child(4){animation-delay:.54s;}
+.hero-egg-show .hero-egg-list li:nth-child(5){animation-delay:.62s;}
+.hero-egg-show .hero-egg-list li:nth-child(6){animation-delay:.70s;}
+.hero-egg-show .hero-egg-list li:nth-child(7){animation-delay:.78s;}
+.hero-egg-achv{
+  margin-top:14px;font-size:12.5px;font-weight:600;color:var(--text2);
+  padding:6px 14px;border-radius:14px;background:var(--yellow-dim);
+  border:1px solid color-mix(in srgb, var(--yellow) 50%, transparent);
+}
+.hero-egg-achv b{color:var(--yellow);}
+.hero-egg-achv-note{margin-top:6px;font-size:11px;color:var(--text3);}
+.hero-egg-show .hero-egg-achv,
+.hero-egg-show .hero-egg-achv-note{opacity:0;animation:eggChipIn .4s ease forwards;}
+.hero-egg-show .hero-egg-achv{animation-delay:.92s;}
+.hero-egg-show .hero-egg-achv-note{animation-delay:1.05s;}
+
+/* ---- "Gold Mode" easter egg: brief smooth accent cross-fade ---- */
+html.theme-switching, html.theme-switching *{
+  transition:background-color .55s ease, color .55s ease, border-color .55s ease,
+             box-shadow .55s ease, fill .55s ease, stroke .55s ease !important;
+}
+
+/* ---- Toast shown when an easter egg fires (Gold Mode on/off) ---- */
+@keyframes toastIn{from{opacity:0;transform:translate(-50%,14px);}to{opacity:1;transform:translate(-50%,0);}}
+@keyframes toastOut{from{opacity:1;transform:translate(-50%,0);}to{opacity:0;transform:translate(-50%,10px);}}
+.egg-toast{
+  position:fixed;left:50%;bottom:30px;transform:translate(-50%,0);z-index:1600;
+  display:inline-flex;align-items:center;gap:9px;padding:11px 20px;border-radius:30px;
+  background:var(--card);border:1px solid var(--accent);color:var(--text);
+  font-size:13.5px;font-weight:600;box-shadow:var(--shadow-lg);
+  animation:toastIn .35s cubic-bezier(.2,.8,.3,1.2) both;pointer-events:none;
+}
+.egg-toast.egg-toast-out{animation:toastOut .35s ease forwards;}
+.egg-toast-icon{font-size:16px;line-height:1;}
+/* Rich achievement variant — multi-line, left-aligned */
+.egg-toast-rich{align-items:flex-start;gap:12px;padding:14px 22px;border-color:var(--accent);}
+.egg-toast-rich .egg-toast-icon{font-size:22px;}
+.egg-toast-body{display:flex;flex-direction:column;text-align:left;line-height:1.35;}
+.egg-toast-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.09em;color:var(--text3);}
+.egg-toast-sub{font-size:15px;font-weight:800;color:var(--accent);margin-top:1px;}
+.egg-toast-note{font-size:12px;font-weight:500;color:var(--text2);margin-top:3px;}
+
+/* ---- Session achievement badge in the nav (earned via the easter egg) ---- */
+@keyframes achvPop{0%{transform:scale(0) rotate(-180deg);}70%{transform:scale(1.3) rotate(12deg);}100%{transform:scale(1) rotate(0);}}
+@keyframes achvGlow{0%,100%{box-shadow:0 0 4px 0 var(--yellow-dim);}50%{box-shadow:0 0 10px 2px color-mix(in srgb, var(--yellow) 40%, transparent);}}
+.nav-achievement[hidden]{display:none;}
+.nav-achievement{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:22px;height:22px;border-radius:50%;margin-left:8px;flex:none;
+  font-size:12px;line-height:1;color:var(--yellow);background:var(--yellow-dim);
+  border:1px solid color-mix(in srgb, var(--yellow) 55%, transparent);
+  cursor:help;animation:achvGlow 3s ease-in-out infinite;
+}
+.nav-achievement.achv-pop{animation:achvPop .65s cubic-bezier(.2,.8,.3,1.4) both, achvGlow 3s ease-in-out .7s infinite;}
+
+/* ---- Confetti burst on easter-egg completion (spawned by ui/motion.js) ---- */
+@keyframes confettiFly{
+  0%{opacity:1;transform:translate(0,0) rotate(0);}
+  100%{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(var(--rot));}
+}
+.hero-confetti{
+  position:absolute;left:50%;top:42%;width:8px;height:8px;border-radius:2px;
+  pointer-events:none;z-index:6;opacity:0;
+  animation:confettiFly 1.5s cubic-bezier(.15,.6,.4,1) both;
+}
 
 /* ---- Landing headline accent: slow gradient shimmer ---- */
 .accent-text{
@@ -163,7 +321,6 @@
 .splash-word span:nth-child(4){animation-delay:1.29s;}
 .splash-word span:nth-child(5){animation-delay:1.37s;}
 .splash-word span:nth-child(6){animation-delay:1.45s;}
-.splash-word .splash-tm{font-size:14px;font-weight:600;letter-spacing:0;align-self:flex-start;margin-top:6px;animation-delay:1.55s;}
 
 .splash-tag{
   margin:14px auto 0;color:#b9c4dd;font-size:16.5px;font-weight:500;
@@ -176,12 +333,6 @@
   background:linear-gradient(90deg, transparent, #4c7cf0, #2dd4a8, transparent);
   transform:scaleX(0);animation:splashLineGrow .7s cubic-bezier(.2,.7,.3,1) 1.85s forwards;
 }
-.splash-skip{
-  position:fixed;bottom:20px;right:26px;
-  color:#5b6884;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
-  opacity:0;animation:fadeIn .6s ease 2s forwards;pointer-events:none;
-}
-@media (max-width:560px){.splash-skip{right:0;left:0;text-align:center;}}
 
 /* =====================================================================
    Ambient flow touches
@@ -255,9 +406,30 @@ html[data-theme="light"] .duval-hero-canvas-wrap::after{
   animation:duvalScan 5.2s ease-in-out .8s infinite;
 }
 
-/* Nav logo: soft glow pulse */
-@keyframes logoGlow{0%,100%{box-shadow:0 2px 8px rgba(28,199,156,.3);}50%{box-shadow:0 2px 16px rgba(28,199,156,.55);}}
-.nav-logo{animation:logoGlow 3.5s ease-in-out infinite;}
+/* Nav logo: soft glow pulse — token-based so it fades Teal↔Gold with the
+   brand accent (var(--accent-glow) changes under .theme-gold). */
+@keyframes logoGlow{0%,100%{box-shadow:0 2px 9px var(--accent-glow);}50%{box-shadow:0 3px 17px var(--accent-glow);}}
+.nav-logo{animation:logoGlow 3.6s ease-in-out infinite;}
+
+/* About dialog — Engineering Discoveries checklist. Locked rows read "???";
+   once discovered they show "✓ <name>" (populated by ui/motion.js). */
+.discovery-list{list-style:none;margin:8px 0 0;padding:0;}
+.discovery-list li{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13.5px;color:var(--text3);}
+.discovery-list .discovery-icon{width:18px;flex:none;text-align:center;font-weight:800;font-size:12px;color:var(--text3);letter-spacing:.05em;}
+.discovery-list li.discovery-unlocked{color:var(--text);}
+.discovery-list li.discovery-unlocked .discovery-icon{color:var(--accent);}
+.discovery-list li:not(.discovery-unlocked) .discovery-name{display:none;}
+
+/* Founder's Edition — 4th, finer toast line */
+.egg-toast-fine{font-size:11px;font-weight:500;font-style:italic;color:var(--text3);margin-top:3px;}
+
+/* Founder's Edition — subtle premium cue on the logo (gold ring + lift).
+   Elegant, not flashy: an outline ring independent of the glow animation. */
+html.theme-gold .nav-logo{border-color:color-mix(in srgb, var(--accent) 65%, transparent);}
+html.theme-gold .nav-logo::after{
+  content:'';position:absolute;inset:-2px;border-radius:11px;pointer-events:none;
+  border:1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+}
 
 /* Footer logo spacing */
 .footer-logo{display:flex;justify-content:center;margin-bottom:8px;}

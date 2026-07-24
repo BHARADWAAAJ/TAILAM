@@ -1,4 +1,4 @@
-# TAILAM™
+# TAILAM
 
 **Transformer Assessment for Insulating Liquid Analysis & Monitoring**
 

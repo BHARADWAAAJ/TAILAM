@@ -1,4 +1,4 @@
-# TAILAM™ — Version 1.0 Product Scope
+# TAILAM — Version 1.0 Product Scope
 
 *Transformer Assessment for Insulating Liquid Analysis & Monitoring*
 Status: Stable · Static Browser Edition · Engine frozen for this version

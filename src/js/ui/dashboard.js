@@ -170,9 +170,10 @@
     // from this same report object. Presentation only — see ui/workspace.js.
     if (window.TAILAM.ui.workspace) window.TAILAM.ui.workspace.renderMainWorkspace(rp);
 
-    // "Show Detailed Calculations" — Engineering Workbook view (Phase 1
-    // scaffold: placeholder cards only). Presentation only, hidden by
-    // default — see ui/detailed-calcs.js.
+    // Engineering Workbook content — rendered into #detailed-main every
+    // analysis regardless of whether the workbook modal is currently open
+    // (app.js#openWorkbookModal just reveals it). Presentation only — see
+    // ui/detailed-calcs.js.
     if (window.TAILAM.ui.detailedCalcs) window.TAILAM.ui.detailedCalcs.renderMainDetailed(rp);
   }
 
@@ -265,9 +266,10 @@
     // from this same report object. Presentation only — see ui/workspace.js.
     if (window.TAILAM.ui.workspace) window.TAILAM.ui.workspace.renderOltcWorkspace(rp);
 
-    // "Show Detailed Calculations" — Engineering Workbook view (Phase 1
-    // scaffold: placeholder cards only). Presentation only, hidden by
-    // default — see ui/detailed-calcs.js.
+    // Engineering Workbook content — rendered into #detailed-oltc every
+    // analysis regardless of whether the workbook modal is currently open
+    // (app.js#openWorkbookModal just reveals it). Presentation only — see
+    // ui/detailed-calcs.js.
     if (window.TAILAM.ui.detailedCalcs) window.TAILAM.ui.detailedCalcs.renderOltcDetailed(rp);
   }
 

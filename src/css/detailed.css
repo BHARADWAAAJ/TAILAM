@@ -9,16 +9,32 @@
    index.html, so PDF/print output is unaffected.
    ===================================================================== */
 
-/* ---- Detailed Engineering Calculations — header + toggle button ----
-   The button sits immediately above the content it reveals (inside the
-   same card, directly above the grid below), not in a separate location —
-   clicking it and seeing the change happen are visually adjacent. */
+/* ---- Detailed Engineering Calculations — header + launch button ----
+   The button lives in the same card as the section heading, in the normal
+   page flow, right where "Detailed Engineering Calculations" has always
+   been positioned (Snapshot → Primary Diagnosis → Assessment → THI →
+   Detailed Engineering Calculations → ...) — only its ACTION changed, from
+   expanding inline to opening the #modal-workbook overlay (see app.js). */
 .detailed-calcs-header{
   display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
-  flex-wrap:wrap; margin-bottom:14px;
+  flex-wrap:wrap; margin-bottom:0;
 }
 .detailed-calcs-sub{font-size:12px; color:var(--text2); margin-top:4px;}
 .detailed-calcs-btn{flex:none; white-space:nowrap;}
+
+/* ---- Engineering Workbook modal ----
+   .modal-overlay/.modal-box already provide the dim+blurred backdrop and
+   self-scrolling body (layout.css) — this only overrides the size to the
+   requested ~90-95% of the viewport and lets the body scroll internally
+   while the dashboard behind stays fixed (scroll-lock is applied to
+   <body> in app.js while this modal is open). */
+.modal-box.modal-workbook-box{
+  width:94vw; max-width:1400px; height:92vh; max-height:92vh;
+  display:flex; flex-direction:column;
+  overflow-y:hidden; /* only .modal-workbook-body scrolls — avoids nested scrollbars */
+}
+.modal-workbook-box .modal-sub{ flex:none; }
+.modal-workbook-body{ flex:1 1 auto; overflow-y:auto; margin-top:16px; padding-right:4px; }
 
 /* ---- Detailed calculations content grid ----
    `hidden` is applied to this grid element itself (#detailed-main /
@@ -27,51 +43,324 @@
    rule of equal specificity, so the hide rule is stated explicitly here
    rather than relied upon implicitly. */
 .detailed-calcs{
-  display:grid; grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(min(340px, 100%), 1fr));
   gap:16px; align-items:start;
 }
 .detailed-calcs[hidden]{display:none;}
 /* Utility: a card that spans every column (wide tables, equations) */
 .workbook-card-wide{ grid-column:1 / -1; }
 
-/* ---- Engineering workbook card (Phase 2: real calculation content) ----
-   One card per method/group. Compact, traceable, table-first — no large
-   paragraphs, per the reviewed design requirement. */
-.calc-card{
+/* ---- Engineering workbook chapter (Phase 3: step-by-step teaching) ----
+   One chapter per method. Each chapter is a numbered sequence of steps —
+   formula, substitution, arithmetic, threshold comparison, interpretation —
+   so a reader with only basic mathematics can follow and reproduce every
+   answer. Compact boxes/tables, not paragraphs of prose. */
+.wb-method{
   background:var(--bg2); border:1px solid var(--border); border-radius:var(--r-md);
-  padding:16px 18px;
+  padding:16px 18px 18px;
 }
-.calc-card-title{
-  display:flex; align-items:baseline; justify-content:space-between; gap:10px;
-  font-size:13.5px; font-weight:700; color:var(--text);
-  margin-bottom:12px; padding-bottom:10px; border-bottom:1px solid var(--border);
+.wb-method-head{
+  display:flex; align-items:baseline; justify-content:space-between; gap:6px 10px; flex-wrap:wrap;
+  font-size:14px; font-weight:700; color:var(--text);
+  margin-bottom:14px; padding-bottom:10px; border-bottom:1px solid var(--border);
 }
-.calc-card-ref{ font-size:11px; font-weight:400; color:var(--text3); white-space:nowrap; }
+.wb-method-title{ min-width:0; }
+.wb-method-ref{ font-size:11px; font-weight:400; color:var(--text3); }
 
-.calc-row{ margin-bottom:12px; }
-.calc-row:last-child{ margin-bottom:0; }
-.calc-label{
-  display:block; font-size:10.5px; font-weight:700; text-transform:uppercase;
-  letter-spacing:.04em; color:var(--text3); margin-bottom:5px;
+/* One step within a chapter — collapsible, default expanded. The head is a
+   clickable/keyboard-operable toggle (app.js wires click + Enter/Space via
+   the data-action attribute); a collapsed step hides its body and its
+   Previous/Next row, leaving only the header visible. */
+.wb-step{ margin-bottom:16px; padding-bottom:16px; border-bottom:1px dashed var(--border); }
+.wb-step:last-child{ margin-bottom:0; padding-bottom:0; border-bottom:none; }
+.wb-step-head{
+  display:flex; align-items:center; gap:9px; margin-bottom:9px;
+  cursor:pointer; user-select:none; border-radius:6px; margin:-4px -6px 9px; padding:4px 6px;
 }
-.calc-formula{
-  display:inline-block; font-family:var(--font-mono); font-size:12.5px; color:var(--text);
-  background:var(--card); border:1px solid var(--border); border-radius:6px; padding:6px 10px;
+.wb-step-head:hover{ background:var(--card); }
+.wb-step-head:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
+.wb-step-badge{
+  flex:none; font-size:10.5px; font-weight:800; letter-spacing:.03em;
+  color:var(--accent); background:var(--accent-dim); border-radius:20px; padding:3px 10px;
 }
-.calc-substitution{
-  font-family:var(--font-mono); font-size:12px; color:var(--text2); line-height:1.7;
-  background:var(--card); border:1px solid var(--border); border-radius:6px; padding:8px 10px;
+.wb-step-title{ font-size:12.5px; font-weight:700; color:var(--text); }
+.wb-step-chevron{
+  margin-left:auto; flex:none; color:var(--text3); font-size:11px;
+  transition:transform .18s ease;
 }
-.calc-result-line{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
-.calc-result-value{ font-family:var(--font-mono); font-size:15px; font-weight:800; color:var(--text); }
-.calc-threshold-note{ font-size:11.5px; color:var(--text3); }
-.calc-interp{ font-size:12.5px; color:var(--text2); line-height:1.55; }
+.wb-step-body > *:not(:last-child){ margin-bottom:8px; }
 
-.calc-table{ width:100%; border-collapse:collapse; font-size:12px; }
-.calc-table th{
+/* Collapsed state — body and Previous/Next hidden, only the header remains */
+.wb-step.collapsed .wb-step-body,
+.wb-step.collapsed .wb-step-nav{ display:none; }
+.wb-step.collapsed .wb-step-head{ margin-bottom:-4px; }
+.wb-step.collapsed .wb-step-chevron{ transform:rotate(-90deg); }
+
+/* Previous / Next step navigation row */
+.wb-step-nav{
+  display:flex; justify-content:space-between; gap:10px; margin-top:14px;
+}
+.wb-step-nav-btn{
+  appearance:none; border:1px solid var(--border); background:var(--card);
+  color:var(--text2); font-family:var(--font-ui); font-size:12px; font-weight:600;
+  border-radius:6px; padding:6px 12px; cursor:pointer; transition:border-color .15s ease, color .15s ease;
+}
+.wb-step-nav-btn:hover{ border-color:var(--accent); color:var(--accent); }
+.wb-step-nav-btn:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
+
+/* Formula / equation display */
+.wb-eq{
+  font-family:var(--font-mono); font-size:13px; font-weight:600; color:var(--text);
+  background:var(--card); border:1px solid var(--border); border-radius:6px;
+  padding:8px 12px; display:inline-block; max-width:100%; overflow-wrap:anywhere;
+}
+/* Substituted values, one per line */
+.wb-sub{ font-family:var(--font-mono); font-size:12px; color:var(--text2); line-height:1.7; overflow-wrap:anywhere; }
+
+/* The arithmetic line: expression = highlighted answer */
+.wb-arith{
+  display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+  font-family:var(--font-mono); font-size:13px; overflow-wrap:anywhere;
+  background:var(--card); border:1px solid var(--border); border-radius:6px; padding:9px 12px;
+}
+.wb-arith-expr{ color:var(--text2); }
+.wb-arith-eq{ color:var(--text3); }
+.wb-arith-answer{ font-size:15px; font-weight:800; color:var(--accent-2); }
+
+/* "Why?" explanation box — plain-English teaching text */
+.wb-why{
+  background:var(--accent-dim); border-left:3px solid var(--accent); border-radius:0 6px 6px 0;
+  padding:8px 12px;
+}
+.wb-why-label{ display:block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--accent); margin-bottom:3px; }
+.wb-why p{ margin:0; font-size:12.5px; color:var(--text2); line-height:1.55; }
+
+/* Threshold comparison chips — the matching band is highlighted */
+.wb-compare{ display:flex; flex-wrap:wrap; gap:8px; }
+.wb-band{
+  flex:1 1 auto; min-width:110px; text-align:center; padding:8px 10px;
+  background:var(--card); border:1px solid var(--border); border-radius:6px;
+}
+.wb-band-range{ display:block; font-family:var(--font-mono); font-size:11.5px; color:var(--text3); }
+.wb-band-label{ display:block; font-size:11.5px; font-weight:600; color:var(--text2); margin-top:2px; }
+.wb-band.active{ background:var(--accent-dim); border-color:var(--accent); }
+.wb-band.active .wb-band-range{ color:var(--accent); }
+.wb-band.active .wb-band-label{ color:var(--text); font-weight:800; }
+
+/* Highlighted final-value box */
+.wb-answer{
+  display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;
+  background:var(--card2); border:1px solid var(--accent-glow); border-radius:6px; padding:9px 12px;
+}
+.wb-answer-label{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--text3); }
+.wb-answer-value{ font-size:14px; font-weight:800; color:var(--text); }
+
+/* Reference / decision tables — the wrapper scrolls horizontally on its own
+   on narrow viewports rather than forcing the whole modal to. */
+.wb-table-wrap{ overflow-x:auto; max-width:100%; }
+.wb-table{ width:100%; border-collapse:collapse; font-size:12px; }
+.wb-table th{
   text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.03em;
   color:var(--text3); font-weight:700; padding:5px 8px; border-bottom:1px solid var(--border-strong);
 }
-.calc-table td{ padding:6px 8px; border-bottom:1px solid var(--border); color:var(--text2); }
-.calc-table tbody tr:last-child td{ border-bottom:none; }
-.calc-table td:first-child{ color:var(--text); font-weight:600; }
+.wb-table td{ padding:6px 8px; border-bottom:1px solid var(--border); color:var(--text2); }
+.wb-table tbody tr:last-child td{ border-bottom:none; }
+.wb-table td:first-child{ color:var(--text); font-weight:600; }
+
+/* ---- Labeled sub-blocks (Purpose / Formula / Substitute / Arithmetic /
+   Result / Why) — the "textbook worked-example" format. Each is its own
+   visually separated block with a consistent icon+label header, so a
+   step never reads as one flowing paragraph. Used by the Duval Triangle 1
+   chapter; the label text itself carries the semantics (icons are
+   decorative only — aria-hidden — so screen readers hear the label). */
+.wb-block{ margin-bottom:11px; }
+.wb-block:last-child{ margin-bottom:0; }
+.wb-block-label{
+  display:flex; align-items:center; gap:6px; margin-bottom:5px;
+  font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:var(--text3);
+}
+.wb-block-icon{ font-size:12px; }
+.wb-p{ margin:0; font-size:12.5px; color:var(--text2); line-height:1.55; }
+
+/* "Engineering Insight" — a distinct, consistent engineering-note panel
+   (amber, matching the app's --yellow status token) so it reads visibly
+   differently from the plain Purpose/Formula/Substitute/Why sub-blocks
+   above it. Content/wording unchanged — presentation only. */
+.wb-block-insight{
+  background:var(--yellow-dim); border:1px solid var(--yellow); border-radius:6px;
+  padding:9px 12px;
+}
+.wb-block-insight .wb-block-label{ color:#a86a00; } /* same hex components.css already uses for .badge-yellow text on --yellow-dim */
+.wb-block-insight .wb-p{ color:var(--text); }
+
+/* "✓ VERIFIED" badge (Step 6 — verification result) */
+.wb-verified{
+  display:inline-flex; align-items:center; gap:5px; margin-left:8px;
+  font-size:11.5px; font-weight:800; letter-spacing:.02em;
+  color:var(--green); background:var(--green-dim); border-radius:20px; padding:4px 11px;
+}
+.wb-verified.fail{ color:var(--red); background:var(--red-dim); }
+
+/* Zone pass/fail checklist (Step 8 — "which region contains the point") */
+.wb-zonecheck{ display:flex; flex-wrap:wrap; gap:8px; }
+.wb-zonecheck-item{
+  display:flex; flex-direction:column; align-items:flex-start; gap:3px; padding:8px 13px;
+  background:var(--card); border:1px solid var(--border); border-radius:6px;
+}
+.wb-zonecheck-code{ font-size:13px; font-weight:800; color:var(--text2); }
+.wb-zonecheck-status{ font-size:11px; font-weight:600; color:var(--text3); }
+.wb-zonecheck-item.match{ background:var(--green-dim); border-color:var(--green); }
+.wb-zonecheck-item.match .wb-zonecheck-code{ color:var(--green); }
+.wb-zonecheck-item.match .wb-zonecheck-status{ color:var(--green); font-weight:700; }
+
+/* "What We Learned" — the chapter's executive summary card. Each row is a
+   labeled fact (Total Gas / Percentages / Coordinates / Zone / Fault Type /
+   Engineering Conclusion) rather than a flat sentence list, so it reads as
+   a scannable summary rather than a paragraph. */
+.wb-summary{
+  margin-top:16px; padding:16px; border-radius:var(--r-md);
+  background:var(--card2); border:1px solid var(--accent-glow);
+}
+.wb-summary-title{ font-size:13.5px; font-weight:800; color:var(--text); margin-bottom:12px; }
+.wb-summary-row{
+  display:grid; grid-template-columns:20px minmax(120px, 160px) 1fr;
+  align-items:baseline; gap:10px; margin-bottom:9px;
+  font-size:12.5px; color:var(--text2); line-height:1.5;
+}
+.wb-summary-row:last-child{ margin-bottom:0; }
+.wb-summary-check{ color:var(--green); font-weight:800; }
+.wb-summary-label{ font-weight:700; color:var(--text3); text-transform:uppercase; font-size:10.5px; letter-spacing:.03em; }
+.wb-summary-value{ color:var(--text); font-weight:600; }
+
+/* ---- Table of Contents (top of the workbook) ----
+   Spans the full grid width, always the first thing in #detailed-main /
+   #detailed-oltc. Links jump to a chapter id; the currently-visible
+   chapter is highlighted via .active (app.js scrollspy on the modal
+   body's scroll position) — presentation/navigation only. */
+.wb-toc{
+  grid-column:1 / -1;
+  background:var(--card2); border:1px solid var(--border); border-radius:var(--r-md);
+  padding:16px 18px;
+}
+.wb-toc-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+.wb-toc-title{ font-size:13.5px; font-weight:800; color:var(--text); }
+.wb-toc-actions{ display:flex; gap:8px; }
+.wb-toc-action-btn{
+  appearance:none; border:1px solid var(--border); background:var(--card);
+  color:var(--text2); font-family:var(--font-ui); font-size:11.5px; font-weight:700;
+  border-radius:6px; padding:5px 11px; cursor:pointer; transition:border-color .15s ease, color .15s ease;
+}
+.wb-toc-action-btn:hover{ border-color:var(--accent); color:var(--accent); }
+.wb-toc-action-btn:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
+.wb-toc-list{
+  margin:0; padding-left:0; list-style:none;
+  display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:4px 16px;
+}
+.wb-toc-link{
+  display:block; padding:5px 8px; border-radius:6px;
+  font-size:12.5px; color:var(--text2); text-decoration:none; line-height:1.5;
+  transition:background .15s ease, color .15s ease;
+}
+.wb-toc-link:hover{ background:var(--card); color:var(--text); }
+.wb-toc-link:focus-visible{ outline:2px solid var(--accent); outline-offset:1px; }
+.wb-toc-link.active{ background:var(--accent-dim); color:var(--accent); font-weight:700; }
+
+/* ---- Sticky modal header meta row + reading progress ----
+   Both live in the always-visible (non-scrolling) part of
+   .modal-workbook-box, above .modal-workbook-body — see index.html. */
+.modal-workbook-meta{
+  display:flex; gap:20px; flex-wrap:wrap; margin-top:10px;
+  font-size:12px; color:var(--text2);
+}
+.modal-workbook-meta-item{ display:flex; gap:6px; align-items:baseline; }
+.modal-workbook-meta-label{ font-weight:700; color:var(--text3); text-transform:uppercase; font-size:10.5px; letter-spacing:.03em; }
+.modal-workbook-meta-value{ color:var(--text); font-weight:600; }
+
+.wb-progress{ display:flex; align-items:center; gap:10px; margin-top:12px; }
+.wb-progress-label{ flex:none; font-size:11px; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:.03em; }
+.wb-progress-track{ flex:1 1 auto; height:6px; border-radius:4px; background:var(--bg2); overflow:hidden; }
+.wb-progress-fill{ height:100%; width:0%; background:var(--accent); border-radius:4px; transition:width .1s linear; }
+.wb-progress-pct{ flex:none; font-size:11.5px; font-weight:700; color:var(--text2); min-width:32px; text-align:right; }
+
+/* ---- Responsive — tablet and narrower ---- */
+@media (max-width:860px){
+  .modal-box.modal-workbook-box{ width:98vw; height:95vh; max-height:95vh; }
+  .modal-workbook-meta{ gap:10px 20px; }
+  .wb-toc-list{ grid-template-columns:1fr; }
+  .wb-summary-row{ grid-template-columns:20px 1fr; grid-template-areas:"check label" "check value"; }
+  .wb-summary-label{ grid-area:label; }
+  .wb-summary-value{ grid-area:value; }
+}
+@media (max-width:560px){
+  .wb-step-nav{ flex-direction:column; }
+  .wb-step-nav-btn{ width:100%; text-align:center; }
+  .wb-toc-head{ flex-direction:column; align-items:flex-start; }
+  .wb-ref-row{ grid-template-columns:1fr; gap:2px; }
+}
+
+/* ---- Reference-standard integration (educational content only) ---- */
+
+/* "Engineering Reference" handbook panel at the top of each method chapter */
+.wb-ref{
+  background:var(--card2); border:1px solid var(--border); border-left:3px solid var(--accent);
+  border-radius:6px; padding:12px 14px; margin-bottom:16px;
+}
+.wb-ref-title{
+  display:flex; align-items:center; gap:6px; margin-bottom:10px;
+  font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--accent);
+}
+.wb-ref-row{
+  display:grid; grid-template-columns:130px 1fr; gap:10px; align-items:baseline;
+  padding:5px 0; border-top:1px solid var(--border);
+}
+.wb-ref-row:first-of-type{ border-top:none; }
+.wb-ref-label{ font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; color:var(--text3); }
+.wb-ref-value .wb-p{ font-size:12.5px; color:var(--text); }
+.wb-ref-chips{ display:flex; flex-wrap:wrap; gap:6px; }
+.wb-ref-chip{
+  font-family:var(--font-mono); font-size:11.5px; font-weight:600; color:var(--text);
+  background:var(--bg2); border:1px solid var(--border); border-radius:5px; padding:2px 8px;
+}
+
+/* "Engineering Note" callout — teal-toned info panel, visibly distinct from
+   the amber "Engineering Insight" boxes (both are consistent info panels). */
+.wb-note{
+  background:var(--accent-dim); border:1px solid var(--accent-glow); border-left:3px solid var(--accent);
+  border-radius:6px; padding:10px 13px; margin-bottom:14px;
+}
+.wb-note-label{
+  display:flex; align-items:center; gap:6px; margin-bottom:5px;
+  font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--accent);
+}
+.wb-note-subject{ font-size:12.5px; font-weight:700; color:var(--text); margin-bottom:5px; }
+.wb-note .wb-p{ margin-bottom:5px; }
+.wb-note .wb-p:last-child{ margin-bottom:0; }
+
+/* Bulleted lists inside blocks (Typical Causes / Follow-up / Limitations) */
+.wb-bullets{ margin:0; padding-left:18px; }
+.wb-bullets li{ font-size:12.5px; color:var(--text2); line-height:1.6; }
+
+/* "Limitations of this Method" — a warning-toned closing panel */
+.wb-limitations{
+  margin-top:16px; padding:13px 15px; border-radius:var(--r-md);
+  background:var(--orange-dim); border:1px solid var(--orange);
+}
+.wb-limitations-title{
+  display:flex; align-items:center; gap:7px; margin-bottom:8px;
+  font-size:13px; font-weight:800; color:var(--orange);
+}
+.wb-limitations .wb-p{ color:var(--text); margin-bottom:8px; }
+.wb-limitations .wb-bullets li{ color:var(--text2); }
+
+/* Workbook-closing "Engineering References" list */
+.wb-reflist{ display:flex; flex-direction:column; gap:2px; margin-bottom:12px; }
+.wb-reflist-item{
+  display:grid; grid-template-columns:minmax(140px, 200px) 1fr; gap:12px; align-items:baseline;
+  padding:9px 4px; border-bottom:1px solid var(--border);
+}
+.wb-reflist-item:last-child{ border-bottom:none; }
+.wb-reflist-name{ font-size:13px; font-weight:700; color:var(--text); }
+.wb-reflist-note{ font-size:12px; color:var(--text2); line-height:1.5; }
+@media (max-width:560px){
+  .wb-reflist-item{ grid-template-columns:1fr; gap:2px; }
+}
