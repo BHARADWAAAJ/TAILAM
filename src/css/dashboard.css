@@ -90,7 +90,13 @@ html[data-theme="dark"] .sev-tag.sev-attention{color:var(--yellow);}
 .row-why summary::-webkit-details-marker{display:none;}
 .row-why .why-body{font-size:12.5px;margin-top:6px;}
 
-/* 9 — Raw Calculations (relocated original method cards) */
+/* 9 — Raw Calculations (relocated original method cards).
+   The on-page section was removed (the Engineering Workbook covers it); the
+   carrier is kept but hidden so ui/dashboard.js can still write computed
+   values into its ids. This [hidden] rule beats the flex display below so the
+   `hidden` attribute actually hides it (author display:flex would otherwise
+   override the UA [hidden] rule). */
+.raw-calculations[hidden]{display:none !important;}
 .raw-calculations{display:flex;flex-direction:column;gap:20px;}
 .raw-card{border-top:1px solid var(--border);padding-top:16px;}
 .raw-card:first-child{border-top:none;padding-top:0;}
