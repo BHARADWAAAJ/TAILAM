@@ -87,7 +87,7 @@ de-duplications listed above (verified value-identical).
 ## Sprint 2 (done) — product identity
 
 Landing screen, top nav (Main Tank / OLTC / Help / About), About/Help/
-unsaved-analysis dialogs, empty-state dashboard placeholder, TAILAM™
+unsaved-analysis dialogs, empty-state dashboard placeholder, TAILAM
 branding throughout. See git history / project memory for details — not
 re-documented here since it didn't change the module structure above.
 
