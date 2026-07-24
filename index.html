@@ -650,7 +650,7 @@
             <h2 class="section-title">Detailed Engineering Calculations</h2>
             <p class="detailed-calcs-sub">Open the full step-by-step engineering workbook for this assessment.</p>
           </div>
-          <button type="button" class="btn btn-outline detailed-calcs-btn" id="btn-toggle-detailed-main" aria-haspopup="dialog" aria-controls="modal-workbook">📖 Open Engineering Workbook</button>
+          <button type="button" class="btn btn-primary detailed-calcs-btn" id="btn-toggle-detailed-main" aria-haspopup="dialog" aria-controls="modal-workbook">📖 Open Engineering Workbook</button>
         </div>
       </div>
 
@@ -677,11 +677,13 @@
         </table>
       </div>
 
-      <!-- 9 — RAW CALCULATIONS (existing detailed method cards, relocated verbatim) -->
-      <div class="card">
-        <details class="why-toggle">
-          <summary><span class="section-title as-summary">Raw Calculations</span> <span class="chev"><svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 8.6 12 15l6.4-6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span></summary>
-          <div class="why-body raw-calculations">
+      <!-- Raw method-result carriers — the on-page "Raw Calculations" section
+           was removed (the Engineering Workbook now covers all of this). These
+           elements are RETAINED but permanently hidden so the frozen dashboard
+           render (ui/dashboard.js) keeps writing computed values into their ids
+           exactly as before. Presentation-only removal — no engine, render or
+           export logic changed. -->
+      <div class="raw-calculations" id="raw-calculations-main" hidden aria-hidden="true" style="display:none">
 
             <div class="raw-card">
               <div class="raw-card-title">Duval Triangle 1 — Main Tank <span class="raw-ref">IEC 60599 — visual moved to Engineering Assessment above</span></div>
@@ -778,8 +780,6 @@
               <div class="method-desc" id="o2-desc"></div>
             </div>
 
-          </div>
-        </details>
       </div>
 
       <!-- 10 — ENGINEERING REFERENCES -->
@@ -1005,7 +1005,7 @@
             <h2 class="section-title">Detailed Engineering Calculations</h2>
             <p class="detailed-calcs-sub">Open the full step-by-step engineering workbook for this assessment.</p>
           </div>
-          <button type="button" class="btn btn-outline detailed-calcs-btn" id="btn-toggle-detailed-oltc" aria-haspopup="dialog" aria-controls="modal-workbook">📖 Open Engineering Workbook</button>
+          <button type="button" class="btn btn-primary detailed-calcs-btn" id="btn-toggle-detailed-oltc" aria-haspopup="dialog" aria-controls="modal-workbook">📖 Open Engineering Workbook</button>
         </div>
       </div>
 
@@ -1032,11 +1032,13 @@
         </table>
       </div>
 
-      <!-- 9 — RAW CALCULATIONS (existing detailed OLTC card, relocated verbatim) -->
-      <div class="card">
-        <details class="why-toggle">
-          <summary><span class="section-title as-summary">Raw Calculations</span> <span class="chev"><svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 8.6 12 15l6.4-6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span></summary>
-          <div class="why-body raw-calculations">
+      <!-- Raw method-result carriers — the on-page "Raw Calculations" section
+           was removed (the Engineering Workbook now covers all of this). These
+           elements are RETAINED but permanently hidden so the frozen dashboard
+           render (ui/dashboard.js) keeps writing computed values into their ids
+           exactly as before. Presentation-only removal — no engine, render or
+           export logic changed. -->
+      <div class="raw-calculations" id="raw-calculations-oltc" hidden aria-hidden="true" style="display:none">
 
             <div class="raw-card">
               <div class="raw-card-title">Duval Triangle 2 — OLTC Oil <span class="raw-ref">IEC 60599:2022 Fig. B.4 — visual moved to Engineering Assessment above</span></div>
@@ -1068,8 +1070,6 @@
               <div id="oltc-xcontam-box"></div>
             </div>
 
-          </div>
-        </details>
       </div>
 
       <!-- 10 — ENGINEERING REFERENCES -->
