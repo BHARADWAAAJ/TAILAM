@@ -71,7 +71,7 @@ Full implementation notes, scope, and limitations for each standard:
 
 | Landing screen | Engineering Snapshot | Duval Triangle detail |
 |---|---|---|
-| ![](docs/assets/screenshot-landing.png) | ![](docs/assets/screenshot-dashboard.png) | ![](docs/assets/screenshot-duval-modal.png) |
+| ![](docs/assets/screenshot-landing.png) | ![](docs/assets/screenshot-snapshot.png) | ![](docs/assets/screenshot-duval-modal.png) |
 
 ## Installation
 
