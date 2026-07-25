@@ -293,18 +293,17 @@
   }
 
   /**
-   * "Founder's Edition" — the second hidden discovery: a premium brand theme.
-   * It is gated behind the first one: the user must have discovered
-   * Engineering Mode (clicked all seven sensor nodes, which sets
-   * sessionStorage 'tailam-engineering-mode'). Only then does interacting with
-   * the header logo unlock Founder's Edition:
-   *   • Option A — seven quick clicks on the logo, or
-   *   • Option B — Shift + double-click the logo (quick toggle back).
-   * Either one flips the brand accent from Teal to Gold (and back). The active
-   * state persists for the browser session ('tailam-gold-mode') and is
-   * restored on later loads; a separate 'tailam-founder-discovered' flag
-   * records that the edition was found (so the About list stays ✓ even when
-   * the theme is toggled back off). A new browser session returns to Teal.
+   * "Founder's Edition" — the second hidden discovery: a premium brand theme,
+   * woven into the first discovery. Once Engineering Mode is found (all seven
+   * sensor nodes, which sets 'tailam-engineering-mode' and reveals the ★
+   * achievement badge in the nav), clicking that ★ badge toggles Founder's
+   * Edition on and off. No separate logo interaction — the reward earned from
+   * discovery 1 IS the control for discovery 2.
+   *
+   * The active state persists for the browser session ('tailam-gold-mode') and
+   * is restored on later loads; a separate 'tailam-founder-discovered' flag
+   * records that the edition was found (so the About list stays ✓ even when the
+   * theme is toggled back off). A new browser session returns to Teal.
    *
    * Re-skins the ACCENT tokens only (see variables.css .theme-gold) — the
    * health/status, fault-type, Duval, risk and confidence colours are all
@@ -315,8 +314,6 @@
     const ENG_KEY = 'tailam-engineering-mode';
     const ACTIVE_KEY = 'tailam-gold-mode';       // theme currently on/off
     const FOUND_KEY = 'tailam-founder-discovered'; // ever discovered this session
-    const CLICKS_NEEDED = 7;
-    const CLICK_WINDOW = 900; // ms max gap between counted clicks
     const root = document.documentElement;
 
     function engineeringUnlocked() {
@@ -334,8 +331,10 @@
       const on = !root.classList.contains('theme-gold');
       applyFounder(on, true);
       if (on) {
-        try { sessionStorage.setItem(FOUND_KEY, '1'); } catch { /* ignore */ }
-        showFounderAchievementToast();
+        let firstUnlock = false;
+        try { firstUnlock = sessionStorage.getItem(FOUND_KEY) !== '1'; sessionStorage.setItem(FOUND_KEY, '1'); } catch { /* ignore */ }
+        if (firstUnlock) showFounderAchievementToast();   // full celebration on first discovery
+        else showEggToast('✨', "Founder's Edition on");    // lighter toast on later toggles
       } else {
         showEggToast('🌊', 'Standard theme restored');
       }
@@ -351,31 +350,23 @@
     } catch { /* private mode */ }
     refreshDiscoveries();
 
-    const logo = document.querySelector('.nav-logo') || document.getElementById('nav-brand');
-    if (!logo) return;
-
-    // Option A — seven quick clicks on the logo (after Engineering Mode).
-    // We do not stop propagation, so the logo's normal "go home" behaviour is
-    // untouched; on the landing page (where the egg is discovered) that click
-    // is a no-op, so the count accumulates cleanly.
-    let clicks = 0, timer = null;
-    logo.addEventListener('click', () => {
+    // The ★ achievement badge (revealed by Engineering Mode) toggles Founder's
+    // Edition. stopPropagation keeps the click from bubbling to the nav brand's
+    // "go home" handler. The engineeringUnlocked() guard is defensive — the
+    // badge is hidden until Engineering Mode is found anyway.
+    const star = document.getElementById('nav-achievement');
+    if (!star) return;
+    star.addEventListener('click', (e) => {
       if (!engineeringUnlocked()) return;
-      clicks++;
-      clearTimeout(timer);
-      timer = setTimeout(() => { clicks = 0; }, CLICK_WINDOW);
-      if (clicks >= CLICKS_NEEDED) {
-        clicks = 0;
-        clearTimeout(timer);
+      e.stopPropagation();
+      toggleFounder();
+    });
+    star.addEventListener('keydown', (e) => {
+      if ((e.key === 'Enter' || e.key === ' ') && engineeringUnlocked()) {
+        e.preventDefault();
+        e.stopPropagation();
         toggleFounder();
       }
-    });
-
-    // Option B — Shift + double-click for a quick toggle.
-    logo.addEventListener('dblclick', (e) => {
-      if (!e.shiftKey || !engineeringUnlocked()) return;
-      e.preventDefault();
-      toggleFounder();
     });
   }
 

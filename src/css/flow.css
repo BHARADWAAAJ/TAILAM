@@ -169,8 +169,12 @@ html.theme-switching, html.theme-switching *{
   width:22px;height:22px;border-radius:50%;margin-left:8px;flex:none;
   font-size:12px;line-height:1;color:var(--yellow);background:var(--yellow-dim);
   border:1px solid color-mix(in srgb, var(--yellow) 55%, transparent);
-  cursor:help;animation:achvGlow 3s ease-in-out infinite;
+  cursor:pointer;animation:achvGlow 3s ease-in-out infinite;
+  transition:transform .18s ease, background .18s ease;
 }
+.nav-achievement:hover{transform:scale(1.14);background:color-mix(in srgb, var(--yellow) 26%, transparent);}
+.nav-achievement:active{transform:scale(.96);}
+.nav-achievement:focus-visible{outline:2px solid var(--yellow);outline-offset:2px;}
 .nav-achievement.achv-pop{animation:achvPop .65s cubic-bezier(.2,.8,.3,1.4) both, achvGlow 3s ease-in-out .7s infinite;}
 
 /* ---- Confetti burst on easter-egg completion (spawned by ui/motion.js) ---- */
