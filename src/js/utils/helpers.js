@@ -10,7 +10,10 @@
   'use strict';
 
   /** Display labels for the seven fault gases, keyed by internal gas key. */
-  const GAS_LABELS = { h2:'H₂', ch4:'CH₄', c2h6:'C₂H₆', c2h4:'C₂H₄', c2h2:'C₂H₂', co:'CO', co2:'CO₂' };
+  const GAS_LABELS = {
+    h2:'H₂ — Hydrogen', ch4:'CH₄ — Methane', c2h6:'C₂H₆ — Ethane', c2h4:'C₂H₄ — Ethylene',
+    c2h2:'C₂H₂ — Acetylene', co:'CO — Carbon Monoxide', co2:'CO₂ — Carbon Dioxide', o2:'O₂ — Oxygen'
+  };
 
   /**
    * Escape a value for safe interpolation into HTML.

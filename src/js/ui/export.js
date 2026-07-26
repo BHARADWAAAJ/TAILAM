@@ -1150,7 +1150,7 @@
     const headerRow = (cells) => { const r = ws.addRow(cells);
       r.eachCell(c => { c.font = { bold:true, color:{argb:'FFFFFFFF'} };
         c.fill = { type:'pattern', pattern:'solid', fgColor:{argb:HDR} };
-        c.alignment = { horizontal:'center' }; }); return r; };
+        c.alignment = { horizontal:'center', wrapText:true }; }); return r; };
     const statusCell = (row, colIdx, cls) => { const c = row.getCell(colIdx);
       if (FILLS[cls]) c.fill = { type:'pattern', pattern:'solid', fgColor:{argb:FILLS[cls]} };
       c.alignment = { horizontal:'center' }; c.font = { bold:true }; };
@@ -1282,7 +1282,7 @@
       const healthCat = healthCategoryFor(risk).label;
       rows.push(
         [], ['MAIN TANK — GAS VALUES (ppm)'],
-        ['H2','CH4','C2H6','C2H4','C2H2','CO','CO2','O2'],
+        ['H2 - Hydrogen','CH4 - Methane','C2H6 - Ethane','C2H4 - Ethylene','C2H2 - Acetylene','CO - Carbon Monoxide','CO2 - Carbon Dioxide','O2 - Oxygen'],
         [g.h2, g.ch4, g.c2h6, g.c2h4, g.c2h2, g.co, g.co2, g.o2],
         [], ['MAIN TANK — DIAGNOSTIC RESULTS'],
         ['Method','Result','Classification'],
@@ -1306,7 +1306,7 @@
       const { og, duval2, oltcRes } = otReport;
       rows.push(
         [], ['OLTC — GAS VALUES (ppm)'],
-        ['H2','CH4','C2H6','C2H4','C2H2','CO','CO2'],
+        ['H2 - Hydrogen','CH4 - Methane','C2H6 - Ethane','C2H4 - Ethylene','C2H2 - Acetylene','CO - Carbon Monoxide','CO2 - Carbon Dioxide'],
         [og.h2, og.ch4, og.c2h6, og.c2h4, og.c2h2, og.co, og.co2],
         [], ['OLTC — DUVAL TRIANGLE 2 (IEC 60599:2022)'],
         ['Zone', duval2.zone, duval2.name],

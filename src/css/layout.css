@@ -143,6 +143,16 @@
 /* ── Workspace grid: left input form / right engineering workspace ── */
 .workspace-grid{display:grid;grid-template-columns:400px 1fr;gap:24px;align-items:start;margin-bottom:36px;}
 @media(max-width:980px){.workspace-grid{grid-template-columns:1fr;}}
+/* Grid/flex blowout guard. Grid and flex items default to min-width:auto,
+   which refuses to shrink below the item's min-content width. The results
+   column contains a 7-column diagnostic table whose min-content is ~744px,
+   so on a phone the item could not shrink to the 335px track — it forced the
+   grid (and therefore the document) to ~815px, which made mobile browsers
+   scale the whole page down after an analysis. min-width:0 lets these items
+   shrink to their track; wide content scrolls inside its own container
+   instead (see .table-scroll). Layout-only — no content or logic changes. */
+.workspace-grid > *{min-width:0;}
+.workspace-left,.workspace-right{min-width:0;}
 /* Desktop centring fix: while the empty-state placeholder is showing, the
    classic two-column layout (input left, workspace right) stays. Once an
    analysis has run (the placeholder gets inline display:none and the

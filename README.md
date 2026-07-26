@@ -68,10 +68,11 @@ Full implementation notes, scope, and limitations for each standard:
 
 ## Screenshots
 
+*(Placeholders — add screenshots before publishing.)*
 
 | Landing screen | Engineering Snapshot | Duval Triangle detail |
 |---|---|---|
-| ![](docs/assets/screenshot-landing.png) | ![](docs/assets/screenshot-snapshot.png) | ![](docs/assets/screenshot-duval-modal.png) |
+| `docs/assets/screenshot-landing.png` | `docs/assets/screenshot-snapshot.png` | `docs/assets/screenshot-duval-modal.png` |
 
 ## Installation
 

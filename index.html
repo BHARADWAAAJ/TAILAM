@@ -671,10 +671,16 @@
       <!-- 8 — DIAGNOSTIC METHODS -->
       <div class="card">
         <h2 class="section-title">Diagnostic Methods</h2>
-        <table class="diagnostic-table">
-          <thead><tr><th>Method</th><th>Role</th><th>Diagnosis</th><th>Severity</th><th>Agreement</th><th>Reference</th><th>Status</th></tr></thead>
-          <tbody id="diagnostic-table-main"></tbody>
-        </table>
+        <!-- .table-scroll: this 7-column table cannot render legibly below
+             ~744px, so on narrow screens it scrolls inside its own card
+             instead of widening the page. Presentation-only wrapper — the
+             table and its tbody id are untouched. -->
+        <div class="table-scroll">
+          <table class="diagnostic-table">
+            <thead><tr><th>Method</th><th>Role</th><th>Diagnosis</th><th>Severity</th><th>Agreement</th><th>Reference</th><th>Status</th></tr></thead>
+            <tbody id="diagnostic-table-main"></tbody>
+          </table>
+        </div>
       </div>
 
       <!-- Raw method-result carriers — the on-page "Raw Calculations" section
@@ -828,20 +834,20 @@
       <div class="panel-title">OLTC — Gas-in-Oil Input</div>
       <div class="sub">Enter dissolved gas concentrations from the OLTC oil compartment (ppm). Runs Duval Triangle 2 for OLTCs (IEC 60599:2022 Fig. B.4), TGC comparison, diagnostic ratios and cross-contamination check — fully separate from the main tank.</div>
       <div class="grid grid-4">
-        <div class="field"><label>H₂</label><input id="ot-h2" type="number" min="0" placeholder="0"></div>
-        <div class="field"><label>CH₄</label><input id="ot-ch4" type="number" min="0" placeholder="0"></div>
-        <div class="field"><label>C₂H₆</label><input id="ot-c2h6" type="number" min="0" placeholder="0"></div>
-        <div class="field"><label>C₂H₄</label><input id="ot-c2h4" type="number" min="0" placeholder="0"></div>
-        <div class="field"><label>C₂H₂</label><input id="ot-c2h2" type="number" min="0" placeholder="0"></div>
-        <div class="field"><label>CO</label><input id="ot-co" type="number" min="0" placeholder="0"></div>
-        <div class="field"><label>CO₂</label><input id="ot-co2" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>H₂ — Hydrogen</label><input id="ot-h2" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>CH₄ — Methane</label><input id="ot-ch4" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>C₂H₆ — Ethane</label><input id="ot-c2h6" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>C₂H₄ — Ethylene</label><input id="ot-c2h4" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>C₂H₂ — Acetylene</label><input id="ot-c2h2" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>CO — Carbon Monoxide</label><input id="ot-co" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>CO₂ — Carbon Dioxide</label><input id="ot-co2" type="number" min="0" placeholder="0"></div>
         <div class="field"><label>Tap Change Count</label><input id="ot-taps" type="number" min="0" placeholder="0"></div>
       </div>
       <div class="divider"></div>
       <div class="panel-title" style="margin-bottom:8px">Cross-Contamination Reference <span style="color:var(--text3);font-weight:400;text-transform:none;font-size:12px">(optional — main tank H₂ / C₂H₂, auto-filled if you've run Main Tank Analysis)</span></div>
       <div class="grid grid-2">
-        <div class="field"><label>Main Tank H₂ (ppm)</label><input id="xc-mt-h2" type="number" min="0" placeholder="0"></div>
-        <div class="field"><label>Main Tank C₂H₂ (ppm)</label><input id="xc-mt-c2h2" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>Main Tank H₂ — Hydrogen (ppm)</label><input id="xc-mt-h2" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>Main Tank C₂H₂ — Acetylene (ppm)</label><input id="xc-mt-c2h2" type="number" min="0" placeholder="0"></div>
       </div>
       <div class="actions">
         <button class="btn btn-primary" id="btn-analyze-oltc"><svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.6v14.8l13-7.4-13-7.4Z" fill="currentColor"/></svg> Run OLTC Analysis</button>
@@ -1026,10 +1032,15 @@
       <!-- 8 — DIAGNOSTIC METHODS -->
       <div class="card">
         <h2 class="section-title">Diagnostic Methods</h2>
-        <table class="diagnostic-table">
-          <thead><tr><th>Method</th><th>Role</th><th>Diagnosis</th><th>Severity</th><th>Agreement</th><th>Reference</th><th>Status</th></tr></thead>
-          <tbody id="diagnostic-table-oltc"></tbody>
-        </table>
+        <!-- .table-scroll: see the Main Tank table above — narrow screens
+             scroll this 7-column table inside its card rather than widening
+             the page. Presentation-only wrapper. -->
+        <div class="table-scroll">
+          <table class="diagnostic-table">
+            <thead><tr><th>Method</th><th>Role</th><th>Diagnosis</th><th>Severity</th><th>Agreement</th><th>Reference</th><th>Status</th></tr></thead>
+            <tbody id="diagnostic-table-oltc"></tbody>
+          </table>
+        </div>
       </div>
 
       <!-- Raw method-result carriers — the on-page "Raw Calculations" section

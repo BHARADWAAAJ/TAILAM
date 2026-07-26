@@ -78,6 +78,11 @@ html[data-theme="dark"] .sev-badge-attention{color:var(--yellow);}
 
 /* 8 — Diagnostic Methods table */
 .diagnostic-table{width:100%;}
+/* Wide tables scroll inside their own card rather than widening the page.
+   The table keeps its natural min-content width; only this wrapper scrolls. */
+.table-scroll{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.table-scroll > table{min-width:640px;}
+@media(max-width:560px){.table-scroll > table{min-width:600px;}}
 .sev-tag{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:700;}
 .sev-tag.sev-healthy{background:var(--green-dim);color:var(--green);}
 .sev-tag.sev-attention{background:var(--yellow-dim);color:#a86a00;}
