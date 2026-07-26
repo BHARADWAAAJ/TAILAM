@@ -23,6 +23,7 @@
   const { openFeedback, closeFeedback, submitFeedback, initFeedback } = window.TAILAM.ui.feedback;
   const { runLoadingSequence } = window.TAILAM.ui.loading;
   const { animateLandingCounters, initFlowReveal, initSplash, initEngineeringEgg, initGoldEasterEgg } = window.TAILAM.ui.motion;
+  const { trackPageView } = window.TAILAM.analytics;
 
   /** Bind a click handler by element id. */
   function on(id, handler) {
@@ -33,10 +34,21 @@
   /**
    * Go straight to a view (no dirty-state check). The one place that touches
    * navigation.js's view functions, so the guard below has a single target.
+   * Also the single choke point for GA4 virtual page-view tracking — every
+   * real navigation to Home/Main Tank/OLTC (nav clicks, landing CTAs, and the
+   * unsaved-dialog's post-export/discard continuation) passes through here.
+   * The very first Home view is reported by GA's own automatic page_view
+   * (fired by the gtag('config', ...) call in index.html) since bootstrap
+   * calls showLanding() directly, not through goTo() — so this never
+   * double-counts that initial load.
    * @param {'landing'|'main'|'oltc'} target
    */
   function goTo(target) {
-    if (target === 'landing') showLanding(); else switchTab(target);
+    if (target === 'landing') { showLanding(); trackPageView('/', 'Home'); }
+    else {
+      switchTab(target);
+      trackPageView(target === 'main' ? '/main-tank' : '/oltc', target === 'main' ? 'Main Tank' : 'OLTC');
+    }
   }
 
   /**
@@ -72,10 +84,10 @@
   on('crumb-home-oltc',      () => requestNavigate('landing'));
   on('nav-main',             () => requestNavigate('main'));
   on('nav-oltc',             () => requestNavigate('oltc'));
-  on('nav-help',             openHelp);
-  on('nav-about',            openAbout);
-  on('nav-feedback',         openFeedback);
-  on('footer-feedback',      openFeedback);
+  on('nav-help',             () => { openHelp(); trackPageView('/help', 'Help'); });
+  on('nav-about',            () => { openAbout(); trackPageView('/about', 'About'); });
+  on('nav-feedback',         () => { openFeedback(); trackPageView('/feedback', 'Feedback'); });
+  on('footer-feedback',      () => { openFeedback(); trackPageView('/feedback', 'Feedback'); });
   on('modal-feedback-close', closeFeedback);
   on('fb-send',              submitFeedback);
   on('fb-cancel',            closeFeedback);
@@ -89,7 +101,7 @@
   // Design sprint — the loading sequence is purely a presentational delay;
   // it calls the SAME unmodified analyzeMain()/analyzeOltc() when done, so
   // every computed value is identical to a direct call.
-  on('btn-analyze-main',     () => runLoadingSequence(analyzeMain));
+  on('btn-analyze-main',     () => runLoadingSequence(() => { analyzeMain(); trackPageView('/main-tank/results', 'Main Tank — Results'); }));
   on('btn-clear-main',       clearMain);
   // Design sprint — empty-state CTA: focuses the first gas-value input
   // instead of performing any action itself (presentation only).
@@ -98,7 +110,7 @@
   on('btn-export-main-pdf',  () => exportPDF('main'));
   on('btn-export-main-xlsx', () => exportExcelX('main'));
   on('btn-new-main',         () => { clearMain(); const p = document.getElementById('panel-main'); if (p) p.scrollIntoView({ behavior:'smooth' }); });
-  on('btn-analyze-oltc',     () => runLoadingSequence(analyzeOltc));
+  on('btn-analyze-oltc',     () => runLoadingSequence(() => { analyzeOltc(); trackPageView('/oltc/results', 'OLTC — Results'); }));
   on('btn-clear-oltc',       clearOltc);
   on('btn-export-oltc-pdf',  () => exportPDF('oltc'));
   on('btn-export-oltc-xlsx', () => exportExcelX('oltc'));
@@ -343,8 +355,8 @@
     }
   });
 
-  on('btn-toggle-detailed-main', () => openWorkbookModal('main'));
-  on('btn-toggle-detailed-oltc', () => openWorkbookModal('oltc'));
+  on('btn-toggle-detailed-main', () => { openWorkbookModal('main'); trackPageView('/workbook/main-tank', 'Engineering Workbook — Main Tank'); });
+  on('btn-toggle-detailed-oltc', () => { openWorkbookModal('oltc'); trackPageView('/workbook/oltc', 'Engineering Workbook — OLTC'); });
   on('modal-workbook-close', closeWorkbookModal);
   // Backdrop click — only when the click lands on the overlay itself, not the box inside it.
   (function () {
