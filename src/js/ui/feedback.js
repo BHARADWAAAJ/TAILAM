@@ -21,7 +21,7 @@
   'use strict';
 
   const FEEDBACK_ENDPOINT = ''; // ← paste your Formspree endpoint here
-  const FEEDBACK_EMAIL = 'bharadwajmuppala807@gmail.com';
+  const FEEDBACK_EMAIL = 'Bharadwajmuppala@gmail.com';
 
   let rating = 0;
 
