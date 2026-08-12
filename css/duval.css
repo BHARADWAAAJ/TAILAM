@@ -1,0 +1,96 @@
+/* =====================================================================
+   TAILAM — duval.css
+   On-screen Duval Triangle SVG component (ui/duval-svg.js). Presentation
+   only — geometry comes from the frozen engine tables. Zone colours are
+   the fault-type engineering tokens from variables.css. Theme-aware for
+   dark and light. The off-screen canvas used for PDF/Excel export is not
+   affected by this file.
+   ===================================================================== */
+
+.duval-svg-host{ position:relative; width:100%; }
+.duval-svg{ display:block; width:100%; height:auto; }
+
+/* Hero (Main Tank / OLTC results column) — clickable to enlarge. Replaces
+   the interactive sizing/hover treatment the old .duval-hero-canvas class
+   provided (dashboard.css) now that the on-screen host is a <div>. */
+.duval-hero-canvas-wrap .duval-svg-host{
+  max-width:520px; cursor:pointer; border-radius:var(--r-md);
+  transition:box-shadow .15s ease, outline-color .15s ease;
+}
+.duval-hero-canvas-wrap .duval-svg-host:hover,
+.duval-hero-canvas-wrap .duval-svg-host:focus-visible{
+  box-shadow:0 0 0 3px var(--accent-dim); outline:none;
+}
+@media(max-width:860px){ .duval-hero-canvas-wrap .duval-svg-host{ max-width:100%; } }
+
+/* Detail modal — replaces the old .duval-modal-canvas background/border. */
+.duval-modal-canvas-wrap .duval-svg-host{
+  background:var(--bg2); border-radius:10px; border:1px solid var(--border);
+}
+
+/* ── Primary Diagnosis section (promoted Duval Triangle) ──
+   A <details> styled as a .card: the summary is the section header +
+   collapse control, the body holds the triangle + legend. Spacing above/
+   below is set explicitly (24px) rather than relying on the shared .card
+   18px default, per the reviewed layout spec for this section. */
+.primary-diagnosis{ padding:0; margin-top:24px; margin-bottom:24px; }
+.primary-diagnosis > summary{
+  list-style:none; cursor:pointer; user-select:none;
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+  padding:18px 24px;
+}
+.primary-diagnosis > summary::-webkit-details-marker{ display:none; }
+.primary-diagnosis > summary:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; border-radius:var(--r-md); }
+.primary-diagnosis-summary .primary-diagnosis-sub{ font-size:12px; font-weight:500; color:var(--text3); }
+.primary-diagnosis-summary .chev{ margin-left:auto; display:inline-flex; color:var(--text3); transition:transform .18s ease; }
+.primary-diagnosis[open] > summary .chev{ transform:rotate(180deg); }
+.primary-diagnosis-body{ padding:0 24px 22px; }
+
+/* ── Zone fills: fault-type hue + shared rendering tokens ── */
+.duval-svg .fz{
+  fill-opacity:var(--fault-fill-opacity);
+  stroke-opacity:1;
+  stroke-width:var(--fault-stroke-width);
+  stroke-linejoin:round;
+  transition:fill-opacity .15s ease;
+}
+.duval-svg .fz.active,
+.duval-svg .fz.legend-hover{
+  fill-opacity:var(--fault-fill-opacity-active);
+  stroke-width:var(--fault-stroke-width-active);
+}
+.duval-svg .fz-PD{ fill:var(--fault-partial-discharge);     stroke:var(--fault-partial-discharge); }
+.duval-svg .fz-D1{ fill:var(--fault-discharge-low-energy);  stroke:var(--fault-discharge-low-energy); }
+.duval-svg .fz-D2{ fill:var(--fault-discharge-high-energy); stroke:var(--fault-discharge-high-energy); }
+.duval-svg .fz-DT{ fill:var(--fault-thermal-electrical);    stroke:var(--fault-thermal-electrical); }
+.duval-svg .fz-N { fill:var(--fault-normal);                stroke:var(--fault-normal); }
+.duval-svg .fz-X1{ fill:var(--fault-thermal-low);           stroke:var(--fault-thermal-low); }
+.duval-svg .fz-X3{ fill:var(--fault-thermal-electrical);    stroke:var(--fault-thermal-electrical); }
+.duval-svg .fz-T1{ fill:var(--fault-thermal-low);           stroke:var(--fault-thermal-low); }
+.duval-svg .fz-T2{ fill:var(--fault-thermal-medium);        stroke:var(--fault-thermal-medium); }
+.duval-svg .fz-T3{ fill:var(--fault-thermal-high);          stroke:var(--fault-thermal-high); }
+
+/* ── Chrome: outline, grid, labels — theme-aware ── */
+.duval-svg .duval-outline{ fill:none; stroke:var(--text); stroke-opacity:.78; stroke-width:2; stroke-linejoin:round; }
+.duval-svg .duval-grid line{ stroke:var(--text3); stroke-opacity:.4; stroke-width:.8; stroke-dasharray:3 4; }
+.duval-svg .duval-axis-labels text{ fill:var(--text2); font-family:var(--font-ui); font-size:14px; font-weight:600; }
+.duval-svg .duval-ticks text{ fill:var(--text3); font-family:var(--font-ui); font-size:11px; }
+.duval-svg .duval-zone-labels text{ fill:var(--text); font-family:var(--font-ui); font-size:13px; font-weight:700; paint-order:stroke; }
+
+/* ── Result marker: white core + fault-hue ring ── */
+.duval-svg .duval-marker-halo{ opacity:.28; }
+.duval-svg .duval-marker-core{ fill:#fff; stroke-width:3; }
+.duval-svg .duval-marker-label{ font-family:var(--font-ui); font-size:11px; font-weight:700; }
+
+/* ── Compact hover tooltip ── */
+.duval-tooltip{
+  position:absolute; z-index:5; pointer-events:none;
+  display:flex; flex-direction:column; gap:1px;
+  padding:8px 11px; min-width:120px; max-width:220px;
+  background:var(--card); border:1px solid var(--border-strong); border-radius:var(--r-sm);
+  box-shadow:var(--shadow); font-family:var(--font-ui);
+}
+.duval-tooltip[hidden]{ display:none; }
+.duval-tooltip .duval-tooltip-zone{ font-size:14px; font-weight:800; color:var(--text); }
+.duval-tooltip .duval-tooltip-name{ font-size:12.5px; color:var(--text2); line-height:1.35; }
+.duval-tooltip .duval-tooltip-std{ font-size:11px; color:var(--text3); margin-top:2px; text-transform:uppercase; letter-spacing:.03em; }

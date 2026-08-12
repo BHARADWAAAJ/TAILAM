@@ -1,0 +1,48 @@
+{
+  "method": "Duval Triangle 1",
+  "engineFunction": "window.TAILAM.engine.duval.calcDuval",
+  "engineFile": "src/js/engine/duval.js",
+  "referenceStandard": "IEC 60599:2022 Figure B.3",
+  "gasShape": "{ h2, ch4, c2h6, c2h4, c2h2, co, co2 } — calcDuval reads ch4, c2h4, c2h2 (and h2 for the stray-gassing gate)",
+  "datasets": [
+    {
+      "datasetId": "DUVAL1-REF-001",
+      "provenance": "published-standard",
+      "status": "PLACEHOLDER",
+      "description": "TODO: Replace with a genuine worked example (gas ppm values + resulting zone) from IEC 60599:2022 Annex A / Figure B.3, or an equivalent peer-reviewed Duval Triangle 1 case study. This entry is a structural placeholder only.",
+      "inputGasValues": { "h2": 0, "ch4": 0, "c2h6": 0, "c2h4": 0, "c2h2": 0, "co": 0, "co2": 0 },
+      "expectedResult": null,
+      "expectedZone": null,
+      "expectedRatios": null,
+      "referenceStandard": "IEC 60599:2022",
+      "revision": "2022",
+      "todo": "Source a published worked example, populate inputGasValues + expectedZone + expectedResult, then set status to REFERENCE."
+    },
+    {
+      "datasetId": "DUVAL1-SNAP-001",
+      "provenance": "engine-snapshot",
+      "status": "SNAPSHOT",
+      "capturedOn": "2026-07-13",
+      "description": "Regression baseline captured directly by running the current, unmodified src/js/engine/duval.js#calcDuval on the input below. NOT sourced from a published standard — do not cite this as a standards-conformance example. Its only purpose is to detect unintended changes to engine output between code revisions.",
+      "inputGasValues": { "h2": 50, "ch4": 60, "c2h6": 20, "c2h4": 40, "c2h2": 2, "co": 300, "co2": 3000 },
+      "expectedResult": "Thermal Fault 300–700 °C",
+      "expectedZone": "T2",
+      "expectedRatios": { "pCH4": 58.8235, "pC2H4": 39.2157, "pC2H2": 1.9608, "total": 102 },
+      "referenceStandard": "IEC 60599:2022",
+      "revision": "2022"
+    },
+    {
+      "datasetId": "DUVAL1-SNAP-002",
+      "provenance": "engine-snapshot",
+      "status": "SNAPSHOT",
+      "capturedOn": "2026-07-13",
+      "description": "Regression baseline (engine-snapshot, not a standards example) — an elevated-gas case exercising the DT (mixed thermal + electrical) zone boundary.",
+      "inputGasValues": { "h2": 150, "ch4": 130, "c2h6": 15, "c2h4": 250, "c2h2": 80, "co": 600, "co2": 6000 },
+      "expectedResult": "Thermal + Electrical Fault",
+      "expectedZone": "DT",
+      "expectedRatios": { "pCH4": 28.2609, "pC2H4": 54.3478, "pC2H2": 17.3913, "total": 460 },
+      "referenceStandard": "IEC 60599:2022",
+      "revision": "2022"
+    }
+  ]
+}

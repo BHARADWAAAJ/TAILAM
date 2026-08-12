@@ -1,0 +1,74 @@
+{
+  "method": "Duval Triangle 2 (OLTC)",
+  "engineFunction": "window.TAILAM.engine.duval2.calcDuval2",
+  "engineFile": "src/js/engine/duval2.js",
+  "referenceStandard": "IEC 60599:2022 Figure B.4 (ref. A.7.2)",
+  "gasShape": "{ h2, ch4, c2h6, c2h4, c2h2, co, co2 } — calcDuval2 reads only ch4, c2h4, c2h2",
+  "datasets": [
+    {
+      "datasetId": "DUVAL2-REF-001",
+      "provenance": "published-standard",
+      "status": "PLACEHOLDER",
+      "description": "TODO: Replace with a genuine worked example from IEC 60599:2022 Annex A.7 (OLTC Duval Triangle 2) or CIGRE TB 443. Structural placeholder only.",
+      "inputGasValues": { "h2": 0, "ch4": 0, "c2h6": 0, "c2h4": 0, "c2h2": 0, "co": 0, "co2": 0 },
+      "expectedResult": null,
+      "expectedZone": null,
+      "expectedRatios": null,
+      "referenceStandard": "IEC 60599:2022",
+      "revision": "2022",
+      "todo": "Source a published OLTC Duval Triangle 2 worked example, populate fields, set status to REFERENCE."
+    },
+    {
+      "datasetId": "DUVAL2-SNAP-001",
+      "provenance": "engine-snapshot",
+      "status": "SNAPSHOT",
+      "capturedOn": "2026-07-13",
+      "description": "Regression baseline (engine-snapshot) — C₂H₂-dominant pattern typical of normal tap-changer switching arcs, landing in the N (Normal Operation) zone.",
+      "inputGasValues": { "h2": 0, "ch4": 10, "c2h6": 0, "c2h4": 15, "c2h2": 75, "co": 0, "co2": 0 },
+      "expectedResult": "Normal Operation",
+      "expectedZone": "N",
+      "expectedRatios": { "pCH4": 10, "pC2H4": 15, "pC2H2": 75, "total": 100 },
+      "referenceStandard": "IEC 60599:2022",
+      "revision": "2022"
+    },
+    {
+      "datasetId": "DUVAL2-SNAP-002",
+      "provenance": "engine-snapshot",
+      "status": "SNAPSHOT",
+      "capturedOn": "2026-07-13",
+      "description": "Regression baseline (engine-snapshot) — very low CH₄/C₂H₄ share against C₂H₂, landing in the D1 (Abnormal Arcing) zone.",
+      "inputGasValues": { "h2": 0, "ch4": 1, "c2h6": 0, "c2h4": 2, "c2h2": 97, "co": 0, "co2": 0 },
+      "expectedResult": "Abnormal Arcing (D1)",
+      "expectedZone": "D1",
+      "expectedRatios": { "pCH4": 1, "pC2H4": 2, "pC2H2": 97, "total": 100 },
+      "referenceStandard": "IEC 60599:2022",
+      "revision": "2022"
+    },
+    {
+      "datasetId": "DUVAL2-SNAP-003",
+      "provenance": "engine-snapshot",
+      "status": "SNAPSHOT",
+      "capturedOn": "2026-07-13",
+      "description": "Regression baseline (engine-snapshot) — CH₄-dominant, low C₂H₂, landing in the T2 (Severe Coking > 300°C) zone.",
+      "inputGasValues": { "h2": 0, "ch4": 20, "c2h6": 0, "c2h4": 15, "c2h2": 1, "co": 0, "co2": 0 },
+      "expectedResult": "Severe Coking of Contacts > 300 °C (T2)",
+      "expectedZone": "T2",
+      "expectedRatios": { "pCH4": 55.5556, "pC2H4": 41.6667, "pC2H2": 2.7778, "total": 36 },
+      "referenceStandard": "IEC 60599:2022",
+      "revision": "2022"
+    },
+    {
+      "datasetId": "DUVAL2-SNAP-004",
+      "provenance": "engine-snapshot",
+      "status": "SNAPSHOT",
+      "capturedOn": "2026-07-13",
+      "description": "Regression baseline (engine-snapshot) — C₂H₄-dominant, landing in the T3 (Severe Coking > 700°C) zone.",
+      "inputGasValues": { "h2": 0, "ch4": 10, "c2h6": 0, "c2h4": 400, "c2h2": 5, "co": 0, "co2": 0 },
+      "expectedResult": "Severe Coking of Contacts > 700 °C (T3)",
+      "expectedZone": "T3",
+      "expectedRatios": { "pCH4": 2.4096, "pC2H4": 96.3855, "pC2H2": 1.2048, "total": 415 },
+      "referenceStandard": "IEC 60599:2022",
+      "revision": "2022"
+    }
+  ]
+}
