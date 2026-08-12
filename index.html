@@ -85,6 +85,14 @@
 
   <nav class="topnav no-print">
     <div class="nav-left" id="nav-brand" role="button" tabindex="0" title="TAILAM home">
+      <!-- Mobile-only menu trigger (<=767px, see layout.css). Lives inside
+           the brand row so it sits left of the logo without disturbing the
+           desktop nav's flex layout; its click handler stops propagation so
+           it doesn't also fire the brand's "go home" action (same pattern
+           already used by #nav-achievement below). -->
+      <button class="hamburger-btn" id="hamburger-btn" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobile-sidebar">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
       <span class="nav-logo"><svg width="18" height="18" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 6 35 33H5Z" fill="none" stroke="var(--accent-2)" stroke-width="2.6" stroke-linejoin="round"/><path d="M20 17c3 3.7 4.7 6.1 4.7 8.4a4.7 4.7 0 1 1-9.4 0c0-2.3 1.7-4.7 4.7-8.4Z" fill="var(--accent-2)"/></svg></span>
       <span class="nav-brand-text">TAILAM</span>
       <!-- Session achievement badge — revealed by the landing easter egg
@@ -112,6 +120,30 @@
       <button class="theme-toggle" id="theme-btn" title="Toggle dark / light mode" aria-label="Toggle dark / light mode"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.2A8.4 8.4 0 1 1 9.8 4a6.6 6.6 0 0 0 10.2 10.2Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button>
     </div>
   </nav>
+
+  <!-- ══════════════ MOBILE NAVIGATION SIDEBAR (<=767px, see layout.css) ══════════════
+       Off-canvas drawer replacing the inline nav-center links at mobile widths.
+       The links below call the same navigation/dialog functions as their
+       desktop nav-link counterparts (wired in app.js) — no duplicated logic,
+       just a second set of triggers. Closed by default; ui/sidebar.js drives
+       open/close, focus trap, Escape and backdrop-dismiss. -->
+  <div class="sidebar-backdrop no-print" id="sidebar-backdrop"></div>
+  <aside class="mobile-sidebar no-print" id="mobile-sidebar" aria-label="Main navigation" aria-hidden="true">
+    <div class="sidebar-header">
+      <span class="sidebar-logo"><svg width="18" height="18" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 6 35 33H5Z" fill="none" stroke="var(--accent-2)" stroke-width="2.6" stroke-linejoin="round"/><path d="M20 17c3 3.7 4.7 6.1 4.7 8.4a4.7 4.7 0 1 1-9.4 0c0-2.3 1.7-4.7 4.7-8.4Z" fill="var(--accent-2)"/></svg></span>
+      <span class="sidebar-brand-text">TAILAM</span>
+      <button class="sidebar-close" id="sidebar-close" aria-label="Close navigation menu"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="sidebar-link" id="sidebar-home">Home</button>
+      <button class="sidebar-link" id="sidebar-main">Main Tank</button>
+      <button class="sidebar-link" id="sidebar-oltc">OLTC</button>
+      <button class="sidebar-link" id="sidebar-help">Help</button>
+      <div class="sidebar-sep" role="separator"></div>
+      <button class="sidebar-link" id="sidebar-feedback">Feedback</button>
+      <button class="sidebar-link" id="sidebar-about">About</button>
+    </nav>
+  </aside>
 
   <!-- ══════════════ LANDING VIEW ══════════════ -->
   <div class="view-landing" id="view-landing">
@@ -1457,6 +1489,7 @@
 <script src="src/js/ui/export.js"></script>
 <script src="src/js/ui/loading.js"></script>
 <script src="src/js/ui/feedback.js"></script>
+<script src="src/js/ui/sidebar.js"></script>
 <script src="src/js/ui/motion.js"></script>
 <script src="src/js/navigation.js"></script>
 <script src="src/js/analytics.js"></script>
