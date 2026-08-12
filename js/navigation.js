@@ -46,12 +46,17 @@
     if (tab === 'oltc' && _onOltcShown) _onOltcShown();
   }
 
-  /** Sync the nav-link active styling with the current view. */
+  /** Sync the nav-link active styling with the current view (desktop nav
+   *  and the mobile sidebar's mirrored links both read from this). */
   function updateNavActiveState() {
     const mainBtn = document.getElementById('nav-main');
     const oltcBtn = document.getElementById('nav-oltc');
+    const sidebarMainBtn = document.getElementById('sidebar-main');
+    const sidebarOltcBtn = document.getElementById('sidebar-oltc');
     if (mainBtn) mainBtn.classList.toggle('active', _activeView === 'main');
     if (oltcBtn) oltcBtn.classList.toggle('active', _activeView === 'oltc');
+    if (sidebarMainBtn) sidebarMainBtn.classList.toggle('active', _activeView === 'main');
+    if (sidebarOltcBtn) sidebarOltcBtn.classList.toggle('active', _activeView === 'oltc');
   }
 
   window.TAILAM = window.TAILAM || {};

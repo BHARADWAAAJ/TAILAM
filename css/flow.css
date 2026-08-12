@@ -176,6 +176,9 @@ html.theme-switching, html.theme-switching *{
 .nav-achievement:active{transform:scale(.96);}
 .nav-achievement:focus-visible{outline:2px solid var(--yellow);outline-offset:2px;}
 .nav-achievement.achv-pop{animation:achvPop .65s cubic-bezier(.2,.8,.3,1.4) both, achvGlow 3s ease-in-out .7s infinite;}
+/* Compact app bar (<=767px, see layout.css) — a touch smaller so the badge
+   never threatens the tight mobile nav-left budget. */
+@media(max-width:767px){.nav-achievement{width:20px;height:20px;margin-left:6px;font-size:11px;}}
 
 /* ---- Confetti burst on easter-egg completion (spawned by ui/motion.js) ---- */
 @keyframes confettiFly{

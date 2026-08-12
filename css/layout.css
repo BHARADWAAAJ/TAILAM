@@ -18,6 +18,17 @@
   backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
   box-shadow:var(--shadow-sm);}
 .nav-left{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none;}
+/* Mobile menu trigger — hidden on desktop; shown only inside the <=767px
+   app-bar rules below. Sits inside .nav-left (see index.html) so it never
+   disturbs the desktop flex layout, and matches .theme-toggle's visual
+   language (same border/bg/shadow treatment) for a consistent icon-button
+   pair at either end of the compact bar. */
+.hamburger-btn{display:none;appearance:none;border:1px solid var(--border);background:var(--card);
+  color:var(--text2);width:40px;height:40px;border-radius:var(--r-sm);cursor:pointer;
+  align-items:center;justify-content:center;box-shadow:var(--shadow-sm);flex:none;
+  transition:border-color .15s,color .15s;}
+.hamburger-btn:hover{border-color:var(--accent);color:var(--accent);}
+.hamburger-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .nav-logo{width:32px;height:32px;border-radius:9px;position:relative;
   background:radial-gradient(120% 120% at 30% 20%, #12182a 0%, #0b0f19 70%);
   border:1px solid color-mix(in srgb, var(--accent) 42%, transparent);
@@ -48,7 +59,80 @@
    unstyled wrap. Trim it back just enough to keep the nav on one row. */
 @media(max-width:840px){.nav-meiden-logo{height:38px;padding:5px 10px;}}
 @media(max-width:640px){.nav-meiden-logo{height:36px;padding:4px 9px;}}
-@media(max-width:640px){.topnav{justify-content:center;text-align:center;} .nav-center{justify-content:center;width:100%;order:3;}}
+
+/* ── Mobile app bar (<=767px) ──
+   Replaces the inline nav-center links with the hamburger + sidebar above;
+   the two-row wrap the old rule (removed) produced here is gone entirely —
+   nav-center is off, so .topnav is back to exactly two flex groups
+   (nav-left, nav-right) and space-between keeps them pinned to either end,
+   compacted down to a single ~56-60px row. */
+@media(max-width:767px){
+  .hamburger-btn{display:inline-flex;}
+  .nav-center{display:none;}
+  .topnav{padding:9px 0;padding-top:calc(9px + env(safe-area-inset-top));gap:6px;margin-bottom:0;}
+  .nav-left{gap:6px;}
+  .nav-right{gap:6px;}
+  .nav-logo{width:28px;height:28px;border-radius:8px;}
+  .nav-brand-text{font-size:14.5px;}
+  /* .nav-achievement's own compact override lives in flow.css, right after
+     its base rule — flow.css loads after this file, so a copy here would
+     never win the cascade. */
+}
+
+/* ── Mobile navigation sidebar (off-canvas drawer, <=767px) ──
+   Markup lives right after </nav> in index.html; ui/sidebar.js drives the
+   open/closed classes and focus handling. Built from the same tokens/shapes
+   as the rest of the app (.modal-box's card/border/shadow treatment, the
+   desktop .nav-link active styling) so it reads as the same design system,
+   not a bolted-on component. Both elements are already invisible at
+   desktop widths without extra rules — the backdrop stays fully transparent
+   and pointer-events:none, and the drawer sits translated off-screen — but
+   they're also structurally irrelevant above 767px since only the <=767px
+   hamburger can ever open them. */
+.sidebar-backdrop{position:fixed;inset:0;z-index:120;background:rgba(8,10,20,.55);
+  opacity:0;pointer-events:none;transition:opacity .25s ease;}
+.sidebar-backdrop.sidebar-backdrop-show{opacity:1;pointer-events:auto;}
+
+.mobile-sidebar{position:fixed;top:0;left:0;bottom:0;z-index:121;
+  width:min(82vw,320px);max-width:320px;
+  background:var(--card);border-right:1px solid var(--border);box-shadow:var(--shadow);
+  display:flex;flex-direction:column;overflow-y:auto;
+  padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);
+  transform:translateX(-100%);transition:transform .28s cubic-bezier(.2,.8,.3,1);}
+.mobile-sidebar.sidebar-open{transform:translateX(0);}
+
+.sidebar-header{display:flex;align-items:center;gap:10px;padding:16px 16px 14px;
+  border-bottom:1px solid var(--border);margin-bottom:8px;}
+.sidebar-logo{width:30px;height:30px;border-radius:8px;position:relative;
+  background:radial-gradient(120% 120% at 30% 20%, #12182a 0%, #0b0f19 70%);
+  border:1px solid color-mix(in srgb, var(--accent) 42%, transparent);
+  color:var(--accent-2);display:flex;align-items:center;justify-content:center;
+  flex:none;box-shadow:0 2px 10px var(--accent-glow);}
+.sidebar-logo svg{filter:drop-shadow(0 0 3px var(--accent-glow));}
+.sidebar-brand-text{font-weight:800;font-size:16px;color:var(--text);letter-spacing:.01em;flex:1;}
+.sidebar-close{appearance:none;border:1px solid var(--border);background:var(--card2);
+  color:var(--text2);width:36px;height:36px;border-radius:var(--r-sm);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex:none;transition:border-color .15s,color .15s;}
+.sidebar-close:hover{border-color:var(--accent);color:var(--accent);}
+.sidebar-close:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+.sidebar-nav{display:flex;flex-direction:column;padding:8px 12px 16px;gap:2px;}
+.sidebar-link{appearance:none;border:none;background:transparent;color:var(--text2);
+  font-weight:600;font-size:15px;text-align:left;padding:13px 14px;border-radius:var(--r-sm);
+  cursor:pointer;min-height:44px;transition:.15s;}
+.sidebar-link:hover{color:var(--text);background:var(--card2);}
+.sidebar-link.active{color:var(--accent);background:var(--accent-dim);}
+.sidebar-link:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
+.sidebar-sep{height:1px;background:var(--border);margin:8px 14px;flex:none;}
+
+html.theme-gold .sidebar-logo{border-color:color-mix(in srgb, var(--accent) 65%, transparent);}
+
+body.sidebar-lock-scroll{overflow:hidden;}
+
+@media(prefers-reduced-motion:reduce){
+  .mobile-sidebar{transition:none;}
+  .sidebar-backdrop{transition:none;}
+}
 
 /* ── Landing view — Final Visual Design Sprint: premium product landing ── */
 .view-landing{padding:8px 0 30px;}
