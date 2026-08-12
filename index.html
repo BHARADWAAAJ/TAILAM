@@ -27,6 +27,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="TAILAM — Transformer Assessment for Insulating Liquid Analysis & Monitoring. IEC 60599:2022 Duval Triangles 1 & 2, Rogers, IEEE C57.104, Key Gas, OLTC diagnostics. Runs 100% in your browser, no upload.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%234c7cf0'/%3E%3Cstop offset='1' stop-color='%232dd4a8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='40' height='40' rx='9' fill='url(%23g)'/%3E%3Cpath d='M20 6 35 33H5Z' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linejoin='round'/%3E%3Cpath d='M20 17c3 3.7 4.7 6.1 4.7 8.4a4.7 4.7 0 1 1-9.4 0c0-2.3 1.7-4.7 4.7-8.4Z' fill='%23fff'/%3E%3C/svg%3E">
+<!-- PWA — installable, works fully offline (see sw.js). manifest.json and
+     the icon paths are relative, so this also works when GitHub Pages
+     serves the site from a project subpath (https://user.github.io/repo/)
+     rather than a domain root. -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b0f19">
+<link rel="apple-touch-icon" href="assets/icons/icon-512.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TAILAM">
 <title>TAILAM — Transformer Assessment for Insulating Liquid Analysis & Monitoring</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -92,6 +102,13 @@
       <button class="nav-link" id="nav-about">About</button>
     </div>
     <div class="nav-right">
+      <!-- Partner co-brand — Meiden engineering support. Own brand colour
+           kept as-is (not tied to --accent) since this identifies a
+           separate organisation, not the app's own brand. Clickable —
+           opens a company card with website/LinkedIn links. -->
+      <button class="nav-meiden-btn" id="nav-meiden-btn" aria-label="About Meiden T&amp;D India" title="About Meiden T&amp;D India">
+        <img class="nav-meiden-logo" src="assets/branding/meiden-logo.png" alt="Meiden">
+      </button>
       <button class="theme-toggle" id="theme-btn" title="Toggle dark / light mode" aria-label="Toggle dark / light mode"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.2A8.4 8.4 0 1 1 9.8 4a6.6 6.6 0 0 0 10.2 10.2Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button>
     </div>
   </nav>
@@ -131,6 +148,7 @@
             <li>No Data Uploaded</li>
             <li>Engineering Workbook Included</li>
             <li>Transparent Calculations</li>
+            <li>Meiden Engineering Support</li>
           </ul>
         </div>
 
@@ -567,6 +585,19 @@
             </div>
           </div>
           <div id="duval-legend-main"></div>
+          <!-- Supplementary Duval Triangle 4 (Duval 2008, H₂/CH₄/C₂H₆)
+               confirmation — only shown when the primary Triangle 1 zone is
+               PD, T1 or T2 (ui/dashboard.js computes duval4 conditionally;
+               ui/workspace.js populates this panel; hidden by default). -->
+          <div class="duval4-panel" id="duval4-panel-main" hidden>
+            <div class="duval4-panel-title">📐 Supplementary Confirmation — Duval Triangle 4</div>
+            <div class="duval4-panel-sub">Low-temperature triangle (H₂ / CH₄ / C₂H₆) — Duval 2008. Applied because the primary zone is PD, T1 or T2.</div>
+            <div class="duval4-panel-row">
+              <span class="result-box zs-zone" id="duval4-zone-main">—</span>
+              <span id="duval4-name-main" class="duval-caption-fault">—</span>
+            </div>
+            <div class="method-desc" id="duval4-desc-main"></div>
+          </div>
         </div>
       </details>
 
@@ -1159,6 +1190,11 @@
         <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05C20.4 8.65 21 11 21 14v7h-4v-6.2c0-1.48-.03-3.4-2.07-3.4-2.07 0-2.39 1.62-2.39 3.29V21H9z" fill="currentColor"/></svg>
       </a>
     </div>
+    <!-- Partner co-brand credit — mirrors the "Designed by" line above. -->
+    <div class="footer-line footer-meiden-credit">
+      <img src="assets/branding/meiden-logo.png" alt="Meiden" class="footer-meiden-logo">
+      <span>Designed with the support of Meiden engineering professionals</span>
+    </div>
     <div class="footer-disclaimer">Diagnostic methods per IEC 60599:2022 (Duval Triangles 1 &amp; 2), IEEE C57.104-2019, Rogers Ratio, Doernenburg, CIGRE TB 443/771. For engineering guidance only — not a substitute for professional judgement. Runs entirely in your browser; no data is uploaded or stored anywhere.</div>
   </footer>
 
@@ -1205,6 +1241,30 @@
         <a class="designer-link" href="https://www.linkedin.com/in/bharadwajmuppala/" target="_blank" rel="noopener" aria-label="Bharadwaj Muppala on LinkedIn">
           Bharadwaj Muppala
           <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05C20.4 8.65 21 11 21 14v7h-4v-6.2c0-1.48-.03-3.4-2.07-3.4-2.07 0-2.39 1.62-2.39 3.29V21H9z" fill="currentColor"/></svg>
+        </a>
+        <div class="about-meiden-credit">
+          <img src="assets/branding/meiden-logo.png" alt="Meiden" class="about-meiden-logo">
+          <span>with the support of Meiden engineering professionals</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay no-print" id="modal-meiden" data-dismissable>
+    <div class="modal-box">
+      <button class="modal-close" id="modal-meiden-close" aria-label="Close"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
+      <div class="meiden-card-logo"><img src="assets/branding/meiden-logo.png" alt="Meiden T&amp;D India"></div>
+      <h2>Meiden T&amp;D India Limited</h2>
+      <div class="modal-sub">Power Transmission &amp; Distribution Equipment</div>
+      <p style="color:var(--text2);font-size:13.5px;line-height:1.7;margin:14px 0">Meiden T&amp;D India Limited is part of the Meidensha Corporation group (Japan), manufacturing power transformers, switchgear and turnkey T&amp;D solutions for utilities and industry across India. TAILAM was built with the support of Meiden engineering professionals.</p>
+      <div class="modal-actions">
+        <a class="btn btn-primary" href="https://www.meidentd.in/" target="_blank" rel="noopener noreferrer">
+          <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.75" fill="none"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.7 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.7-3.8-9s1.3-6.4 3.8-9Z" stroke="currentColor" stroke-width="1.75" fill="none"/></svg>
+          Visit Website
+        </a>
+        <a class="btn btn-outline" href="https://www.linkedin.com/company/meiden-t-d-india-limited/posts/?feedView=all" target="_blank" rel="noopener noreferrer">
+          <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05C20.4 8.65 21 11 21 14v7h-4v-6.2c0-1.48-.03-3.4-2.07-3.4-2.07 0-2.39 1.62-2.39 3.29V21H9z" fill="currentColor"/></svg>
+          LinkedIn
         </a>
       </div>
     </div>
@@ -1398,5 +1458,17 @@
 <script src="src/js/navigation.js"></script>
 <script src="src/js/analytics.js"></script>
 <script src="src/js/app.js"></script>
+<!-- PWA service worker registration — enables full offline use (see sw.js).
+     Guarded and fire-and-forget: browsers without the API simply skip this,
+     and a registration failure (e.g. file:// — service workers require
+     http(s)) is caught and ignored. No app feature depends on this having
+     succeeded; it is purely an offline/installability enhancement. -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => { /* offline install, file://, etc. — non-fatal */ });
+    });
+  }
+</script>
 </body>
 </html>
