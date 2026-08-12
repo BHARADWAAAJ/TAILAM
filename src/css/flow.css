@@ -176,6 +176,9 @@ html.theme-switching, html.theme-switching *{
 .nav-achievement:active{transform:scale(.96);}
 .nav-achievement:focus-visible{outline:2px solid var(--yellow);outline-offset:2px;}
 .nav-achievement.achv-pop{animation:achvPop .65s cubic-bezier(.2,.8,.3,1.4) both, achvGlow 3s ease-in-out .7s infinite;}
+/* Compact app bar (<=767px, see layout.css) — a touch smaller so the badge
+   never threatens the tight mobile nav-left budget. */
+@media(max-width:767px){.nav-achievement{width:20px;height:20px;margin-left:6px;font-size:11px;}}
 
 /* ---- Confetti burst on easter-egg completion (spawned by ui/motion.js) ---- */
 @keyframes confettiFly{
@@ -479,8 +482,15 @@ html.theme-gold .nav-logo::after{
 
 /* Meiden partner co-brand — footer credit line, same white backing-chip
    treatment as the header logo (src/css/layout.css .nav-meiden-logo) so
-   it reads consistently regardless of theme. */
-.footer-meiden-credit{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px;}
+   it reads consistently regardless of theme. Now a button (opens the
+   Meiden company card, same as the header logo) — reset to look like the
+   plain text line it replaced. */
+.footer-meiden-credit{appearance:none;background:none;border:none;padding:6px 4px;margin:-6px 0 4px;
+  cursor:pointer;font:inherit;color:var(--text3);width:100%;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  border-radius:var(--r-sm);transition:color .2s ease;}
+.footer-meiden-credit:hover,.footer-meiden-credit:focus-visible{color:var(--accent-2);}
+.footer-meiden-credit:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
 .footer-meiden-logo{height:18px;width:auto;padding:3px 6px;border-radius:6px;
   background:#fff;border:1px solid var(--border);flex:none;}
 

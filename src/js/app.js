@@ -22,6 +22,7 @@
            confirmUnsavedExportExcel, confirmUnsavedDiscard } = window.TAILAM.ui.modals;
   const { openDuvalModal, closeDuvalModal } = window.TAILAM.ui.workspace;
   const { openFeedback, closeFeedback, submitFeedback, initFeedback } = window.TAILAM.ui.feedback;
+  const { initSidebar, closeSidebar } = window.TAILAM.ui.sidebar;
   const { runLoadingSequence } = window.TAILAM.ui.loading;
   const { animateLandingCounters, initFlowReveal, initSplash, initEngineeringEgg, initGoldEasterEgg } = window.TAILAM.ui.motion;
   const { trackPageView } = window.TAILAM.analytics;
@@ -95,6 +96,7 @@
   on('modal-help-close',     closeHelp);
   on('modal-about-close',    closeAbout);
   on('nav-meiden-btn',       () => { openMeidenCard(); trackPageView('/meiden', 'Meiden T&D India'); });
+  on('footer-meiden-btn',    () => { openMeidenCard(); trackPageView('/meiden', 'Meiden T&D India'); });
   on('modal-meiden-close',   closeMeidenCard);
   on('landing-btn-main',     () => requestNavigate('main'));
   on('landing-btn-oltc',     () => requestNavigate('oltc'));
@@ -122,6 +124,18 @@
   on('unsaved-export-xlsx',  confirmUnsavedExportExcel);
   on('unsaved-discard',      confirmUnsavedDiscard);
   on('unsaved-cancel',       closeUnsavedDialog);
+
+  // ── Mobile navigation sidebar (<=767px) ──
+  // Each link mirrors its desktop nav-link counterpart above — same target
+  // function, no duplicated logic — and closes the drawer first so the
+  // sidebar never lingers over whatever it navigated to or opened.
+  initSidebar();
+  on('sidebar-home',     () => { closeSidebar(); requestNavigate('landing'); });
+  on('sidebar-main',     () => { closeSidebar(); requestNavigate('main'); });
+  on('sidebar-oltc',     () => { closeSidebar(); requestNavigate('oltc'); });
+  on('sidebar-help',     () => { closeSidebar(); openHelp(); trackPageView('/help', 'Help'); });
+  on('sidebar-feedback', () => { closeSidebar(); openFeedback(); trackPageView('/feedback', 'Feedback'); });
+  on('sidebar-about',    () => { closeSidebar(); openAbout(); trackPageView('/about', 'About'); });
 
   // Duval Triangle hero → detail modal (click or keyboard activate)
   on('duval-svg-main', () => openDuvalModal('main'));
