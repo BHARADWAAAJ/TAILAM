@@ -21,6 +21,11 @@
   /** Close the Help dialog. */
   function closeHelp() { hide('modal-help'); }
 
+  /** Open the Meiden T&D India company card (triggered by the header logo). */
+  function openMeidenCard() { show('modal-meiden'); }
+  /** Close the Meiden company card. */
+  function closeMeidenCard() { hide('modal-meiden'); }
+
   /**
    * Close the Duval detail modal through its owner (ui/workspace.js) so its
    * post-close repaint always runs, whichever way the modal was dismissed.
@@ -35,7 +40,7 @@
 
   /** Close every backdrop-dismissable modal that click/escape can reach. */
   function closeDismissable() {
-    closeAbout(); closeHelp(); closeDuvalViaWorkspace();
+    closeAbout(); closeHelp(); closeMeidenCard(); closeDuvalViaWorkspace();
     const fb = window.TAILAM.ui.feedback; // lazy — loads after this file
     if (fb && fb.closeFeedback) fb.closeFeedback();
   }
@@ -117,6 +122,7 @@
   window.TAILAM.ui = window.TAILAM.ui || {};
   window.TAILAM.ui.modals = {
     openAbout, closeAbout, openHelp, closeHelp, initDismissableModals,
+    openMeidenCard, closeMeidenCard,
     openUnsavedDialog, closeUnsavedDialog,
     confirmUnsavedExportPDF, confirmUnsavedExportExcel, confirmUnsavedDiscard
   };

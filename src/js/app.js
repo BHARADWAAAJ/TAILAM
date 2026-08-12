@@ -17,6 +17,7 @@
            getMtReport, getOtReport, isMainDirty, isOltcDirty, syncCrossContamDefaults } = window.TAILAM.ui.dashboard;
   const { exportPDF, exportExcelX } = window.TAILAM.ui.export;
   const { openAbout, closeAbout, openHelp, closeHelp, initDismissableModals,
+           openMeidenCard, closeMeidenCard,
            openUnsavedDialog, closeUnsavedDialog, confirmUnsavedExportPDF,
            confirmUnsavedExportExcel, confirmUnsavedDiscard } = window.TAILAM.ui.modals;
   const { openDuvalModal, closeDuvalModal } = window.TAILAM.ui.workspace;
@@ -93,6 +94,8 @@
   on('fb-cancel',            closeFeedback);
   on('modal-help-close',     closeHelp);
   on('modal-about-close',    closeAbout);
+  on('nav-meiden-btn',       () => { openMeidenCard(); trackPageView('/meiden', 'Meiden T&D India'); });
+  on('modal-meiden-close',   closeMeidenCard);
   on('landing-btn-main',     () => requestNavigate('main'));
   on('landing-btn-oltc',     () => requestNavigate('oltc'));
   on('landing-cta-main',     () => requestNavigate('main'));

@@ -35,12 +35,41 @@
   // Engineering Workspace already draws (charts.js#drawRiskGauge, called
   // exactly as ui/dashboard.js already calls it). No gauge/scale/threshold
   // logic is added or duplicated — this only lets export.js reuse it.
-  const { drawDuvalTriangle, drawDuvalTriangle2, drawRiskGauge } = window.TAILAM.ui.charts;
+  const { drawDuvalTriangle, drawDuvalTriangle2, drawDuvalTriangle4, drawRiskGauge } = window.TAILAM.ui.charts;
   const { getMtReport, getOtReport, markMainExported, markOltcExported } = window.TAILAM.ui.dashboard;
   const { notify } = window.TAILAM.ui.dialogs;
 
   /** Version metadata embedded in every PDF report (Task 14). Mirrors VERSION.json. */
   const REPORT_META = { product: 'TAILAM', version: '1.0.0', edition: 'Community Edition', build: '2026.07' };
+
+  /**
+   * Meiden partner co-brand mark, inlined raw (not <img src="...">). The
+   * report opens in a blank popup window (window.open('','_blank')) with no
+   * base URL to resolve a relative asset path against, so the only portable
+   * way to embed it — regardless of where TAILAM is hosted — is inline SVG,
+   * the same reasoning already applied to every triangle/gauge image in this
+   * file (captured as self-contained data URIs). Source: assets/branding/
+   * meiden-logo.svg, verbatim; sized purely via the .brand-endnote-logo
+   * wrapper in the <style> block below, viewBox/paths untouched.
+   */
+  const MEIDEN_LOGO_SVG = `<svg viewBox="0 0 652 652" xmlns="http://www.w3.org/2000/svg">
+<style>.mst0{fill:#415FD2;}.mst1{fill:#6289C6;}.mst2{fill:#5682C3;}.mst3{fill:#4278BC;}</style>
+<path class="mst0" d="M255.1,76.3c0,1,0.8,1.6,1.3,2.3c56.5,79.2,113,158.3,169.5,237.4c1,1.5,1.1,2.4,0,3.9c-15.4,21.5-30.7,42.9-46,64.4c-1.2,1.7-1.7,1.7-2.9,0c-40.6-56.9-81.2-113.9-121.8-170.8c-0.4-0.5-0.8-1.1-1.3-1.8c-0.5,1-0.3,1.9-0.3,2.7c0,70.1,0,140.2,0,210.3c0,3.6,0.4,3.2-3.1,3.2c-64.7,0-129.4,0-194.2,0c-1,0-1.9-0.1-2.9-0.1c0-116.5,0-232.9-0.1-349.3c0-1.8,0.3-2.2,2.2-2.2C122.1,76.3,188.6,76.3,255.1,76.3"/>
+<path class="mst0" d="M330.7,76.3c29.2,40.8,58.5,81.6,87.7,122.4c15.2,21.2,30.3,42.4,45.6,63.6c1.2,1.6,1.4,2.7,0.1,4.4c-9.8,13.4-19.4,26.8-29,40.2c-0.4,0.5-0.7,1-1.3,1.6c-3.8-5.3-7.5-10.6-11.2-15.8C371.3,221,320,149.2,268.7,77.4c-0.3-0.4-0.5-0.7-0.8-1.1H330.7z"/>
+<path class="mst0" d="M393.5,76.3c10.7,15,21.4,30,32.1,45c23.2,32.5,46.5,65,69.8,97.5c0.7,0.9,1.4,1.6,0.4,2.9c-6.8,9.4-13.5,18.9-20.3,28.3c-0.2,0.2-0.4,0.4-0.8,0.8c-3.2-4.5-6.4-8.9-9.5-13.3c-37.8-52.9-75.7-105.8-113.5-158.7c-0.4-0.5-0.7-1-1-1.5c0.4-1.2,1.4-0.6,2.1-0.6c7.9-0.1,15.8,0,23.8,0c4.6-0.1,9.2,0.3,13.8-0.2H393.5z"/>
+<path class="mst0" d="M86.6,487c6.2,18.4,12.5,36.9,18.7,55.3c1.1,3.2,2.2,6.4,3.4,10.1c2.7-8,5.3-15.6,7.9-23.2c4.7-13.8,9.5-27.5,14.1-41.3c0.5-1.5,1.2-1.9,2.7-1.9c9.4,0.1,18.8,0.1,28.2,0c1.9,0,2.4,0.5,2.4,2.4c-0.1,29.3,0,58.5,0,87.8H145c-0.7-0.8-0.7-1.8-0.7-2.8c0-22,0-44,0-66c0-0.9,0.1-1.7,0.3-2.5c-2.6,8-5.5,15.8-8.3,23.8c-4.2,12.1-8.5,24.2-12.8,36.3c-1.1,3.1-2.3,6.1-3.3,9.2c-0.2,0.8-0.6,1.5-1.3,2.1H98.5c-1.3-1.6-1.8-3.5-2.4-5.4c-7.2-20.9-14.4-41.9-21.7-62.8c-0.3-0.8-0.7-1.6-0.5-2c-0.1,0.6,0.2,1.7,0.2,2.7c0,21.4,0,42.8,0,64.2c0,1.1,0.2,2.3-0.7,3.3H53.9c-0.4-0.7-0.2-1.5-0.2-2.2c0-28.3,0-56.7,0-85.1c0-2.6,0-2.6,2.5-2.6c9.3,0,18.6,0,28,0C85,486.3,86,485.9,86.6,487"/>
+<path class="mst0" d="M494.2,576.2c0-0.7-0.1-1.4-0.1-2c0-28.5,0-57-0.1-85.6c0-2.2,0.7-2.6,2.7-2.6c8,0.1,16.1,0.1,24.1,0c1.7,0,2.5,0.5,3.3,2c13,22.9,26.1,45.7,39.1,68.5c0.3,0.5,0.6,1,1.4,1.5v-2.2c0-22.4,0-44.8,0-67.1c0-2,0.4-2.7,2.6-2.7c4.3,0.2,8.7,0.1,13,0c1.4,0,2,0.3,2,1.9c-0.1,29.4-0.1,58.9-0.1,88.3h-28.7c-1.3-0.6-1.8-1.8-2.5-2.9c-9.3-16.4-18.8-32.6-28.2-48.9c-3.6-6.2-7.2-12.3-10.8-18.7c-0.3,1-0.2,1.8-0.2,2.6c0,21.5,0,42.9,0,64.4c0,1.2,0.3,2.4-0.6,3.5H494.2z"/>
+<path class="mst0" d="M179.5,576.2c0-29.2,0-58.3,0-87.4c0-2.1,0.4-2.8,2.7-2.7c23.4,0.1,46.8,0.1,70.1,0c1.9,0,2.7,0.4,2.5,2.5c-0.2,3.3-0.1,6.5,0,9.8c0.1,1.9-0.4,2.4-2.4,2.4c-16.9-0.1-33.9,0-50.8-0.1c-2.1,0-2.8,0.4-2.7,2.7c0.1,5.9,0.1,11.8,0,17.8c0,2,0.4,2.5,2.5,2.5c16.1-0.1,32.2,0,48.3-0.1c2.1,0,2.7,0.7,2.6,2.7c-0.1,3.1-0.1,6.2,0,9.3c0.1,1.8-0.5,2.1-2.2,2.1c-16.1-0.1-32.2,0-48.3-0.1c-2.1,0-2.8,0.5-2.8,2.7c0.2,7,0.1,14,0,20.9c0,1.9,0.6,2.2,2.3,2.2c17.5-0.1,34.9,0,52.4-0.1c2.1,0,2.7,0.5,2.6,2.6c-0.1,3.4,0,6.8,0.1,10.2H179.5z"/>
+<path class="mst0" d="M403.6,576.2c0-29.4,0-58.9-0.1-88.3c0-1.6,0.6-1.8,2-1.8c23.8,0,47.5,0,71.2,0c1.8,0,2.2,0.5,2.1,2.2c-0.1,3.5-0.1,7,0,10.5c0.1,2-0.9,2-2.3,2c-17,0-34,0-51-0.1c-2.2,0-2.8,0.6-2.7,2.7c0.1,6,0.1,12,0,18c0,1.9,0.6,2.3,2.3,2.2c16.2-0.1,32.3,0,48.5-0.1c1.9,0,2.7,0.4,2.6,2.5c-0.2,3.1-0.2,6.2,0,9.3c0.1,2-0.7,2.3-2.5,2.3c-16-0.1-32,0-48-0.1c-2.1,0-2.7,0.5-2.6,2.6c0.1,7,0.1,14,0,20.9c0,2,0.6,2.3,2.4,2.3c17.4-0.1,34.7,0,52.1-0.1c2.1,0,2.7,0.6,2.6,2.6c-0.2,3.4-0.1,6.8-0.2,10.2H403.6z"/>
+<path class="mst0" d="M451.4,76.3c8.6,12,17.1,23.9,25.7,35.9c15.9,22.1,31.7,44.2,47.6,66.3c0.6,0.9,1.3,1.6,0.4,2.8c-5.2,7.1-10.3,14.2-15.6,21.6c-2-2.8-3.9-5.5-5.8-8.1c-27.5-38.7-55-77.4-82.4-116.1c-0.5-0.7-1.3-1.3-1.3-2.3H451.4z"/>
+<path class="mst0" d="M270.1,576.2c0-0.7-0.1-1.5-0.1-2.3c0-28.4,0-56.9,0-85.3c0-2.1,0.5-2.7,2.6-2.6c4.8,0.1,9.6,0.1,14.4,0c1.9-0.1,2.4,0.5,2.4,2.4c-0.1,29.3,0,58.5,0,87.8H270.1z"/>
+<path class="mst0" d="M516.5,76.3c13.6,18.9,27.3,37.9,40.9,56.8c0.8,1.2,0.9,1.9,0,3.1c-3.3,4.4-6.4,8.8-9.8,13.5c-3.7-5.1-7.3-10.1-10.8-15C523.2,115.8,509.6,96.9,496,78c-0.4-0.5-1-1-1-1.7H516.5z"/>
+<path class="mst0" d="M599.3,76.3c-0.4,1.6-1.6,2.7-2.5,3.9c-3.4,4.8-6.8,9.5-10.2,14.2c-0.4,0.6-0.7,1.3-1.6,1.7c-4.8-6.6-9.5-13.2-14.3-19.8H599.3z"/>
+<path class="mst1" d="M86.6,487c-0.8-0.6-1.7-0.5-2.6-0.5c-9.2,0-18.3,0.1-27.5-0.1c-2.1,0-2.7,0.6-2.7,2.7c0.1,29,0.1,58.1,0.1,87.1c-1-0.4-0.4-1.2-0.4-1.8c0-29.4,0-58.9,0-88.3c10.4,0,20.9,0,31.3,0C85.4,486,86.5,485.6,86.6,487"/>
+<path class="mst2" d="M376.7,76.7c-7.8,0-15.7,0-23.6,0c-0.8,0-1.7-0.3-2.4,0.4c-0.3-0.2-0.5-0.5-0.5-0.9h26.4c0.1,0.1,0.2,0.2,0.1,0.3C376.8,76.6,376.7,76.7,376.7,76.7"/>
+<path class="mst3" d="M376.7,76.7c0-0.1,0-0.3,0-0.4h13.7c-0.9,0.9-2,0.4-3,0.4C383.8,76.7,380.2,76.7,376.7,76.7"/>
+<path class="mst0" d="M369.3,550.8c-3.3,7.2-9.5,10.7-17.1,11.7c-8.4,1.1-16.8,0.3-25.2,0.5c-1.7,0-1.2-1.2-1.2-2.1c0-9.7,0-19.4,0-29.2c0-9.7,0.1-19.4,0-29.1c0-1.7,0.4-2.2,2.1-2.2c5.8,0.1,11.7,0,17.5,0.1c14.4,0.3,23.9,7.8,27.2,21.8C374.9,532.2,373.4,541.7,369.3,550.8 M391.8,517c-3.8-17.3-19.5-29.7-37.7-30.5c-15.5-0.7-30.9-0.1-46.4-0.3c-2,0-1.9,1-1.9,2.4c0,19.8,0,39.6,0,59.4c0,9.4,0,18.8-0.1,28.2H363c0.1-0.4,0.6-0.4,0.9-0.5c11.6-3,20.3-9.7,25.2-20.8C394.6,542.6,394.6,529.7,391.8,517"/>
+</svg>`;
 
   /**
    * Re-render a triangle in light colors (readable on white), capture it as a
@@ -636,6 +665,22 @@
     const gasPct = duval && duval.total
       ? `%CH₄ = ${duval.pCH4.toFixed(1)} · %C₂H₄ = ${duval.pC2H4.toFixed(1)} · %C₂H₂ = ${duval.pC2H2.toFixed(1)}`
       : 'Insufficient gas data to plot a point.';
+    // Supplementary Duval Triangle 4 (Duval 2008) — only for Main Tank, and
+    // only when dashboard.js computed it (primary zone PD/T1/T2). Same
+    // capture technique as Triangle 1/2 (hiResDuvalPng + the frozen
+    // drawDuvalTriangle4), so it's rendered identically, not recalculated.
+    const duval4HTML = (!isOLTC && rp.duval4) ? `
+      <figure class="duval-figure duval4-figure">
+        <img src="${hiResDuvalPng('duval-canvas', drawDuvalTriangle4, rp.g, 3)}" alt="Duval Triangle 4 plot">
+        <figcaption>
+          <div class="duval-figure-number">Figure 2</div>
+          <div class="duval-caption-title">Duval Triangle 4 — Supplementary Confirmation</div>
+          <div class="duval-caption-kicker">Low-Temperature Triangle (H₂ / CH₄ / C₂H₆) — Duval 2008</div>
+          <div class="duval-caption-zone">${esc(rp.duval4.zone)}</div>
+          <div class="duval-caption-fault">${esc(rp.duval4.name)}</div>
+          <div class="duval-caption-standard">Applied because the primary zone is PD, T1 or T2</div>
+        </figcaption>
+      </figure>` : '';
     const duvalHTML = `
       <figure class="duval-figure">
         <img src="${duvalImg}" alt="${esc(duvalTitle)} plot">
@@ -649,7 +694,8 @@
           <div class="duval-caption-standard">IEC 60599</div>
         </figcaption>
       </figure>
-      ${buildDuvalLegendHTML(isOLTC ? 'triangle2' : 'triangle1', duval ? duval.zone : null)}`;
+      ${buildDuvalLegendHTML(isOLTC ? 'triangle2' : 'triangle1', duval ? duval.zone : null)}
+      ${duval4HTML}`;
 
     // ── Immediate Action Plan — rows are kept (not just the built HTML) so
     // the merged Final Recommendation card below can reuse the top row's
@@ -895,18 +941,24 @@
       /* Polish sprint — Status column removed (every row read "Computed",
          no information carried); freed width redistributed to Diagnosis
          and Agreement so both read with less wrapping. */
-      .diagnostic-table-pdf .col-method{width:12%;} .diagnostic-table-pdf .col-role{width:9%;}
-      .diagnostic-table-pdf .col-diagnosis{width:38%;} .diagnostic-table-pdf .col-agreement{width:26%;}
+      /* Role column widened (9% → 13%) so "⭐ Primary Diagnostic" and
+         "Supporting Method" reliably wrap at the natural space between
+         words instead of the generic table overflow-wrap forcing an
+         ugly mid-word split ("Diagnosti" / "c"). Diagnosis/Agreement
+         narrowed slightly to compensate — both hold short phrases and
+         had margin to spare. */
+      .diagnostic-table-pdf .col-method{width:12%;} .diagnostic-table-pdf .col-role{width:13%;}
+      .diagnostic-table-pdf .col-diagnosis{width:36%;} .diagnostic-table-pdf .col-agreement{width:24%;}
       .diagnostic-table-pdf .col-reference{width:15%;}
       .diagnostic-table-pdf th,.diagnostic-table-pdf td{padding:9px 11px;line-height:1.45;}
 
-      /* Primary Diagnostic vs Supporting Method — tinted row, bold method
-         name, left border on the primary row only. Presentational only.
+      /* Primary Diagnostic vs Supporting Method — tinted background + bold
+         method name is enough to distinguish the row; the left border was
+         removed (it rendered on every cell, not just the first, reading as
+         clutter rather than a clean highlight). Presentational only.
          Supporting rows alternate a faint tint (diag-row-alt) for
          readability across a longer table. */
-      tr.diag-row-primary td{background:var(--pdf-blue-bg);font-weight:700;border-left:4px solid var(--pdf-blue);}
-      tr.diag-row-primary td:first-child{padding-left:8px;}
-      tr.diag-row-supporting td:first-child{border-left:4px solid transparent;}
+      tr.diag-row-primary td{background:var(--pdf-blue-bg);font-weight:700;}
       tr.diag-row-alt td{background:#f7f8fc;}
 
       /* ② Gas Values — solid professional-blue header (distinct from the
@@ -1000,6 +1052,12 @@
       .brand-endnote{margin-top:14px;padding-top:8px;border-top:1px solid var(--pdf-grey-line);text-align:center;font-size:9.5px;color:var(--pdf-grey);line-height:1.7;page-break-inside:avoid;}
       .brand-endnote-name{font-size:11px;font-weight:800;letter-spacing:0.6px;color:#3b415c;}
       .brand-endnote .tm{font-size:7px;vertical-align:super;}
+      /* Meiden partner co-brand — same end-note position as TAILAM's own
+         identity, one line below it. White backing chip behind the mark
+         matches the on-screen header/footer treatment. */
+      .brand-endnote-meiden{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:6px;}
+      .brand-endnote-logo{display:inline-flex;background:#fff;border:1px solid var(--pdf-grey-line);border-radius:4px;padding:2px 5px;}
+      .brand-endnote-logo svg{display:block;width:16px;height:16px;}
 
       /* Footer — now rendered entirely by the @page @bottom-center margin
          box above (same mechanism as the Page X of Y counter), typeset in
@@ -1098,12 +1156,19 @@
     </div>
 
     <!-- Branding end-note (branding sprint): all product identity moved
-         here, after every engineering section, in small type. -->
+         here, after every engineering section, in small type. Meiden partner
+         co-brand added alongside it, same treatment/placement as the site's
+         own footer credit — after the engineering content, not competing
+         with the data-first Page 1 header. -->
     <div class="brand-endnote">
       <div class="brand-endnote-name">TAILAM</div>
       <div>Transformer Assessment for Insulating Liquid Analysis &amp; Monitoring</div>
       <div>Version ${esc(REPORT_META.version)} · ${esc(REPORT_META.edition)} · Static Browser Edition · Build ${esc(REPORT_META.build)} · Rule-Based Engineering Intelligence</div>
       <div>bharadwaaaj.github.io/TAILAM · Designed by Bharadwaj Muppala · linkedin.com/in/bharadwajmuppala</div>
+      <div class="brand-endnote-meiden">
+        <span class="brand-endnote-logo">${MEIDEN_LOGO_SVG}</span>
+        <span>Designed with the support of Meiden engineering professionals</span>
+      </div>
     </div>
 
     ${footerHTML}
@@ -1173,6 +1238,10 @@
       let r;
       r = ws.addRow(['Risk Score', `${risk}/100`, health.label]); statusCell(r, 3, healthCls);
       r = ws.addRow(['Duval Triangle 1', duval.zone, duval.name]); statusCell(r, 2, 'badge-yellow');
+      // Supplementary Duval Triangle 4 (Duval 2008) — only present when
+      // dashboard.js computed it (primary zone PD/T1/T2); frozen engine
+      // output, just written here as an extra row, never recalculated.
+      if (rp.duval4) ws.addRow(['Duval Triangle 4 (supplementary)', rp.duval4.zone, rp.duval4.name]);
       ws.addRow(['Rogers Ratio', rogers.fault, rogers.name]);
       ws.addRow(['IEC 60599 Ratios', iec.fault, iec.name || '—']);
       ws.addRow(['IEEE C57.104', 'C' + ieee.maxCond, ieee.condName]);
@@ -1260,6 +1329,26 @@
   }
 
   /**
+   * CSV formula-injection guard (OWASP "CSV Injection"). A cell whose text
+   * starts with =, +, - or @ can be interpreted as a formula by Excel/
+   * Sheets/LibreOffice when the file is reopened — a risk for any exported
+   * CSV that includes free-text fields (here: Transformer Name/Location, and
+   * the computed recommendation string). Prefixing with a single apostrophe
+   * makes every major spreadsheet app treat the cell as literal text; it has
+   * no effect on values that don't start with one of those characters, so
+   * every other cell round-trips unchanged. Presentation/safety only — no
+   * engineering value is altered, and this never runs on values before they
+   * reach engine calculations (those already happened; this only touches
+   * what gets WRITTEN to the file).
+   * @param {*} value
+   * @returns {string}
+   */
+  function csvSafe(value) {
+    const s = String(value == null ? '' : value);
+    return /^[=+\-@]/.test(s) ? "'" + s : s;
+  }
+
+  /**
    * Plain CSV fallback (used only if the ExcelJS library could not load).
    * @param {'main'|'oltc'} type
    */
@@ -1315,7 +1404,7 @@
         ...oltcRes.ratios.map(r => [r.name, r.formula, r.value!==null?r.value.toFixed(3):'N/A', r.interp.label])
       );
     }
-    const csv = rows.map(r => r.map(c => `"${String(c==null?'':c).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const csv = rows.map(r => r.map(c => `"${csvSafe(c).replace(/"/g,'""')}"`).join(',')).join('\n');
     const blob = new Blob(['﻿' + csv], { type:'text/csv;charset=utf-8;' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);

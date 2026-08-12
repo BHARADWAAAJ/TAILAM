@@ -47,8 +47,12 @@ fully deployable to any static web host for team-wide access.
   printed/embedded triangle images.
 - **An internal engineering validation framework** — see
   [Validation](#validation) below — proving the calculation engine's
-  regression safety.
-- **Runs fully offline** except the optional styled-Excel export library.
+  regression safety, enforced automatically in CI on every push/PR.
+- **Installable and fully offline** — a PWA manifest and service worker
+  precache the entire app shell, so after the first load TAILAM works with
+  zero network access, including a cold start. The only feature that
+  degrades offline is styled Excel export (ExcelJS is loaded from a CDN);
+  it automatically falls back to CSV.
 
 ## Supported standards
 
@@ -107,9 +111,16 @@ Internet Explorer is not supported. Full detail:
 ```
 dga-web-simple/
 ├── index.html              Markup shell — loads every script in dependency order
+├── manifest.json           PWA manifest (installable app metadata)
+├── sw.js                   Service worker — precaches the app shell for offline use
+├── package.json             Dev-tooling only (jsdom for the UI smoke test);
+│                             nothing here ships to the deployed static site
 ├── README.md                This file
+├── CHANGELOG.md              User/developer-facing history of notable changes
 ├── VERSION.json             Version metadata
-├── assets/                  Static assets
+├── .github/workflows/       CI — runs the validation suite + UI smoke test
+├── assets/
+│   └── icons/                PWA app icons (source SVG + generated PNGs)
 ├── docs/
 │   ├── ARCHITECTURE.md      Original module-map + dependency-graph record
 │   ├── architecture/        Diagram-driven architecture docs
@@ -123,10 +134,11 @@ dga-web-simple/
     │   ├── app.js            Entry point — event wiring, first-load init
     │   ├── navigation.js     View switching
     │   ├── theme.js          Dark/light theme
+    │   ├── analytics.js      GA4 SPA virtual-page-view tracking (optional, fails silently)
     │   ├── engine/           Pure diagnostic logic — frozen for v1.0
     │   ├── ui/               Rendering, orchestration, export, dialogs
     │   └── utils/            Shared helpers, form reading, validation
-    └── validation/           Developer/CI-only validation framework
+    └── validation/           Developer/CI-only validation framework + UI smoke test
 ```
 
 Full responsibility breakdown per file: [`docs/architecture/Module_Structure.md`](docs/architecture/Module_Structure.md).
@@ -156,11 +168,27 @@ reference datasets and reports a pass/fail summary per diagnostic method:
 
 ```bash
 node src/validation/validationRunner.js
+# or: npm run validate
 ```
 
-This is never exposed in the app UI — it exists to catch unintended
-engine regressions before release. Methodology, dataset format, and the
-regression process: [`docs/validation/`](docs/validation/).
+A second, complementary suite loads the real `index.html` and app scripts
+into `jsdom` and exercises the full Main Tank / OLTC / Workbook / export
+flow end-to-end, catching UI-layer regressions the engine suite can't see
+(requires `npm install` once, for its one dev-only dependency):
+
+```bash
+npm run test:ui
+```
+
+Neither is ever exposed in the app UI — both exist to catch unintended
+regressions before release, and both run automatically on every push/PR
+via [`.github/workflows/validate.yml`](.github/workflows/validate.yml).
+Methodology, dataset format, and the regression process:
+[`docs/validation/`](docs/validation/).
+
+## Changelog
+
+Notable changes are tracked in [`CHANGELOG.md`](CHANGELOG.md).
 
 ## Roadmap
 

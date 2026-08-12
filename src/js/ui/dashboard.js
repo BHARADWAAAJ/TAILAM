@@ -12,7 +12,7 @@
 (function () {
   'use strict';
 
-  const { calcDuval } = window.TAILAM.engine.duval;
+  const { calcDuval, calcDuval4 } = window.TAILAM.engine.duval;
   const { calcDuval2, applyBelowTypicalGate, calcOLTCAnalysis, calcCrossContam } = window.TAILAM.engine.duval2;
   const { calcRogers } = window.TAILAM.engine.rogers;
   const { calcIEC, calcPaperInvolvement, interpretO2 } = window.TAILAM.engine.iec;
@@ -57,6 +57,13 @@
     if (!hasAnyGas(g)) { notify('Please enter at least one main-tank gas value.'); return; }
     const info = readTransformerInfo();
     const duval  = calcDuval(g);
+    // Duval Triangle 4 (Duval 2008) — supplementary low-temperature
+    // confirmation. engine/duval.js#calcDuval4 already existed (frozen,
+    // verified) but was never called anywhere in the app. Per its own
+    // application note it only adds diagnostic value when the primary
+    // Triangle 1 zone is PD, T1 or T2 — otherwise left null so no
+    // supplementary panel/section appears anywhere (UI, workbook, exports).
+    const duval4 = ['PD', 'T1', 'T2'].includes(duval.zone) ? calcDuval4(g) : null;
     const rogers = calcRogers(g);
     const iec    = calcIEC(g);
     const ieee   = calcIEEE(g);
@@ -69,7 +76,7 @@
     const rec    = getRecommendation(duval.zone, risk);
     const o2info = interpretO2(g.o2);
 
-    mtReport = { g, info, duval, rogers, iec, ieee, keygas, paper, doern, cigre, agree, risk, rec, o2info };
+    mtReport = { g, info, duval, duval4, rogers, iec, ieee, keygas, paper, doern, cigre, agree, risk, rec, o2info };
     mtExported = false;
     document.getElementById('empty-main').style.display = 'none';
     const resultsMainEl = document.getElementById('results-main');

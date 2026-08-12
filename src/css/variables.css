@@ -12,11 +12,21 @@
   /* ── Deep Navy / Steel Blue surfaces ── */
   --bg:#0a0e1c; --bg2:#101830; --card:#131b34; --card2:#182140;
   --border:rgba(148,163,204,0.12); --border-strong:rgba(148,163,204,0.22);
-  --text:#eef1f8; --text2:#a7b0c9; --text3:#717a99;
+  /* --text3 nudged from #717a99 → #7b84a0 (accessibility audit: the original
+     value was 4.01:1 against --card, just under WCAG AA's 4.5:1 for normal
+     text; this hue-preserving lightness tweak clears it — 4.58:1 — while
+     staying visually indistinguishable from the original shade). */
+  --text:#eef1f8; --text2:#a7b0c9; --text3:#7b84a0;
 
   /* ── Signal Teal accent (signature colour — from the splash gradient) ── */
   --accent:#1cc79c; --accent-2:#4fe3bd; --accent-dim:rgba(45,212,168,0.16);
   --accent-glow:rgba(45,212,168,0.35);
+  /* Text/icon colour to place ON TOP of a solid --accent fill (e.g.
+     .btn-primary). Dark ink reads far better than white here because the
+     dark-theme accent is a bright/light hue — white-on-it is only ~2.2:1;
+     this dark ink is 8.9:1. See the light-theme override below, where the
+     accent is deliberately darker and the ink flips back to white. */
+  --accent-ink:#0a0e1c;
 
   /* ── Engineering status colours — meaningful only ── */
   --green:#2dd4a8; --green-dim:rgba(45,212,168,0.14);
@@ -77,10 +87,24 @@
 html[data-theme="light"]{
   --bg:#f3f5fb; --bg2:#ffffff; --card:#ffffff; --card2:#f0f3fb;
   --border:rgba(21,32,66,0.09); --border-strong:rgba(21,32,66,0.16);
-  --text:#131a30; --text2:#4d5779; --text3:#7b84a3;
+  /* --text3 nudged from #7b84a3 → #656f90 (accessibility audit: 3.40:1 on
+     --bg / 3.70:1 on --card, both under WCAG AA's 4.5:1 — a real gap, not a
+     near-miss. This darkening keeps the same slate-blue hue and clears
+     4.5:1 against both backdrops). */
+  --text:#131a30; --text2:#4d5779; --text3:#656f90;
 
-  --accent:#0b9d78; --accent-2:#1cc79c; --accent-dim:rgba(11,157,120,0.10);
+  /* --accent/--accent-2 darkened from #0b9d78/#1cc79c (accessibility audit:
+     the originals were used as small text — nav links, the hero eyebrow
+     chip, workbook answer values — at only 3.1–3.4:1, well under the 4.5:1
+     normal-text minimum. This keeps the same green hue, just deep enough to
+     read reliably; verified against every actual usage, including text
+     sitting on the translucent --accent-dim badge background. */
+  --accent:#087459; --accent-2:#127f64; --accent-dim:rgba(11,157,120,0.10);
   --accent-glow:rgba(11,157,120,0.22);
+  /* Light theme's accent is now dark enough that WHITE ink reads best on a
+     solid --accent fill (5.7–5.8:1) — the opposite of the dark theme above,
+     where the accent stays bright and dark ink is required instead. */
+  --accent-ink:#ffffff;
 
   --green:#0f9d78; --green-dim:rgba(15,157,120,0.12);
   --yellow:#c98a00; --yellow-dim:rgba(201,138,0,0.14);
@@ -110,7 +134,12 @@ html.theme-gold{
   --shadow-accent:0 8px 26px rgba(234,179,8,0.24);
 }
 html.theme-gold[data-theme="light"]{
-  --accent:#b07d0a; --accent-2:#c98a00; --accent-dim:rgba(176,125,10,0.12);
+  /* Same accessibility darkening as the light-teal accent above, and for
+     the same reason: #b07d0a/#c98a00 were 3.1–3.6:1 as small text, under
+     the 4.5:1 minimum. --accent-ink is NOT overridden here — it inherits
+     "white" from the light theme above, which still reads correctly
+     (5.8:1) against this darkened gold. */
+  --accent:#855e08; --accent-2:#966700; --accent-dim:rgba(176,125,10,0.12);
   --accent-glow:rgba(176,125,10,0.24);
   --shadow-accent:0 8px 22px rgba(176,125,10,0.16);
 }

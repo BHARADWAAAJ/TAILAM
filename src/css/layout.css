@@ -30,7 +30,20 @@
 .nav-link{appearance:none;border:none;background:transparent;color:var(--text2);font-weight:600;font-size:13.5px;padding:9px 16px;border-radius:var(--r-sm);cursor:pointer;transition:.15s;}
 .nav-link:hover{color:var(--text);background:var(--card2);}
 .nav-link.active{color:var(--accent);background:var(--accent-dim);}
-.nav-right{display:flex;align-items:center;}
+.nav-right{display:flex;align-items:center;gap:12px;}
+/* Meiden partner co-brand — a small white backing chip so the logo's own
+   blue reads consistently on both the dark and light app themes, exactly
+   like a standard "supported by" partner badge. Kept visually secondary to
+   the TAILAM brand on the left (smaller, lower visual weight than the nav
+   links) while still clearly legible. */
+.nav-meiden-btn{appearance:none;background:none;border:none;padding:0;margin:0;
+  cursor:pointer;display:inline-flex;line-height:0;border-radius:var(--r-sm);}
+.nav-meiden-btn:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.nav-meiden-logo{height:44px;width:auto;padding:5px 11px;border-radius:var(--r-sm);
+  background:#fff;border:1px solid var(--border);box-shadow:var(--shadow-sm);
+  transition:transform .15s ease,box-shadow .15s ease;}
+.nav-meiden-btn:hover .nav-meiden-logo{transform:translateY(-1.5px);box-shadow:var(--shadow);}
+@media(max-width:640px){.nav-meiden-logo{height:36px;padding:4px 9px;}}
 @media(max-width:640px){.topnav{justify-content:center;text-align:center;} .nav-center{justify-content:center;width:100%;order:3;}}
 
 /* ── Landing view — Final Visual Design Sprint: premium product landing ── */
@@ -220,6 +233,10 @@
 .modal-box ul{margin:0;padding-left:18px;color:var(--text2);font-size:13.5px;line-height:1.8;}
 .modal-footer{margin-top:20px;padding-top:14px;border-top:1px solid var(--border);color:var(--text3);font-size:12px;text-align:center;}
 .modal-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px;}
+.meiden-card-logo{display:flex;justify-content:center;margin-bottom:16px;}
+.meiden-card-logo img{height:56px;width:auto;padding:8px 14px;border-radius:10px;
+  background:#fff;border:1px solid var(--border);box-shadow:var(--shadow-sm);}
+.modal-actions .btn svg{flex:none;}
 .modal-actions .btn{flex:1;min-width:130px;}
 
 .grid{display:grid;gap:14px;}

@@ -210,7 +210,7 @@
    *   (fields: g, info, duval, rogers, iec, ieee, keygas, paper, doern, cigre, agree, risk, rec, o2info)
    */
   function renderMainWorkspace(rp) {
-    const { duval, rogers, iec, ieee, keygas, paper, doern, cigre, agree, risk, rec, o2info } = rp;
+    const { duval, duval4, rogers, iec, ieee, keygas, paper, doern, cigre, agree, risk, rec, o2info } = rp;
 
     const health = thi.healthCategoryFor(risk); // {label, cls, color} — existing composite score, unchanged
     const statusWord = HEALTH_LABEL_MAP[health.label] || health.label;
@@ -288,6 +288,25 @@
         currentZone: duval.zone,
         highlightTargetId: 'duval-svg-main'
       });
+    }
+
+    // ── Supplementary Duval Triangle 4 (Duval 2008) confirmation ──
+    // dashboard.js#analyzeMain only computes duval4 when the primary
+    // Triangle 1 zone is PD/T1/T2 (the standard's own application note for
+    // this supplementary triangle); this panel just displays that
+    // already-computed result and stays hidden otherwise. No new engine
+    // value — duval4.zone/name/desc come straight from engine/duval.js.
+    const d4Panel = document.getElementById('duval4-panel-main');
+    if (d4Panel) {
+      if (duval4) {
+        d4Panel.hidden = false;
+        setCls('duval4-zone-main', 'result-box zs-zone ' + getResultClass(duval4.zone));
+        setTxt('duval4-zone-main', duval4.zone);
+        setTxt('duval4-name-main', duval4.name);
+        setTxt('duval4-desc-main', duval4.desc);
+      } else {
+        d4Panel.hidden = true;
+      }
     }
 
     // ── 4. Immediate Action Plan ──

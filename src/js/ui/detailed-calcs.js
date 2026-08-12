@@ -537,7 +537,7 @@
 
   function buildMainChapters(rp) {
     resetWorkbookCounters('main');
-    const { g, duval, rogers, iec, ieee, keygas, paper, doern, cigre, agree, risk, rec, o2info } = rp;
+    const { g, duval, duval4, rogers, iec, ieee, keygas, paper, doern, cigre, agree, risk, rec, o2info } = rp;
     const charts = window.TAILAM.ui.charts;
     const ch = [];
 
@@ -828,6 +828,23 @@
           'The Duval Triangle does not calculate a probability.',
           'It simply determines which IEC fault region contains the calculated point. The diagnosis is therefore categorical (which region) rather than statistical (how likely).'
         ]));
+
+        // Supplementary Duval Triangle 4 (Duval 2008) confirmation — only
+        // computed by dashboard.js when the primary zone is PD/T1/T2 (the
+        // standard's own application note for this triangle). duval4 is
+        // null otherwise, so this step is simply omitted. Values are the
+        // engine's own output (engine/duval.js#calcDuval4) — nothing here
+        // is recalculated.
+        if (duval4) {
+          s.push(note('Why a supplementary triangle here?', [
+            'Triangle 1 alone cannot always distinguish a genuine low-temperature thermal fault from partial discharge, because both can plot near the same boundary.',
+            'Duval Triangle 4 (H₂ / CH₄ / C₂H₆) is the standard’s recommended supplementary check specifically for a Triangle 1 result of PD, T1 or T2 — which is exactly the zone found here (' + duval.zone + ').'
+          ]));
+          s.push(step(10, 'Supplementary Confirmation — Duval Triangle 4',
+            block('✅', 'Zone', answerBox('Triangle 4 Zone', duval4.zone)) +
+            block('🏷', 'Fault Name', p(duval4.name)) +
+            block('💡', 'Engineering Meaning', p(duval4.desc))));
+        }
 
         // Expanded final-diagnosis card. duval.zone / duval.name / duval.desc
         // are the engine's own outputs; Typical Causes / Follow-up are fixed
