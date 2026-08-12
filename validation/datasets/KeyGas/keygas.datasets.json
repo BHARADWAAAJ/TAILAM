@@ -1,0 +1,48 @@
+{
+  "method": "Key Gas Method + TDCG",
+  "engineFunction": "window.TAILAM.engine.keygas.calcKeyGas",
+  "engineFile": "src/js/engine/keygas.js",
+  "referenceStandard": "IEEE C57.104 (Key Gas + TDCG condition bands)",
+  "gasShape": "{ h2, ch4, c2h6, c2h4, c2h2, co, co2 }",
+  "datasets": [
+    {
+      "datasetId": "KEYGAS-REF-001",
+      "provenance": "published-standard",
+      "status": "PLACEHOLDER",
+      "description": "TODO: Replace with a genuine worked example from IEEE C57.104 Key Gas / TDCG published tables. Structural placeholder only.",
+      "inputGasValues": { "h2": 0, "ch4": 0, "c2h6": 0, "c2h4": 0, "c2h2": 0, "co": 0, "co2": 0 },
+      "expectedResult": null,
+      "expectedZone": null,
+      "expectedRatios": null,
+      "referenceStandard": "IEEE C57.104",
+      "revision": "2019",
+      "todo": "Source a published Key Gas / TDCG worked example, populate fields, set status to REFERENCE."
+    },
+    {
+      "datasetId": "KEYGAS-SNAP-001",
+      "provenance": "engine-snapshot",
+      "status": "SNAPSHOT",
+      "capturedOn": "2026-07-13",
+      "description": "Regression baseline captured directly from the current, unmodified src/js/engine/keygas.js#calcKeyGas. NOT a published-standard example.",
+      "inputGasValues": { "h2": 50, "ch4": 60, "c2h6": 20, "c2h4": 40, "c2h2": 2, "co": 300, "co2": 3000 },
+      "expectedResult": "Normal / Inconclusive",
+      "expectedZone": "N",
+      "expectedRatios": { "TDCG": 472, "tdcgCond": 1 },
+      "referenceStandard": "IEEE C57.104",
+      "revision": "2019"
+    },
+    {
+      "datasetId": "KEYGAS-SNAP-002",
+      "provenance": "engine-snapshot",
+      "status": "SNAPSHOT",
+      "capturedOn": "2026-07-13",
+      "description": "Regression baseline (engine-snapshot) — H₂ + C₂H₂ both elevated, dominant-gas pattern for Low Energy Discharge.",
+      "inputGasValues": { "h2": 150, "ch4": 130, "c2h6": 15, "c2h4": 250, "c2h2": 80, "co": 600, "co2": 6000 },
+      "expectedResult": "Low Energy Discharge",
+      "expectedZone": "D1",
+      "expectedRatios": { "TDCG": 1225, "tdcgCond": 2 },
+      "referenceStandard": "IEEE C57.104",
+      "revision": "2019"
+    }
+  ]
+}
