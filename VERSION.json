@@ -1,0 +1,19 @@
+{
+  "product": "TAILAM",
+  "fullName": "Transformer Assessment for Insulating Liquid Analysis & Monitoring",
+  "version": "1.0.0",
+  "edition": "Community",
+  "release": "Stable",
+  "build": "2026.07",
+  "author": "Bharadwaj",
+  "engine": {
+    "frozen": true,
+    "standards": ["IEC 60599:2022", "IEEE C57.104", "CIGRE TB 771", "CIGRE TB 443", "IEC 60422", "IEC 60567"]
+  },
+  "validation": {
+    "framework": "src/validation/validationRunner.js",
+    "lastKnownOverallStatus": "PASS"
+  },
+  "documentation": "docs/",
+  "license": "unspecified — see docs/release/LICENSE_NOTICE.md"
+}

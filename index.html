@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- Google tag (gtag.js) — loads async; site remains fully functional if this
+     is blocked (ad-blocker/offline dev/GitHub Pages CDN hiccup) since every
+     analytics call elsewhere in the app checks for window.gtag before use. -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BFR3TNSGZ8"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-BFR3TNSGZ8');
+</script>
+<!-- Microsoft Clarity — session recording/heatmaps. The IIFE injects its own
+     async <script> tag itself, so this too is non-blocking; like the GA tag
+     above, the rest of the app never calls window.clarity directly, so a
+     blocked/offline load here has zero effect on functionality. -->
+<script type="text/javascript">
+(function(c,l,a,r,i,t,y){
+    c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+    t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+    y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+})(window, document, "clarity", "script", "xsj6qf44t7");
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="TAILAM — Transformer Assessment for Insulating Liquid Analysis & Monitoring. IEC 60599:2022 Duval Triangles 1 & 2, Rogers, IEEE C57.104, Key Gas, OLTC diagnostics. Runs 100% in your browser, no upload.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%234c7cf0'/%3E%3Cstop offset='1' stop-color='%232dd4a8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='40' height='40' rx='9' fill='url(%23g)'/%3E%3Cpath d='M20 6 35 33H5Z' fill='none' stroke='%23fff' stroke-width='2.4' stroke-linejoin='round'/%3E%3Cpath d='M20 17c3 3.7 4.7 6.1 4.7 8.4a4.7 4.7 0 1 1-9.4 0c0-2.3 1.7-4.7 4.7-8.4Z' fill='%23fff'/%3E%3C/svg%3E">
+<!-- PWA — installable, works fully offline (see sw.js). manifest.json and
+     the icon paths are relative, so this also works when GitHub Pages
+     serves the site from a project subpath (https://user.github.io/repo/)
+     rather than a domain root. -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b0f19">
+<link rel="apple-touch-icon" href="assets/icons/icon-512.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TAILAM">
+<title>TAILAM — Transformer Assessment for Insulating Liquid Analysis & Monitoring</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="src/css/variables.css">
+<link rel="stylesheet" href="src/css/base.css">
+<link rel="stylesheet" href="src/css/layout.css">
+<link rel="stylesheet" href="src/css/components.css">
+<link rel="stylesheet" href="src/css/dashboard.css">
+<link rel="stylesheet" href="src/css/flow.css">
+<link rel="stylesheet" href="src/css/detailed.css">
+<link rel="stylesheet" href="src/css/duval.css">
+<link rel="stylesheet" href="src/css/print.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js" defer></script>
+</head>
+<body>
+
+<!-- ══════════════ OPENING SPLASH ══════════════
+     Purely decorative intro: the TAILAM mark draws itself in (Duval
+     triangle + oil drop), the wordmark rises letter by letter, then the
+     overlay dissolves into the app. Skippable by click/keypress, shown
+     once per browser session, skipped entirely under reduced motion
+     (ui/motion.js initSplash). No engineering value involved. -->
+<div class="splash no-print" id="splash-screen" aria-hidden="true">
+  <div class="splash-inner">
+    <svg class="splash-logo" viewBox="0 0 96 96" width="112" height="112" aria-hidden="true">
+      <defs>
+        <linearGradient id="tailamGradSplash" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#4c7cf0"/><stop offset="1" stop-color="#2dd4a8"/>
+        </linearGradient>
+      </defs>
+      <circle class="splash-ring" cx="48" cy="52" r="40"/>
+      <circle class="splash-ring splash-ring-2" cx="48" cy="52" r="40"/>
+      <path class="splash-tri" d="M48 12 87 80H9Z"/>
+      <path class="splash-drop" d="M48 38c7 8.6 11 14.2 11 19.6a11 11 0 1 1-22 0C37 52.2 41 46.6 48 38Z"/>
+    </svg>
+    <div class="splash-word" role="heading" aria-level="1" aria-label="TAILAM">
+      <span>T</span><span>A</span><span>I</span><span>L</span><span>A</span><span>M</span>
+    </div>
+    <div class="splash-tag">Transformer Assessment for Insulating Liquid Analysis &amp; Monitoring</div>
+    <div class="splash-line"></div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <nav class="topnav no-print">
+    <div class="nav-left" id="nav-brand" role="button" tabindex="0" title="TAILAM home">
+      <!-- Mobile-only menu trigger (<=767px, see layout.css). Lives inside
+           the brand row so it sits left of the logo without disturbing the
+           desktop nav's flex layout; its click handler stops propagation so
+           it doesn't also fire the brand's "go home" action (same pattern
+           already used by #nav-achievement below). -->
+      <button class="hamburger-btn" id="hamburger-btn" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobile-sidebar">
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+      <span class="nav-logo"><svg width="18" height="18" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 6 35 33H5Z" fill="none" stroke="var(--accent-2)" stroke-width="2.6" stroke-linejoin="round"/><path d="M20 17c3 3.7 4.7 6.1 4.7 8.4a4.7 4.7 0 1 1-9.4 0c0-2.3 1.7-4.7 4.7-8.4Z" fill="var(--accent-2)"/></svg></span>
+      <span class="nav-brand-text">TAILAM</span>
+      <!-- Session achievement badge — revealed by the landing easter egg
+           (ui/motion.js); persists for the browser session via sessionStorage. -->
+      <span class="nav-achievement" id="nav-achievement" hidden role="button" tabindex="0"
+            aria-label="Engineering Explorer achievement — toggle Founder's Edition theme"
+            title="Engineering Explorer — click to toggle Founder's Edition">★</span>
+    </div>
+    <div class="nav-center">
+      <button class="nav-link" id="nav-home">Home</button>
+      <button class="nav-link" id="nav-main">Main Tank</button>
+      <button class="nav-link" id="nav-oltc">OLTC</button>
+      <button class="nav-link" id="nav-help">Help</button>
+      <button class="nav-link" id="nav-feedback">Feedback</button>
+      <button class="nav-link" id="nav-about">About</button>
+    </div>
+    <div class="nav-right">
+      <!-- Partner co-brand — Meiden engineering support. Own brand colour
+           kept as-is (not tied to --accent) since this identifies a
+           separate organisation, not the app's own brand. Clickable —
+           opens a company card with website/LinkedIn links. -->
+      <button class="nav-meiden-btn" id="nav-meiden-btn" aria-label="About Meiden T&amp;D India" title="About Meiden T&amp;D India">
+        <img class="nav-meiden-logo" src="assets/branding/meiden-logo.png" alt="Meiden">
+      </button>
+      <button class="theme-toggle" id="theme-btn" title="Toggle dark / light mode" aria-label="Toggle dark / light mode"><svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.2A8.4 8.4 0 1 1 9.8 4a6.6 6.6 0 0 0 10.2 10.2Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></button>
+    </div>
+  </nav>
+
+  <!-- ══════════════ MOBILE NAVIGATION SIDEBAR (<=767px, see layout.css) ══════════════
+       Off-canvas drawer replacing the inline nav-center links at mobile widths.
+       The links below call the same navigation/dialog functions as their
+       desktop nav-link counterparts (wired in app.js) — no duplicated logic,
+       just a second set of triggers. Closed by default; ui/sidebar.js drives
+       open/close, focus trap, Escape and backdrop-dismiss. -->
+  <div class="sidebar-backdrop no-print" id="sidebar-backdrop"></div>
+  <aside class="mobile-sidebar no-print" id="mobile-sidebar" aria-label="Main navigation" aria-hidden="true">
+    <div class="sidebar-header">
+      <span class="sidebar-logo"><svg width="18" height="18" viewBox="0 0 40 40" aria-hidden="true"><path d="M20 6 35 33H5Z" fill="none" stroke="var(--accent-2)" stroke-width="2.6" stroke-linejoin="round"/><path d="M20 17c3 3.7 4.7 6.1 4.7 8.4a4.7 4.7 0 1 1-9.4 0c0-2.3 1.7-4.7 4.7-8.4Z" fill="var(--accent-2)"/></svg></span>
+      <span class="sidebar-brand-text">TAILAM</span>
+      <button class="sidebar-close" id="sidebar-close" aria-label="Close navigation menu"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="sidebar-link" id="sidebar-home">Home</button>
+      <button class="sidebar-link" id="sidebar-main">Main Tank</button>
+      <button class="sidebar-link" id="sidebar-oltc">OLTC</button>
+      <button class="sidebar-link" id="sidebar-help">Help</button>
+      <div class="sidebar-sep" role="separator"></div>
+      <button class="sidebar-link" id="sidebar-feedback">Feedback</button>
+      <button class="sidebar-link" id="sidebar-about">About</button>
+    </nav>
+  </aside>
+
+  <!-- ══════════════ LANDING VIEW ══════════════ -->
+  <div class="view-landing" id="view-landing">
+
+    <div class="landing-hero reveal-in">
+      <div class="landing-hero-grid">
+        <div class="landing-hero-copy">
+          <div class="landing-eyebrow"><span class="landing-eyebrow-dot"></span>Engineering Decision Support Platform</div>
+          <h1 class="landing-headline">Transformer Diagnostics,<br><span class="accent-text">Engineered for Trust.</span></h1>
+          <!-- Brand acronym expansion — explains what "TAILAM" stands for
+               within the first screen (branding phase, presentation only). -->
+          <p class="landing-acronym"><span class="landing-acronym-name">TAILAM</span> <span class="landing-acronym-sep" aria-hidden="true">·</span> <span class="landing-acronym-expansion"><b>T</b>ransformer <b>A</b>ssessment for <b>I</b>nsulating <b>L</b>iquid <b>A</b>nalysis &amp; <b>M</b>onitoring</span></p>
+          <p class="landing-subtitle">TAILAM applies internationally recognised dissolved-gas-analysis standards to your transformer oil report — entirely inside your browser.</p>
+          <ul class="landing-hero-points">
+            <li>No data leaves your device.</li>
+            <li>No installation required.</li>
+            <li>Engineering-grade diagnostics in seconds.</li>
+          </ul>
+          <p class="landing-tagline">Engineering decisions deserve engineering evidence.</p>
+          <div class="landing-cta-row">
+            <button class="btn btn-primary btn-lg" id="landing-cta-main">
+              <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.6v14.8l13-7.4-13-7.4Z" fill="currentColor"/></svg>
+              Start Main Tank Analysis
+            </button>
+            <button class="btn btn-outline btn-lg" id="landing-cta-oltc">
+              <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="9" width="14" height="11" rx="1.4" stroke="currentColor" stroke-width="1.75" fill="none"/><path d="M8 9V6.6a1.6 1.6 0 0 1 1.6-1.6h.1a1.6 1.6 0 0 1 1.6 1.6V9M13.7 9V6.6a1.6 1.6 0 0 1 1.6-1.6h.1a1.6 1.6 0 0 1 1.6 1.6V9" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" fill="none"/></svg>
+              Start OLTC Analysis
+            </button>
+          </div>
+          <!-- Trust panel — compact, factual assurances (branding phase). -->
+          <ul class="landing-trust" aria-label="Why TAILAM is trustworthy">
+            <li>100% Browser-Based</li>
+            <li>IEC &amp; IEEE Standards</li>
+            <li>No Data Uploaded</li>
+            <li>Engineering Workbook Included</li>
+            <li>Transparent Calculations</li>
+            <li>Meiden Engineering Support</li>
+          </ul>
+        </div>
+
+        <!-- Industrial line-art illustration — detailed power transformer:
+             three HV bushings with insulator sheds, conservator with level
+             gauge, Buchholz relay, radiator bank, temperature indicator,
+             oil sampling valve, glowing oil window with rising dissolved-gas
+             particles, and SEVEN numbered sensor nodes. Hovering/focusing a
+             node shows an educational tooltip about that component; clicking
+             marks it yellow; visiting all seven reveals the implemented-
+             standards easter-egg card (ui/motion.js initEngineeringEgg).
+             All facts in the tooltips are standard transformer knowledge —
+             presentation only, no engineering value computed here. -->
+        <div class="landing-hero-art">
+          <svg viewBox="0 0 520 440" width="100%" height="100%" fill="none">
+            <defs>
+              <linearGradient id="tGradTank" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="var(--card2)"/>
+                <stop offset="1" stop-color="var(--bg2)"/>
+              </linearGradient>
+              <linearGradient id="tGradSide" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="var(--bg2)"/>
+                <stop offset="1" stop-color="var(--bg)"/>
+              </linearGradient>
+              <linearGradient id="tGradFin" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0" stop-color="var(--card2)"/>
+                <stop offset=".5" stop-color="var(--bg2)"/>
+                <stop offset="1" stop-color="var(--card2)"/>
+              </linearGradient>
+              <linearGradient id="tGradCons" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="var(--card2)"/>
+                <stop offset=".55" stop-color="var(--bg2)"/>
+                <stop offset="1" stop-color="var(--bg)"/>
+              </linearGradient>
+              <radialGradient id="tGradWindow" cx=".5" cy=".38" r=".75">
+                <stop offset="0" stop-color="var(--accent)" stop-opacity=".17"/>
+                <stop offset="1" stop-color="var(--accent)" stop-opacity=".04"/>
+              </radialGradient>
+            </defs>
+
+            <!-- ground shadow + glow rings -->
+            <ellipse cx="260" cy="402" rx="195" ry="15" fill="var(--accent)" opacity=".08"/>
+            <ellipse cx="260" cy="400" rx="150" ry="10" stroke="var(--accent)" stroke-width="1.2" opacity=".18"/>
+            <ellipse cx="260" cy="402" rx="190" ry="14" stroke="var(--accent)" stroke-width="1" opacity=".09"/>
+            <ellipse cx="265" cy="240" rx="185" ry="150" fill="var(--accent)" opacity=".04" class="hero-tank-glow"/>
+
+            <!-- radiator bank: manifolds + gradient-shaded fins -->
+            <rect x="44" y="194" width="106" height="9" rx="4.5" fill="var(--bg2)" stroke="var(--text3)" stroke-width="1.4"/>
+            <rect x="44" y="327" width="106" height="9" rx="4.5" fill="var(--bg2)" stroke="var(--text3)" stroke-width="1.4"/>
+            <g stroke="var(--text3)" stroke-width="1.2">
+              <rect x="46" y="203" width="12" height="124" rx="3" fill="url(#tGradFin)"/>
+              <rect x="62" y="203" width="12" height="124" rx="3" fill="url(#tGradFin)"/>
+              <rect x="78" y="203" width="12" height="124" rx="3" fill="url(#tGradFin)"/>
+              <rect x="94" y="203" width="12" height="124" rx="3" fill="url(#tGradFin)"/>
+              <rect x="110" y="203" width="12" height="124" rx="3" fill="url(#tGradFin)"/>
+              <rect x="126" y="203" width="12" height="124" rx="3" fill="url(#tGradFin)"/>
+            </g>
+
+            <!-- tank body: top lid + right side face (3/4 depth) + shaded front -->
+            <path d="M152 168 172 154h238l-20 14Z" fill="var(--card2)" opacity=".55" stroke="var(--text3)" stroke-width="1.2"/>
+            <path d="M390 170 410 156v182l-20 14Z" fill="url(#tGradSide)" stroke="var(--text3)" stroke-width="1.4"/>
+            <rect x="150" y="168" width="240" height="184" rx="10" fill="url(#tGradTank)" stroke="var(--text)" stroke-width="2.4"/>
+            <!-- flange seams + bolt rows -->
+            <path d="M150 180h240" stroke="var(--text3)" stroke-width="1.3" opacity=".55"/>
+            <g fill="var(--text3)" opacity=".55">
+              <circle cx="162" cy="174" r="1.6"/><circle cx="200" cy="174" r="1.6"/><circle cx="238" cy="174" r="1.6"/>
+              <circle cx="276" cy="174" r="1.6"/><circle cx="314" cy="174" r="1.6"/><circle cx="352" cy="174" r="1.6"/><circle cx="380" cy="174" r="1.6"/>
+            </g>
+            <path d="M150 342h240" stroke="var(--text3)" stroke-width="1.3" opacity=".45"/>
+            <g fill="var(--text3)" opacity=".45">
+              <circle cx="166" cy="347" r="1.5"/><circle cx="222" cy="347" r="1.5"/><circle cx="278" cy="347" r="1.5"/>
+              <circle cx="334" cy="347" r="1.5"/><circle cx="378" cy="347" r="1.5"/>
+            </g>
+            <!-- stiffener ribs -->
+            <path d="M322 190v146M336 190v146" stroke="var(--text3)" stroke-width="1.2" opacity=".3"/>
+
+            <!-- glowing oil window with dissolved-gas particles -->
+            <rect x="170" y="198" width="140" height="136" rx="8" fill="url(#tGradWindow)"/>
+            <rect x="170" y="198" width="140" height="136" rx="8" stroke="var(--accent)" stroke-width="1.4" opacity=".45"/>
+            <rect x="175" y="203" width="130" height="126" rx="6" stroke="var(--accent)" stroke-width="1" opacity=".15"/>
+            <g class="hero-gas-field">
+              <circle class="hero-gas hero-gas-1" cx="192" cy="316" r="2.4" fill="var(--accent)"/>
+              <circle class="hero-gas hero-gas-2" cx="222" cy="322" r="1.9" fill="var(--yellow)"/>
+              <circle class="hero-gas hero-gas-3" cx="252" cy="318" r="2.2" fill="var(--accent)"/>
+              <circle class="hero-gas hero-gas-4" cx="284" cy="324" r="1.8" fill="var(--yellow)"/>
+              <circle cx="206" cy="270" r="1.6" fill="var(--accent)" opacity=".4"/>
+              <circle cx="262" cy="252" r="1.4" fill="var(--yellow)" opacity=".35"/>
+              <circle cx="290" cy="282" r="1.7" fill="var(--accent)" opacity=".4"/>
+            </g>
+            <!-- nameplate with indicator lamps -->
+            <rect x="182" y="208" width="80" height="38" rx="4" stroke="var(--text2)" stroke-width="1.5" opacity=".9" fill="var(--card)" fill-opacity=".55"/>
+            <text x="222" y="224" text-anchor="middle" fill="var(--text2)" font-size="10" font-weight="700" letter-spacing="1.5" font-family="Inter,system-ui,sans-serif">TAILAM</text>
+            <circle class="hero-lamp hero-lamp-1" cx="196" cy="236" r="2.8" fill="var(--accent)"/>
+            <circle class="hero-lamp hero-lamp-2" cx="208" cy="236" r="2.8" fill="var(--yellow)"/>
+            <path d="M220 236h34" stroke="var(--text3)" stroke-width="1.2" opacity=".6"/>
+
+            <!-- temperature indicator (vertical gauge, right side of tank) -->
+            <rect x="352" y="204" width="17" height="122" rx="8.5" fill="var(--card)" fill-opacity=".5" stroke="var(--text2)" stroke-width="1.8"/>
+            <rect x="356.5" y="258" width="8" height="62" rx="4" fill="var(--accent)" opacity=".55"/>
+            <g stroke="var(--text3)" stroke-width="1.2" opacity=".7">
+              <path d="M372 214h5M372 236h5M372 258h5M372 280h5M372 302h5"/>
+            </g>
+
+            <!-- HV bushings: porcelain disc stacks on lid flanges, metal caps -->
+            <g>
+              <rect x="190.5" y="92" width="9" height="66" fill="var(--bg2)" stroke="var(--text3)" stroke-width="1.2"/>
+              <rect x="253.5" y="92" width="9" height="66" fill="var(--bg2)" stroke="var(--text3)" stroke-width="1.2"/>
+              <rect x="316.5" y="92" width="9" height="66" fill="var(--bg2)" stroke="var(--text3)" stroke-width="1.2"/>
+            </g>
+            <g fill="var(--card2)" stroke="var(--text2)" stroke-width="1.3">
+              <ellipse cx="195" cy="150" rx="21" ry="5.5"/><ellipse cx="195" cy="138" rx="19" ry="5.5"/>
+              <ellipse cx="195" cy="126" rx="17" ry="5.5"/><ellipse cx="195" cy="114" rx="15" ry="5.5"/>
+              <ellipse cx="195" cy="102" rx="13" ry="5.5"/>
+              <ellipse cx="258" cy="150" rx="21" ry="5.5"/><ellipse cx="258" cy="138" rx="19" ry="5.5"/>
+              <ellipse cx="258" cy="126" rx="17" ry="5.5"/><ellipse cx="258" cy="114" rx="15" ry="5.5"/>
+              <ellipse cx="258" cy="102" rx="13" ry="5.5"/>
+              <ellipse cx="321" cy="150" rx="21" ry="5.5"/><ellipse cx="321" cy="138" rx="19" ry="5.5"/>
+              <ellipse cx="321" cy="126" rx="17" ry="5.5"/><ellipse cx="321" cy="114" rx="15" ry="5.5"/>
+              <ellipse cx="321" cy="102" rx="13" ry="5.5"/>
+            </g>
+            <g fill="var(--text3)" stroke="var(--text2)" stroke-width="1.3">
+              <rect x="189.5" y="84" width="11" height="9" rx="2"/>
+              <rect x="252.5" y="84" width="11" height="9" rx="2"/>
+              <rect x="315.5" y="84" width="11" height="9" rx="2"/>
+            </g>
+            <g stroke="var(--text2)" stroke-width="2" stroke-linecap="round">
+              <path d="M195 84v-8M258 84v-8M321 84v-8"/>
+            </g>
+            <g fill="var(--text2)">
+              <circle cx="195" cy="73" r="3"/><circle cx="258" cy="73" r="3"/><circle cx="321" cy="73" r="3"/>
+            </g>
+            <g fill="var(--bg2)" stroke="var(--text3)" stroke-width="1.2">
+              <rect x="181" y="156" width="28" height="7" rx="2"/>
+              <rect x="244" y="156" width="28" height="7" rx="2"/>
+              <rect x="307" y="156" width="28" height="7" rx="2"/>
+            </g>
+
+            <!-- conservator pipe + Buchholz relay + shaded conservator with gauge -->
+            <path d="M370 168v-16a8 8 0 0 1 8-8h20" stroke="var(--text2)" stroke-width="2.2"/>
+            <rect x="376" y="136" width="14" height="14" rx="2.5" fill="var(--card2)" stroke="var(--text2)" stroke-width="1.8"/>
+            <rect x="398" y="118" width="100" height="42" rx="21" fill="url(#tGradCons)" stroke="var(--text2)" stroke-width="2.2"/>
+            <path d="M410 125h74" stroke="var(--card2)" stroke-width="5" stroke-linecap="round" opacity=".55"/>
+            <ellipse cx="491" cy="139" rx="6" ry="18" fill="var(--bg2)" stroke="var(--text3)" stroke-width="1.4" opacity=".8"/>
+            <circle cx="472" cy="139" r="11" fill="var(--card)" stroke="var(--accent)" stroke-width="2"/>
+            <path d="M472 139l5-6" stroke="var(--accent)" stroke-width="1.7" stroke-linecap="round" opacity=".9"/>
+            <path d="M420 160v6M478 160v6" stroke="var(--text3)" stroke-width="1.6" opacity=".7"/>
+
+            <!-- oil sampling valve (bottom right of tank) -->
+            <path d="M390 328h16" stroke="var(--text2)" stroke-width="4" stroke-linecap="round"/>
+            <path d="M406 320v16" stroke="var(--text2)" stroke-width="2.4" stroke-linecap="round"/>
+
+            <!-- base skid + support feet -->
+            <rect x="142" y="352" width="256" height="15" rx="3" fill="var(--bg2)" stroke="var(--text3)" stroke-width="1.8"/>
+            <rect x="158" y="367" width="34" height="9" rx="2" fill="var(--bg2)" stroke="var(--text3)" stroke-width="1.6"/>
+            <rect x="348" y="367" width="34" height="9" rx="2" fill="var(--bg2)" stroke="var(--text3)" stroke-width="1.6"/>
+
+            <!-- ══ seven numbered sensor nodes (hover = tooltip, click = visited) ══ -->
+            <g class="hero-node" data-node="1" tabindex="0" role="button"
+               data-tip-title="HV Bushings"
+               data-tip="Insulated terminals that carry each phase conductor through the earthed tank wall. Electrical faults here show up as acetylene (C₂H₂) in the oil."
+               aria-label="Sensor 1 of 7 — HV Bushings: insulated terminals that carry each phase conductor through the earthed tank wall.">
+              <path class="hero-node-link" d="M160 84q22 8 30 22"/>
+              <circle class="hero-node-glow" cx="150" cy="76" r="18"/>
+              <circle class="hero-node-badge" cx="150" cy="76" r="12.5"/>
+              <text class="hero-node-num" x="150" y="80.5" text-anchor="middle">1</text>
+              <circle class="hero-node-hit" cx="150" cy="76" r="20" fill="transparent"/>
+            </g>
+            <g class="hero-node" data-node="2" tabindex="0" role="button"
+               data-tip-title="Insulator Sheds"
+               data-tip="The umbrella-shaped fins lengthen the surface path along the bushing so leakage current cannot track across it in rain or pollution."
+               aria-label="Sensor 2 of 7 — Insulator Sheds: the umbrella-shaped fins lengthen the surface creepage path along the bushing.">
+              <path class="hero-node-link" d="M258 62v40"/>
+              <circle class="hero-node-glow" cx="258" cy="48" r="18"/>
+              <circle class="hero-node-badge" cx="258" cy="48" r="12.5"/>
+              <text class="hero-node-num" x="258" y="52.5" text-anchor="middle">2</text>
+              <circle class="hero-node-hit" cx="258" cy="48" r="20" fill="transparent"/>
+            </g>
+            <g class="hero-node" data-node="3" tabindex="0" role="button"
+               data-tip-title="Buchholz Relay"
+               data-tip="A gas-actuated protection relay in the pipe to the conservator. Free gas from an internal fault collects here and raises the alarm."
+               aria-label="Sensor 3 of 7 — Buchholz Relay: a gas-actuated protection relay in the pipe between the tank and the conservator.">
+              <path class="hero-node-link" d="M372 78q8 26 11 52"/>
+              <circle class="hero-node-glow" cx="370" cy="64" r="18"/>
+              <circle class="hero-node-badge" cx="370" cy="64" r="12.5"/>
+              <text class="hero-node-num" x="370" y="68.5" text-anchor="middle">3</text>
+              <circle class="hero-node-hit" cx="370" cy="64" r="20" fill="transparent"/>
+            </g>
+            <g class="hero-node" data-node="4" tabindex="0" role="button"
+               data-tip-title="Conservator &amp; Level Gauge"
+               data-tip="An expansion vessel that lets the oil swell and shrink with temperature while the main tank stays completely full. The dial shows oil level."
+               aria-label="Sensor 4 of 7 — Conservator and Level Gauge: an expansion vessel that keeps the main tank completely full as the oil expands and contracts.">
+              <path class="hero-node-link" d="M492 100q-10 12-16 26"/>
+              <circle class="hero-node-glow" cx="496" cy="88" r="18"/>
+              <circle class="hero-node-badge" cx="496" cy="88" r="12.5"/>
+              <text class="hero-node-num" x="496" y="92.5" text-anchor="middle">4</text>
+              <circle class="hero-node-hit" cx="496" cy="88" r="20" fill="transparent"/>
+            </g>
+            <g class="hero-node" data-node="5" tabindex="0" role="button"
+               data-tip-title="Temperature Indicator"
+               data-tip="Monitors oil and winding temperature. Sustained overheating generates methane (CH₄) and ethylene (C₂H₄) — the thermal fault gases."
+               aria-label="Sensor 5 of 7 — Temperature Indicator: monitors oil and winding temperature.">
+              <path class="hero-node-link" d="M441 252h-66"/>
+              <circle class="hero-node-glow" cx="456" cy="252" r="18"/>
+              <circle class="hero-node-badge" cx="456" cy="252" r="12.5"/>
+              <text class="hero-node-num" x="456" y="256.5" text-anchor="middle">5</text>
+              <circle class="hero-node-hit" cx="456" cy="252" r="20" fill="transparent"/>
+            </g>
+            <g class="hero-node" data-node="6" tabindex="0" role="button"
+               data-tip-title="Oil Sampling Valve"
+               data-tip="Where the oil sample for dissolved-gas analysis is drawn — the very sample TAILAM&#39;s diagnostics are built on."
+               aria-label="Sensor 6 of 7 — Oil Sampling Valve: where the oil sample for dissolved-gas analysis is drawn.">
+              <path class="hero-node-link" d="M441 330h-28"/>
+              <circle class="hero-node-glow" cx="456" cy="330" r="18"/>
+              <circle class="hero-node-badge" cx="456" cy="330" r="12.5"/>
+              <text class="hero-node-num" x="456" y="334.5" text-anchor="middle">6</text>
+              <circle class="hero-node-hit" cx="456" cy="330" r="20" fill="transparent"/>
+            </g>
+            <g class="hero-node" data-node="7" tabindex="0" role="button"
+               data-tip-title="Radiator Bank"
+               data-tip="Natural-convection cooling fins. Blocked or failed cooling drives oil temperature up and accelerates thermal gas generation."
+               aria-label="Sensor 7 of 7 — Radiator Bank: natural-convection cooling fins that dissipate the transformer&#39;s heat.">
+              <path class="hero-node-link" d="M40 166q8 16 14 30"/>
+              <circle class="hero-node-glow" cx="34" cy="152" r="18"/>
+              <circle class="hero-node-badge" cx="34" cy="152" r="12.5"/>
+              <text class="hero-node-num" x="34" y="156.5" text-anchor="middle">7</text>
+              <circle class="hero-node-hit" cx="34" cy="152" r="20" fill="transparent"/>
+            </g>
+          </svg>
+          <!-- shared tooltip, positioned by ui/motion.js -->
+          <div class="hero-tip" id="hero-tip" role="tooltip" hidden></div>
+          <!-- easter-egg discovery hint -->
+          <div class="hero-egg-hint">💡 <b>Easter Egg:</b> Click all 7 glowing nodes to reveal something special!</div>
+          <!-- Easter-egg reveal card (ui/motion.js shows/hides it) -->
+          <div class="hero-egg" id="hero-egg" hidden>
+            <div class="hero-egg-badge">✓</div>
+            <div class="hero-egg-title">Engineering Mode Enabled</div>
+            <div class="hero-egg-sub">All 7 components inspected · Implemented Standards</div>
+            <ul class="hero-egg-list">
+              <li>IEC 60599</li>
+              <li>IEEE C57.104</li>
+              <li>IEC 60567</li>
+              <li>IEC 60422</li>
+              <li>Rogers Ratio</li>
+              <li>Doernenburg Ratio</li>
+              <li>CIGRE</li>
+            </ul>
+            <div class="hero-egg-achv">🏆 Achievement unlocked: <b>Engineering Explorer</b></div>
+            <div class="hero-egg-achv-note">A ★ badge now lives in your navigation bar for this session.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Engineering statistics — counters animate on first view (motion.js) -->
+    <div class="landing-stats reveal-in">
+      <div class="landing-stat">
+        <div class="landing-stat-value" data-counter="7">0</div>
+        <div class="landing-stat-label">Diagnostic Methods</div>
+      </div>
+      <div class="landing-stat">
+        <div class="landing-stat-value" data-counter="2">0</div>
+        <div class="landing-stat-label">Duval Triangles</div>
+      </div>
+      <div class="landing-stat">
+        <div class="landing-stat-value" data-counter="100" data-counter-suffix="%">0%</div>
+        <div class="landing-stat-label">Runs In-Browser</div>
+      </div>
+      <div class="landing-stat">
+        <div class="landing-stat-value" data-counter="0">0</div>
+        <div class="landing-stat-label">Data Ever Uploaded</div>
+      </div>
+    </div>
+
+    <!-- Supported standards -->
+    <div class="landing-standards reveal-in">
+      <div class="landing-standards-label">Standards Implemented</div>
+      <div class="standards-badge-row">
+        <span>IEC 60599</span><span>IEEE C57.104</span><span>IEC 60567</span>
+        <span>IEC 60422</span><span>Rogers Ratio</span><span>Doernenburg</span>
+        <span>CIGRE TB 771</span><span>CIGRE TB 443</span>
+      </div>
+    </div>
+
+    <!-- Why "TAILAM"? — expandable brand explainer (branding phase). -->
+    <details class="landing-why reveal-in">
+      <summary class="landing-why-summary">Why &ldquo;TAILAM&rdquo;?</summary>
+      <div class="landing-why-body">
+        <p class="landing-why-expansion"><b>T</b>ransformer <b>A</b>ssessment for <b>I</b>nsulating <b>L</b>iquid <b>A</b>nalysis &amp; <b>M</b>onitoring</p>
+        <p>TAILAM was designed to make transformer oil diagnostics transparent, educational, and reproducible. Unlike traditional black-box tools, every engineering calculation can be inspected step by step in the Engineering Workbook.</p>
+      </div>
+    </details>
+
+    <div class="landing-cards reveal-in">
+      <div class="landing-card">
+        <div class="landing-card-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="9" width="14" height="11" rx="1.4" stroke="currentColor" stroke-width="1.75" fill="none"/><path d="M8 9V6.6a1.6 1.6 0 0 1 1.6-1.6h.1a1.6 1.6 0 0 1 1.6 1.6V9M13.7 9V6.6a1.6 1.6 0 0 1 1.6-1.6h.1a1.6 1.6 0 0 1 1.6 1.6V9" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" fill="none"/><circle cx="15.5" cy="14.5" r="1.9" stroke="currentColor" stroke-width="1.75" fill="none"/></svg>
+        </div>
+        <h2>Main Tank Analysis</h2>
+        <p>Analyze transformer insulating liquid laboratory reports using internationally recognised diagnostic standards.</p>
+        <div class="landing-card-tags"><span>Duval Triangle 1</span><span>Rogers</span><span>IEEE C57.104</span><span>+4 more</span></div>
+        <button class="btn btn-primary" id="landing-btn-main">Start Analysis</button>
+      </div>
+      <div class="landing-card">
+        <div class="landing-card-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true"><circle cx="8.2" cy="15.4" r="2.3" stroke="currentColor" stroke-width="1.75" fill="none"/><circle cx="14.6" cy="9.4" r="3" stroke="currentColor" stroke-width="1.75" fill="none"/><circle cx="17.6" cy="16.4" r="1.5" stroke="currentColor" stroke-width="1.75" fill="none"/></svg>
+        </div>
+        <h2>OLTC Analysis</h2>
+        <p>Analyze OLTC compartment gases using dedicated OLTC diagnostic methods.</p>
+        <div class="landing-card-tags"><span>Duval Triangle 2</span><span>TGC Comparison</span><span>Cross-Contamination</span></div>
+        <button class="btn btn-primary" id="landing-btn-oltc">Start Analysis</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ WORKSPACE VIEW (Main Tank + OLTC) ══════════════ -->
+  <div class="view-workspace" id="view-workspace" style="display:none">
+
+  <div class="card no-print">
+    <h2><span class="dot"></span>Transformer Information <span style="color:var(--text3);font-weight:400;font-size:12px;margin-left:6px">(optional — shared by both analyses, used for the report header)</span></h2>
+    <div class="grid grid-3">
+      <div class="field"><label>Transformer Name</label><input id="tf-name" placeholder="e.g. TX-01"></div>
+      <div class="field"><label>Rating (MVA)</label><input id="tf-mva" type="number" placeholder="e.g. 31.5"></div>
+      <div class="field"><label>Voltage</label><input id="tf-voltage" placeholder="e.g. 132/33 kV"></div>
+      <div class="field"><label>Location</label><input id="tf-location" placeholder="e.g. Substation A"></div>
+      <div class="field"><label>Sample Date</label><input id="tf-date" type="date"></div>
+      <div class="field"><label>Oil Type</label>
+        <select id="tf-oil"><option value="mineral">Mineral Oil</option><option value="synthetic">Synthetic / Ester</option></select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════ MAIN TANK PANEL ══════════════ -->
+  <div class="panel active" id="panel-main">
+
+    <div class="breadcrumb no-print">
+      <button class="breadcrumb-home" id="crumb-home-main" type="button">Home</button>
+      <span class="breadcrumb-sep"><svg width="10" height="10" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5.6 15.4 12 9 18.4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>
+      <span class="breadcrumb-current">Main Tank Analysis</span>
+    </div>
+    <div class="workspace-header">
+      <h1>Main Tank Analysis</h1>
+      <p>Analyze transformer insulating liquid laboratory reports using internationally recognised diagnostic standards.</p>
+    </div>
+
+    <div class="workspace-grid">
+    <div class="workspace-left">
+    <div class="card no-print">
+      <div class="panel-title">Main Tank — Gas-in-Oil Input</div>
+      <div class="sub">Enter dissolved gas concentrations from your lab report (ppm). Leave blank fields as 0.</div>
+      <div class="grid grid-4">
+        <div class="field"><label>H₂ — Hydrogen</label><input id="g-h2" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>CH₄ — Methane</label><input id="g-ch4" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>C₂H₆ — Ethane</label><input id="g-c2h6" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>C₂H₄ — Ethylene</label><input id="g-c2h4" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>C₂H₂ — Acetylene</label><input id="g-c2h2" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>CO — Carbon Monoxide</label><input id="g-co" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>CO₂ — Carbon Dioxide</label><input id="g-co2" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>O₂ — Oxygen (optional)</label><input id="g-o2" type="number" min="0" placeholder="0"></div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" id="btn-analyze-main"><svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.6v14.8l13-7.4-13-7.4Z" fill="currentColor"/></svg> Run Main Tank Analysis</button>
+        <button class="btn btn-outline" id="btn-clear-main">Clear</button>
+      </div>
+    </div>
+    </div><!-- /workspace-left -->
+
+    <div class="workspace-right">
+    <div class="empty-state" id="empty-main">
+      <div class="empty-illustration" aria-hidden="true">
+        <svg width="72" height="72" viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="5" y="9" width="14" height="11" rx="1.4" stroke="currentColor" stroke-width="1.4" fill="none"/>
+          <path d="M8 9V6.6a1.6 1.6 0 0 1 1.6-1.6h.1a1.6 1.6 0 0 1 1.6 1.6V9M13.7 9V6.6a1.6 1.6 0 0 1 1.6-1.6h.1a1.6 1.6 0 0 1 1.6 1.6V9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+          <path d="M8.5 13h3M8.5 15.7h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+          <circle cx="15.5" cy="14.5" r="1.9" stroke="currentColor" stroke-width="1.4" fill="none"/>
+        </svg>
+      </div>
+      <h3>Engineering Workspace</h3>
+      <p>Run an engineering assessment to generate</p>
+      <ul>
+        <li>Engineering Snapshot</li>
+        <li>Engineering Assessment</li>
+        <li>Operational Decision</li>
+        <li>Transformer Health Index</li>
+        <li>Action Plan</li>
+        <li>Supporting Evidence</li>
+      </ul>
+      <button class="btn btn-outline empty-cta" id="empty-cta-main" type="button">Enter Gas Values to Begin</button>
+    </div>
+
+    <div id="results-main" style="display:none">
+
+      <!-- 0 — ENGINEERING SNAPSHOT -->
+      <div class="card snapshot-card">
+        <h2 class="section-title">Engineering Snapshot</h2>
+        <div class="snapshot-grid">
+          <div class="snapshot-item"><div class="snapshot-icon"><svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.2s-7.4-4.5-9-9.5C1.9 6.9 4.4 4 7.4 4c1.9 0 3.5 1 4.6 2.6C13.1 5 14.7 4 16.6 4c3 0 5.5 2.9 4.4 6.7-1.6 5-9 9.5-9 9.5Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div class="snapshot-label">Transformer Condition</div><div class="snapshot-value" id="snapshot-condition-main">—</div></div>
+          <div class="snapshot-item"><div class="snapshot-icon"><svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.4 21 19H3L12 4.4Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M12 10.4v4M12 17.1v.1" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" fill="none"/></svg></div><div class="snapshot-label">Most Probable Fault</div><div class="snapshot-value" id="snapshot-fault-main">—</div></div>
+          <div class="snapshot-item"><div class="snapshot-icon"><svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3 6 13.2h5.1L11 21l7-10.4h-5.1L13 3Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div class="snapshot-label">Operational Decision</div><div class="snapshot-value" id="snapshot-decision-main">—</div></div>
+          <div class="snapshot-item"><div class="snapshot-icon"><svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.6h9L19 7v13.4a1 1 0 0 1-1 1H6.5a1 1 0 0 1-1-1V4.6a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M8.6 12.8l2 2 4-4.4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div class="snapshot-label">Confidence</div><div class="snapshot-value" id="snapshot-confidence-main">—</div></div>
+          <div class="snapshot-item"><div class="snapshot-icon"><svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.4 12.6 9.6 17 18.8 7" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div class="snapshot-label">Diagnostic Agreement</div><div class="snapshot-value" id="snapshot-agreement-main">—</div></div>
+        </div>
+      </div>
+
+      <!-- ══════════════ PRIMARY DIAGNOSIS (Duval Triangle 1) ══════════════
+           Promoted out of the Engineering Assessment card so the primary
+           diagnostic visualization appears exactly once, immediately after
+           the Engineering Snapshot. <details open> auto-expands; dashboard.js
+           re-opens it on every analysis, so a manual collapse never carries
+           over (state is never persisted). Presentation only — the SVG host,
+           caption and legend keep their original ids. -->
+      <details class="card primary-diagnosis" id="primary-diagnosis-main" open>
+        <summary class="primary-diagnosis-summary">
+          <span class="section-title as-summary">Primary Diagnosis</span>
+          <span class="primary-diagnosis-sub">Duval Triangle 1 · IEC 60599</span>
+          <span class="chev"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 8.6 12 15l6.4-6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>
+        </summary>
+        <div class="primary-diagnosis-body">
+          <div class="duval-hero">
+            <div class="duval-hero-canvas-wrap">
+              <div id="duval-svg-main" class="duval-svg-host" tabindex="0" role="button" aria-label="Open Duval Triangle 1 detail view"></div>
+              <div class="duval-hero-hint">Click triangle to enlarge</div>
+            </div>
+            <div class="duval-caption">
+              <div class="duval-caption-title">Duval Triangle 1</div>
+              <div class="duval-caption-kicker">Current Diagnostic Zone</div>
+              <div id="hero-duval-zone-main" class="result-box zs-zone">—</div>
+              <div id="hero-duval-name-main" class="duval-caption-fault">—</div>
+              <div class="duval-caption-standard">IEC 60599</div>
+              <div class="zs-gas-list duval-caption-gas">
+                <div class="zs-gas-row"><span>CH₄</span><span id="hero-dp-ch4-main">—</span></div>
+                <div class="zs-gas-row"><span>C₂H₄</span><span id="hero-dp-c2h4-main">—</span></div>
+                <div class="zs-gas-row"><span>C₂H₂</span><span id="hero-dp-c2h2-main">—</span></div>
+              </div>
+            </div>
+          </div>
+          <div id="duval-legend-main"></div>
+          <!-- Supplementary Duval Triangle 4 (Duval 2008, H₂/CH₄/C₂H₆)
+               confirmation — only shown when the primary Triangle 1 zone is
+               PD, T1 or T2 (ui/dashboard.js computes duval4 conditionally;
+               ui/workspace.js populates this panel; hidden by default). -->
+          <div class="duval4-panel" id="duval4-panel-main" hidden>
+            <div class="duval4-panel-title">📐 Supplementary Confirmation — Duval Triangle 4</div>
+            <div class="duval4-panel-sub">Low-temperature triangle (H₂ / CH₄ / C₂H₆) — Duval 2008. Applied because the primary zone is PD, T1 or T2.</div>
+            <div class="duval4-panel-row">
+              <span class="result-box zs-zone" id="duval4-zone-main">—</span>
+              <span id="duval4-name-main" class="duval-caption-fault">—</span>
+            </div>
+            <div class="method-desc" id="duval4-desc-main"></div>
+          </div>
+        </div>
+      </details>
+
+      <!-- Assessment Completed strip — informational only, no calculations.
+           Timestamp is intentionally not repeated here: it is shown once,
+           immediately below, in the Status Banner (Assessment Date / Time). -->
+      <div class="assessment-strip">
+        <span>Assessment Completed Successfully</span>
+        <span class="assessment-strip-sep">·</span>
+        <span>Based on 7 International Diagnostic Methods</span>
+      </div>
+
+      <!-- 1 — ENGINEERING STATUS -->
+      <div class="status-banner" id="status-banner-main">
+        <div class="status-field">
+          <span class="status-meta-label">Transformer Condition</span>
+          <span class="status-classification" id="status-condition-main">—</span>
+        </div>
+        <div class="status-field">
+          <span class="status-meta-label">Current Status</span>
+          <span class="status-word" id="status-word-main">—</span>
+        </div>
+        <p class="status-summary" id="status-summary-main"></p>
+        <div class="status-meta">
+          <div><span class="status-meta-label">Assessment Date</span><span id="status-date-main">—</span></div>
+          <div><span class="status-meta-label">Assessment Time</span><span id="status-time-main">—</span></div>
+        </div>
+      </div>
+
+      <!-- 2 — ENGINEERING ASSESSMENT -->
+      <div class="card">
+        <h2 class="section-title">Engineering Assessment</h2>
+        <div class="assessment-grid">
+          <div class="assessment-item"><div class="ai-label">Fault</div><div class="ai-value" id="assess-fault-main">—</div></div>
+          <div class="assessment-item"><div class="ai-label">Decision</div><div class="ai-value" id="assess-decision-main">—</div></div>
+          <div class="assessment-item"><div class="ai-label">Confidence</div><div class="ai-value" id="assess-confidence-main">—</div></div>
+          <div class="assessment-item"><div class="ai-label">Agreement</div><div class="ai-value" id="assess-agreement-main">—</div></div>
+        </div>
+
+        <details class="why-toggle">
+          <summary>Why? <span class="chev"><svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 8.6 12 15l6.4-6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span></summary>
+          <div id="assess-why-main" class="why-body"></div>
+        </details>
+      </div>
+
+      <!-- 3 — OPERATIONAL DECISION -->
+      <div class="card">
+        <h2 class="section-title">Operational Decision</h2>
+        <div class="decision-value" id="decision-value-main">—</div>
+        <div class="decision-reason"><span class="ai-label">Reason</span><div id="decision-reason-main">—</div></div>
+      </div>
+
+      <!-- 4 — IMMEDIATE ACTION PLAN -->
+      <div class="card">
+        <h2 class="section-title">Immediate Action Plan</h2>
+        <div class="action-plan" id="action-plan-main"></div>
+      </div>
+
+      <!-- 5 — TRANSFORMER HEALTH INDEX -->
+      <div class="card">
+        <h2 class="section-title">Transformer Health Index</h2>
+        <div class="two-col">
+          <div class="grid gauge-wrap">
+            <canvas id="risk-canvas" width="220" height="140"></canvas>
+            <div id="risk-label" class="result-box" style="width:100%"></div>
+          </div>
+          <div>
+            <div class="grid grid-3" style="margin-bottom:14px">
+              <div class="stat"><div class="v" id="thi-score-main">—</div><div class="l">THI Score</div></div>
+              <div class="stat"><div class="v" id="ov-confidence">—</div><div class="l">Confidence</div></div>
+              <div class="stat"><div class="v" id="ov-agreement">—</div><div class="l">Method Agreement</div></div>
+            </div>
+            <div class="rec-box"><strong>Recommendation:</strong> <span id="ov-rec"></span></div>
+          </div>
+        </div>
+        <div class="thi-band" id="thi-band-main">
+          <div class="thi-band-track">
+            <div class="thi-band-seg" data-band="Excellent">Excellent</div>
+            <div class="thi-band-seg" data-band="Good">Good</div>
+            <div class="thi-band-seg" data-band="Monitor">Monitor</div>
+            <div class="thi-band-seg" data-band="Attention">Attention</div>
+            <div class="thi-band-seg" data-band="Critical">Critical</div>
+          </div>
+        </div>
+        <details class="why-toggle">
+          <summary>Why? <span class="chev"><svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 8.6 12 15l6.4-6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span></summary>
+          <div id="thi-why-main" class="why-body"></div>
+        </details>
+      </div>
+
+      <!-- 5.5 — DETAILED ENGINEERING CALCULATIONS.
+           The button sits immediately above the content it controls (not a
+           separate control elsewhere on the page) so clicking it and seeing
+           the change happen are visually adjacent. The card/heading/button
+           are always visible; only the calculations content div is hidden,
+           OFF by default every session (never persisted). Populated by
+           ui/detailed-calcs.js from the SAME report object every other
+           section on this page reads — no engineering value is computed
+           here. no-print: screen-only, exports are unaffected. -->
+      <div class="card no-print" id="detailed-main-section">
+        <div class="detailed-calcs-header">
+          <div>
+            <h2 class="section-title">Detailed Engineering Calculations</h2>
+            <p class="detailed-calcs-sub">Open the full step-by-step engineering workbook for this assessment.</p>
+          </div>
+          <button type="button" class="btn btn-primary detailed-calcs-btn" id="btn-toggle-detailed-main" aria-haspopup="dialog" aria-controls="modal-workbook">📖 Open Engineering Workbook</button>
+        </div>
+      </div>
+
+      <!-- 6 — ENGINEERING INTERPRETATION -->
+      <div class="card">
+        <h2 class="section-title">Engineering Interpretation</h2>
+        <p class="interpretation" id="interpretation-main"></p>
+      </div>
+
+      <!-- 7 — SUPPORTING EVIDENCE -->
+      <div class="card">
+        <details class="why-toggle">
+          <summary><span class="section-title as-summary">Supporting Evidence</span> <span class="chev"><svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 8.6 12 15l6.4-6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span></summary>
+          <div id="evidence-main" class="why-body"></div>
+        </details>
+      </div>
+
+      <!-- 8 — DIAGNOSTIC METHODS -->
+      <div class="card">
+        <h2 class="section-title">Diagnostic Methods</h2>
+        <!-- .table-scroll: this 7-column table cannot render legibly below
+             ~744px, so on narrow screens it scrolls inside its own card
+             instead of widening the page. Presentation-only wrapper — the
+             table and its tbody id are untouched. -->
+        <div class="table-scroll">
+          <table class="diagnostic-table">
+            <thead><tr><th>Method</th><th>Role</th><th>Diagnosis</th><th>Severity</th><th>Agreement</th><th>Reference</th><th>Status</th></tr></thead>
+            <tbody id="diagnostic-table-main"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Raw method-result carriers — the on-page "Raw Calculations" section
+           was removed (the Engineering Workbook now covers all of this). These
+           elements are RETAINED but permanently hidden so the frozen dashboard
+           render (ui/dashboard.js) keeps writing computed values into their ids
+           exactly as before. Presentation-only removal — no engine, render or
+           export logic changed. -->
+      <div class="raw-calculations" id="raw-calculations-main" hidden aria-hidden="true" style="display:none">
+
+            <div class="raw-card">
+              <div class="raw-card-title">Duval Triangle 1 — Main Tank <span class="raw-ref">IEC 60599 — visual moved to Engineering Assessment above</span></div>
+              <div id="duval-zone-box" class="result-box" style="margin-bottom:10px"></div>
+              <div style="font-weight:700;font-size:14px" id="duval-zone-name"></div>
+              <div class="grid grid-3" style="margin:12px 0">
+                <div class="stat"><div class="v" id="dp-ch4">—</div><div class="l">%CH₄</div></div>
+                <div class="stat"><div class="v" id="dp-c2h4">—</div><div class="l">%C₂H₄</div></div>
+                <div class="stat"><div class="v" id="dp-c2h2">—</div><div class="l">%C₂H₂</div></div>
+              </div>
+              <div class="method-desc" id="duval-zone-desc"></div>
+            </div>
+
+            <div class="raw-card">
+              <div class="raw-card-title">Rogers Ratio Method</div>
+              <div class="grid grid-2">
+                <div>
+                  <div id="rogers-zone-box" class="result-box" style="margin-bottom:10px"></div>
+                  <div style="font-weight:700;font-size:14px" id="rogers-name"></div>
+                  <div class="method-desc" id="rogers-desc"></div>
+                </div>
+                <table>
+                  <thead><tr><th>Ratio</th><th>Formula</th><th>Value</th></tr></thead>
+                  <tbody id="rogers-body"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="raw-card">
+              <div class="raw-card-title">IEC 60599 Three-Ratio Method</div>
+              <div class="grid grid-2">
+                <div>
+                  <div id="iec-zone-box" class="result-box" style="margin-bottom:10px"></div>
+                  <div style="font-weight:700;font-size:14px" id="iec-name"></div>
+                  <div class="method-desc" id="iec-desc"></div>
+                </div>
+                <table>
+                  <thead><tr><th>Ratio</th><th>Formula</th><th>Value</th></tr></thead>
+                  <tbody id="iec-body"></tbody>
+                </table>
+              </div>
+              <div class="divider"></div>
+              <div style="font-size:13px;color:var(--text2)"><strong>CO₂/CO Paper Involvement:</strong> <span id="paper-desc"></span></div>
+            </div>
+
+            <div class="raw-card">
+              <div class="raw-card-title">IEEE C57.104 Method</div>
+              <div id="ieee-zone-box" class="result-box" style="margin-bottom:14px"></div>
+              <div class="method-desc" id="ieee-desc" style="margin-bottom:14px"></div>
+              <table>
+                <thead><tr><th>Gas</th><th>Value (ppm)</th><th>Cond. 1</th><th>Cond. 2</th><th>Cond. 3</th><th>Condition</th></tr></thead>
+                <tbody id="ieee-body"></tbody>
+              </table>
+            </div>
+
+            <div class="raw-card">
+              <div class="raw-card-title">Key Gas Method &amp; TDCG</div>
+              <div class="two-col">
+                <div>
+                  <div id="keygas-zone-box" class="result-box" style="margin-bottom:10px"></div>
+                  <div style="font-weight:700;font-size:14px" id="keygas-name"></div>
+                  <div class="method-desc" id="keygas-desc"></div>
+                </div>
+                <div>
+                  <div class="stat" style="margin-bottom:10px"><div class="v" id="tdcg-value">—</div><div class="l">TDCG (ppm)</div></div>
+                  <div id="tdcg-zone-box" class="result-box" style="margin-bottom:8px"></div>
+                  <div class="method-desc" id="tdcg-desc"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="raw-card">
+              <div class="raw-card-title">Doernenburg Method</div>
+              <div class="grid grid-2">
+                <div>
+                  <div id="doern-zone-box" class="result-box" style="margin-bottom:10px"></div>
+                  <div class="method-desc" id="doern-desc"></div>
+                </div>
+                <table>
+                  <thead><tr><th>Ratio</th><th>Formula</th><th>Value</th></tr></thead>
+                  <tbody id="doern-body"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="raw-card">
+              <div class="raw-card-title">CIGRE 5-Key-Ratio Method</div>
+              <div id="cigre-flags"></div>
+            </div>
+
+            <div class="raw-card" id="o2-card" style="display:none">
+              <div class="raw-card-title">O₂ Interpretation</div>
+              <div id="o2-box" class="result-box" style="margin-bottom:10px"></div>
+              <div class="method-desc" id="o2-desc"></div>
+            </div>
+
+      </div>
+
+      <!-- 10 — ENGINEERING REFERENCES -->
+      <div class="card">
+        <h2 class="section-title">Engineering References</h2>
+        <ul class="engineering-references">
+          <li><span class="ref-name">IEC 60599</span><span class="ref-desc">Mineral oil-filled electrical equipment — interpretation of dissolved gases.</span></li>
+          <li><span class="ref-name">IEEE C57.104</span><span class="ref-desc">Guide for gases generated in transformer oil.</span></li>
+          <li><span class="ref-name">IEC 60567</span><span class="ref-desc">Oil sampling and gas analysis.</span></li>
+          <li><span class="ref-name">IEC 60422</span><span class="ref-desc">Mineral insulating oil supervision.</span></li>
+          <li><span class="ref-name">CIGRE TB 771</span><span class="ref-desc">Transformer condition assessment.</span></li>
+        </ul>
+      </div>
+
+      <!-- 11 — EXPORT -->
+      <div class="card">
+        <h2 class="section-title">Export</h2>
+        <div class="actions no-print">
+          <button class="btn btn-primary" id="btn-export-main-pdf">Export Professional PDF</button>
+          <button class="btn btn-outline" id="btn-export-main-xlsx">Export Excel</button>
+          <button class="btn btn-outline-danger" id="btn-new-main">New Analysis</button>
+        </div>
+      </div>
+
+    </div>
+    </div><!-- /workspace-right -->
+    </div><!-- /workspace-grid -->
+  </div>
+
+  <!-- ══════════════ OLTC PANEL ══════════════ -->
+  <div class="panel" id="panel-oltc">
+
+    <div class="breadcrumb no-print">
+      <button class="breadcrumb-home" id="crumb-home-oltc" type="button">Home</button>
+      <span class="breadcrumb-sep"><svg width="10" height="10" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5.6 15.4 12 9 18.4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>
+      <span class="breadcrumb-current">OLTC Analysis</span>
+    </div>
+    <div class="workspace-header">
+      <h1>OLTC Analysis</h1>
+      <p>Analyze OLTC compartment gases using dedicated OLTC diagnostic methods.</p>
+    </div>
+
+    <div class="workspace-grid">
+    <div class="workspace-left">
+    <div class="card no-print">
+      <div class="panel-title">OLTC — Gas-in-Oil Input</div>
+      <div class="sub">Enter dissolved gas concentrations from the OLTC oil compartment (ppm). Runs Duval Triangle 2 for OLTCs (IEC 60599:2022 Fig. B.4), TGC comparison, diagnostic ratios and cross-contamination check — fully separate from the main tank.</div>
+      <div class="grid grid-4">
+        <div class="field"><label>H₂ — Hydrogen</label><input id="ot-h2" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>CH₄ — Methane</label><input id="ot-ch4" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>C₂H₆ — Ethane</label><input id="ot-c2h6" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>C₂H₄ — Ethylene</label><input id="ot-c2h4" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>C₂H₂ — Acetylene</label><input id="ot-c2h2" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>CO — Carbon Monoxide</label><input id="ot-co" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>CO₂ — Carbon Dioxide</label><input id="ot-co2" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>Tap Change Count</label><input id="ot-taps" type="number" min="0" placeholder="0"></div>
+      </div>
+      <div class="divider"></div>
+      <div class="panel-title" style="margin-bottom:8px">Cross-Contamination Reference <span style="color:var(--text3);font-weight:400;text-transform:none;font-size:12px">(optional — main tank H₂ / C₂H₂, auto-filled if you've run Main Tank Analysis)</span></div>
+      <div class="grid grid-2">
+        <div class="field"><label>Main Tank H₂ — Hydrogen (ppm)</label><input id="xc-mt-h2" type="number" min="0" placeholder="0"></div>
+        <div class="field"><label>Main Tank C₂H₂ — Acetylene (ppm)</label><input id="xc-mt-c2h2" type="number" min="0" placeholder="0"></div>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" id="btn-analyze-oltc"><svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.6v14.8l13-7.4-13-7.4Z" fill="currentColor"/></svg> Run OLTC Analysis</button>
+        <button class="btn btn-outline" id="btn-clear-oltc">Clear</button>
+      </div>
+    </div>
+    </div><!-- /workspace-left -->
+
+    <div class="workspace-right">
+    <div class="empty-state" id="empty-oltc">
+      <div class="empty-illustration" aria-hidden="true">
+        <svg width="72" height="72" viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="5" y="9" width="14" height="11" rx="1.4" stroke="currentColor" stroke-width="1.4" fill="none"/>
+          <path d="M8 9V6.6a1.6 1.6 0 0 1 1.6-1.6h.1a1.6 1.6 0 0 1 1.6 1.6V9M13.7 9V6.6a1.6 1.6 0 0 1 1.6-1.6h.1a1.6 1.6 0 0 1 1.6 1.6V9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+          <path d="M8.5 13h3M8.5 15.7h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/>
+          <circle cx="15.5" cy="14.5" r="1.9" stroke="currentColor" stroke-width="1.4" fill="none"/>
+        </svg>
+      </div>
+      <h3>Engineering Workspace</h3>
+      <p>Run an engineering assessment to generate</p>
+      <ul>
+        <li>Engineering Snapshot</li>
+        <li>Engineering Assessment</li>
+        <li>Operational Decision</li>
+        <li>Transformer Health Index</li>
+        <li>Action Plan</li>
+        <li>Supporting Evidence</li>
+      </ul>
+      <button class="btn btn-outline empty-cta" id="empty-cta-oltc" type="button">Enter Gas Values to Begin</button>
+    </div>
+
+    <div id="results-oltc" style="display:none">
+
+      <!-- 0 — ENGINEERING SNAPSHOT -->
+      <div class="card snapshot-card">
+        <h2 class="section-title">Engineering Snapshot</h2>
+        <div class="snapshot-grid">
+          <div class="snapshot-item"><div class="snapshot-icon"><svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.2s-7.4-4.5-9-9.5C1.9 6.9 4.4 4 7.4 4c1.9 0 3.5 1 4.6 2.6C13.1 5 14.7 4 16.6 4c3 0 5.5 2.9 4.4 6.7-1.6 5-9 9.5-9 9.5Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div class="snapshot-label">Transformer Condition</div><div class="snapshot-value" id="snapshot-condition-oltc">—</div></div>
+          <div class="snapshot-item"><div class="snapshot-icon"><svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4.4 21 19H3L12 4.4Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M12 10.4v4M12 17.1v.1" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" fill="none"/></svg></div><div class="snapshot-label">Most Probable Fault</div><div class="snapshot-value" id="snapshot-fault-oltc">—</div></div>
+          <div class="snapshot-item"><div class="snapshot-icon"><svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M13 3 6 13.2h5.1L11 21l7-10.4h-5.1L13 3Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div class="snapshot-label">Operational Decision</div><div class="snapshot-value" id="snapshot-decision-oltc">—</div></div>
+          <div class="snapshot-item"><div class="snapshot-icon"><svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 3.6h9L19 7v13.4a1 1 0 0 1-1 1H6.5a1 1 0 0 1-1-1V4.6a1 1 0 0 1 1-1Z" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M8.6 12.8l2 2 4-4.4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div class="snapshot-label">Confidence</div><div class="snapshot-value" id="snapshot-confidence-oltc">—</div></div>
+          <div class="snapshot-item"><div class="snapshot-icon"><svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.4 12.6 9.6 17 18.8 7" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></div><div class="snapshot-label">Diagnostic Agreement</div><div class="snapshot-value" id="snapshot-agreement-oltc">—</div></div>
+        </div>
+      </div>
+
+      <!-- ══════════════ PRIMARY DIAGNOSIS (Duval Triangle 2) ══════════════
+           Promoted out of the Engineering Assessment card (see the Main Tank
+           panel for the full rationale). <details open> auto-expands and is
+           re-opened by dashboard.js on every OLTC analysis. -->
+      <details class="card primary-diagnosis" id="primary-diagnosis-oltc" open>
+        <summary class="primary-diagnosis-summary">
+          <span class="section-title as-summary">Primary Diagnosis</span>
+          <span class="primary-diagnosis-sub">Duval Triangle 2 · IEC 60599:2022 Fig. B.4</span>
+          <span class="chev"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 8.6 12 15l6.4-6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span>
+        </summary>
+        <div class="primary-diagnosis-body">
+          <div class="duval-hero">
+            <div class="duval-hero-canvas-wrap">
+              <div id="duval-svg-oltc" class="duval-svg-host" tabindex="0" role="button" aria-label="Open Duval Triangle 2 detail view"></div>
+              <div class="duval-hero-hint">Click triangle to enlarge</div>
+            </div>
+            <div class="duval-caption">
+              <div class="duval-caption-title">Duval Triangle 2</div>
+              <div class="duval-caption-kicker">Current Diagnostic Zone</div>
+              <div id="hero-duval2-zone-oltc" class="result-box zs-zone">—</div>
+              <div id="hero-duval2-name-oltc" class="duval-caption-fault">—</div>
+              <div class="duval-caption-standard">IEC 60599</div>
+              <div class="zs-gas-list duval-caption-gas">
+                <div class="zs-gas-row"><span>CH₄</span><span id="hero-d2p-ch4-oltc">—</span></div>
+                <div class="zs-gas-row"><span>C₂H₄</span><span id="hero-d2p-c2h4-oltc">—</span></div>
+                <div class="zs-gas-row"><span>C₂H₂</span><span id="hero-d2p-c2h2-oltc">—</span></div>
+              </div>
+            </div>
+          </div>
+          <div id="duval-legend-oltc"></div>
+        </div>
+      </details>
+
+      <!-- Assessment Completed strip — informational only, no calculations.
+           Timestamp is intentionally not repeated here: it is shown once,
+           immediately below, in the Status Banner (Assessment Date / Time). -->
+      <div class="assessment-strip">
+        <span>Assessment Completed Successfully</span>
+        <span class="assessment-strip-sep">·</span>
+        <span>Based on Duval Triangle 2 and Supporting OLTC Diagnostics</span>
+      </div>
+
+      <!-- 1 — ENGINEERING STATUS -->
+      <div class="status-banner" id="status-banner-oltc">
+        <div class="status-field">
+          <span class="status-meta-label">Transformer Condition</span>
+          <span class="status-classification" id="status-condition-oltc">—</span>
+        </div>
+        <div class="status-field">
+          <span class="status-meta-label">Current Status</span>
+          <span class="status-word" id="status-word-oltc">—</span>
+        </div>
+        <p class="status-summary" id="status-summary-oltc"></p>
+        <div class="status-meta">
+          <div><span class="status-meta-label">Assessment Date</span><span id="status-date-oltc">—</span></div>
+          <div><span class="status-meta-label">Assessment Time</span><span id="status-time-oltc">—</span></div>
+        </div>
+      </div>
+
+      <!-- 2 — ENGINEERING ASSESSMENT -->
+      <div class="card">
+        <h2 class="section-title">Engineering Assessment</h2>
+        <div class="assessment-grid">
+          <div class="assessment-item"><div class="ai-label">Fault</div><div class="ai-value" id="assess-fault-oltc">—</div></div>
+          <div class="assessment-item"><div class="ai-label">Decision</div><div class="ai-value" id="assess-decision-oltc">—</div></div>
+          <div class="assessment-item"><div class="ai-label">Confidence</div><div class="ai-value" id="assess-confidence-oltc">—</div></div>
+          <div class="assessment-item"><div class="ai-label">Agreement</div><div class="ai-value" id="assess-agreement-oltc">—</div></div>
+        </div>
+
+        <details class="why-toggle">
+          <summary>Why? <span class="chev"><svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 8.6 12 15l6.4-6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span></summary>
+          <div id="assess-why-oltc" class="why-body"></div>
+        </details>
+      </div>
+
+      <!-- 3 — OPERATIONAL DECISION -->
+      <div class="card">
+        <h2 class="section-title">Operational Decision</h2>
+        <div class="decision-value" id="decision-value-oltc">—</div>
+        <div class="decision-reason"><span class="ai-label">Reason</span><div id="decision-reason-oltc">—</div></div>
+      </div>
+
+      <!-- 4 — IMMEDIATE ACTION PLAN -->
+      <div class="card">
+        <h2 class="section-title">Immediate Action Plan</h2>
+        <div class="action-plan" id="action-plan-oltc"></div>
+      </div>
+
+      <!-- 5 — TRANSFORMER HEALTH INDEX -->
+      <div class="card">
+        <h2 class="section-title">Transformer Health Index</h2>
+        <p class="thi-oltc-note">OLTC diagnostics do not produce a composite 0–100 index in the underlying engine (that score is Main-Tank-only). The classification below is the Duval Triangle 2 zone severity.</p>
+        <div class="decision-value" id="oltc-condition-badge">—</div>
+        <div class="thi-band" id="thi-band-oltc">
+          <div class="thi-band-track">
+            <div class="thi-band-seg" data-band="Excellent">Excellent</div>
+            <div class="thi-band-seg" data-band="Good">Good</div>
+            <div class="thi-band-seg" data-band="Monitor">Monitor</div>
+            <div class="thi-band-seg" data-band="Attention">Attention</div>
+            <div class="thi-band-seg" data-band="Critical">Critical</div>
+          </div>
+        </div>
+        <details class="why-toggle">
+          <summary>Why? <span class="chev"><svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 8.6 12 15l6.4-6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span></summary>
+          <div id="thi-why-oltc" class="why-body"></div>
+        </details>
+      </div>
+
+      <!-- 5.5 — DETAILED ENGINEERING CALCULATIONS.
+           See the Main Tank panel for the full rationale. Populated by
+           ui/detailed-calcs.js from the SAME OLTC report object every other
+           section here reads — no engineering value is computed. -->
+      <div class="card no-print" id="detailed-oltc-section">
+        <div class="detailed-calcs-header">
+          <div>
+            <h2 class="section-title">Detailed Engineering Calculations</h2>
+            <p class="detailed-calcs-sub">Open the full step-by-step engineering workbook for this assessment.</p>
+          </div>
+          <button type="button" class="btn btn-primary detailed-calcs-btn" id="btn-toggle-detailed-oltc" aria-haspopup="dialog" aria-controls="modal-workbook">📖 Open Engineering Workbook</button>
+        </div>
+      </div>
+
+      <!-- 6 — ENGINEERING INTERPRETATION -->
+      <div class="card">
+        <h2 class="section-title">Engineering Interpretation</h2>
+        <p class="interpretation" id="interpretation-oltc"></p>
+      </div>
+
+      <!-- 7 — SUPPORTING EVIDENCE -->
+      <div class="card">
+        <details class="why-toggle">
+          <summary><span class="section-title as-summary">Supporting Evidence</span> <span class="chev"><svg width="11" height="11" viewBox="0 0 24 24" aria-hidden="true"><path d="M5.6 8.6 12 15l6.4-6.4" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg></span></summary>
+          <div id="evidence-oltc" class="why-body"></div>
+        </details>
+      </div>
+
+      <!-- 8 — DIAGNOSTIC METHODS -->
+      <div class="card">
+        <h2 class="section-title">Diagnostic Methods</h2>
+        <!-- .table-scroll: see the Main Tank table above — narrow screens
+             scroll this 7-column table inside its card rather than widening
+             the page. Presentation-only wrapper. -->
+        <div class="table-scroll">
+          <table class="diagnostic-table">
+            <thead><tr><th>Method</th><th>Role</th><th>Diagnosis</th><th>Severity</th><th>Agreement</th><th>Reference</th><th>Status</th></tr></thead>
+            <tbody id="diagnostic-table-oltc"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Raw method-result carriers — the on-page "Raw Calculations" section
+           was removed (the Engineering Workbook now covers all of this). These
+           elements are RETAINED but permanently hidden so the frozen dashboard
+           render (ui/dashboard.js) keeps writing computed values into their ids
+           exactly as before. Presentation-only removal — no engine, render or
+           export logic changed. -->
+      <div class="raw-calculations" id="raw-calculations-oltc" hidden aria-hidden="true" style="display:none">
+
+            <div class="raw-card">
+              <div class="raw-card-title">Duval Triangle 2 — OLTC Oil <span class="raw-ref">IEC 60599:2022 Fig. B.4 — visual moved to Engineering Assessment above</span></div>
+              <div id="d2-zone-box" class="result-box" style="margin-bottom:10px"></div>
+              <div style="font-weight:700;font-size:14px" id="d2-zone-name"></div>
+              <div class="grid grid-3" style="margin:12px 0">
+                <div class="stat"><div class="v" id="d2p-ch4">—</div><div class="l">%CH₄</div></div>
+                <div class="stat"><div class="v" id="d2p-c2h4">—</div><div class="l">%C₂H₄</div></div>
+                <div class="stat"><div class="v" id="d2p-c2h2">—</div><div class="l">%C₂H₂</div></div>
+              </div>
+              <div class="method-desc" id="d2-zone-desc"></div>
+              <div class="hint" style="margin-top:10px">Zones: <strong>N</strong> normal switching · <strong>D1</strong> abnormal arcing · <strong>X1</strong> overheating &lt; 300 °C · <strong>X3</strong> coking in progress or arcing D2 · <strong>T2/T3</strong> severe coking of contacts</div>
+            </div>
+
+            <div class="raw-card">
+              <div class="raw-card-title">OLTC Diagnostics</div>
+              <div style="font-weight:700;font-size:13px;margin-bottom:8px">Typical Gas Concentration (TGC) Comparison <span style="font-weight:400;color:var(--text3)">— CIGRE TB 443, 90th percentile (IEC 60599:2022 A.7 gives no fixed OLTC limits)</span></div>
+              <table style="margin-bottom:16px">
+                <thead><tr><th>Gas</th><th>Measured</th><th>TGC Limit</th><th>% of Limit</th><th>Status</th></tr></thead>
+                <tbody id="oltc-tgc-body"></tbody>
+              </table>
+              <div style="font-weight:700;font-size:13px;margin-bottom:8px">Diagnostic Ratios</div>
+              <table style="margin-bottom:16px">
+                <thead><tr><th>Ratio</th><th>Formula</th><th>Value</th><th>Threshold</th><th>Interpretation</th></tr></thead>
+                <tbody id="oltc-ratios-body"></tbody>
+              </table>
+              <div id="oltc-tap-box" style="display:none;margin-bottom:16px"></div>
+              <div style="font-weight:700;font-size:13px;margin-bottom:8px">Cross-Contamination Check (Main Tank ↔ OLTC)</div>
+              <div id="oltc-xcontam-box"></div>
+            </div>
+
+      </div>
+
+      <!-- 10 — ENGINEERING REFERENCES -->
+      <div class="card">
+        <h2 class="section-title">Engineering References</h2>
+        <ul class="engineering-references">
+          <li><span class="ref-name">IEC 60599</span><span class="ref-desc">Mineral oil-filled electrical equipment — interpretation of dissolved gases.</span></li>
+          <li><span class="ref-name">IEEE C57.104</span><span class="ref-desc">Guide for gases generated in transformer oil.</span></li>
+          <li><span class="ref-name">IEC 60567</span><span class="ref-desc">Oil sampling and gas analysis.</span></li>
+          <li><span class="ref-name">IEC 60422</span><span class="ref-desc">Mineral insulating oil supervision.</span></li>
+          <li><span class="ref-name">CIGRE TB 771</span><span class="ref-desc">Transformer condition assessment.</span></li>
+        </ul>
+      </div>
+
+      <!-- 11 — EXPORT -->
+      <div class="card">
+        <h2 class="section-title">Export</h2>
+        <div class="actions no-print">
+          <button class="btn btn-primary" id="btn-export-oltc-pdf">Export Professional PDF</button>
+          <button class="btn btn-outline" id="btn-export-oltc-xlsx">Export Excel</button>
+          <button class="btn btn-outline-danger" id="btn-new-oltc">New Analysis</button>
+        </div>
+      </div>
+
+    </div>
+    </div><!-- /workspace-right -->
+    </div><!-- /workspace-grid -->
+  </div>
+
+  </div><!-- /view-workspace -->
+
+  <!-- Off-screen export-canvas sink. The on-screen Duval triangles are now
+       SVG (ui/duval-svg.js); these hidden canvases exist ONLY so the frozen
+       PDF/Excel export pipeline (ui/export.js) can keep drawing into
+       #duval-canvas / #duval2-canvas by id and reading them via toDataURL,
+       exactly as before. Positioned off-screen (not display:none, which some
+       browsers skip when rasterizing a canvas) — never visible, never
+       printed. ui/export.js and ui/charts.js are unchanged in structure. -->
+  <div class="export-canvas-sink" aria-hidden="true" style="position:fixed;left:-99999px;top:0">
+    <canvas id="duval-canvas" width="520" height="480"></canvas>
+    <canvas id="duval2-canvas" width="520" height="480"></canvas>
+  </div>
+
+  <footer>
+    <div class="footer-logo" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 40 40"><defs><linearGradient id="tailamGradFoot" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--green)"/></linearGradient></defs><path d="M20 6 35 33H5Z" fill="none" stroke="url(#tailamGradFoot)" stroke-width="2.4" stroke-linejoin="round"/><path d="M20 17c3 3.7 4.7 6.1 4.7 8.4a4.7 4.7 0 1 1-9.4 0c0-2.3 1.7-4.7 4.7-8.4Z" fill="url(#tailamGradFoot)"/></svg></div>
+    <div class="footer-brand">TAILAM</div>
+    <div class="footer-line">Version 1.0.0 <span class="footer-dot">·</span> Static Browser Edition</div>
+    <div class="footer-line">Rule-Based Engineering Intelligence</div>
+    <div class="footer-tagline">Engineering decisions deserve engineering evidence.</div>
+    <div class="footer-line"><button type="button" class="footer-feedback-link" id="footer-feedback">Share your feedback →</button></div>
+    <div class="footer-line">Designed by
+      <a class="designer-link" href="https://www.linkedin.com/in/bharadwajmuppala/" target="_blank" rel="noopener" aria-label="Bharadwaj Muppala on LinkedIn">
+        Bharadwaj Muppala
+        <svg width="13" height="13" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05C20.4 8.65 21 11 21 14v7h-4v-6.2c0-1.48-.03-3.4-2.07-3.4-2.07 0-2.39 1.62-2.39 3.29V21H9z" fill="currentColor"/></svg>
+      </a>
+    </div>
+    <!-- Partner co-brand credit — mirrors the "Designed by" line above.
+         Clickable — opens the same Meiden company card as the header logo. -->
+    <div class="footer-line">
+      <button type="button" class="footer-meiden-credit" id="footer-meiden-btn">
+        <img src="assets/branding/meiden-logo.png" alt="Meiden" class="footer-meiden-logo">
+        <span>Designed with the support of Meiden engineering professionals</span>
+      </button>
+    </div>
+    <div class="footer-disclaimer">Diagnostic methods per IEC 60599:2022 (Duval Triangles 1 &amp; 2), IEEE C57.104-2019, Rogers Ratio, Doernenburg, CIGRE TB 443/771. For engineering guidance only — not a substitute for professional judgement. Runs entirely in your browser; no data is uploaded or stored anywhere.</div>
+  </footer>
+
+  <!-- Diagnostic loading sequence — plays for well under 1s when an analysis
+       is run (ui/loading.js). Purely decorative: no engineering value is
+       computed or displayed here, only a fixed, static checklist of the
+       method names the workspace already applies. -->
+  <div class="loading-overlay no-print" id="loading-overlay" aria-hidden="true">
+    <div class="loading-card">
+      <div class="loading-title">Running Engineering Diagnostics</div>
+      <ul class="loading-steps">
+        <li data-step="iec"><span class="loading-step-icon"></span>IEC 60599 Three-Ratio Method</li>
+        <li data-step="ieee"><span class="loading-step-icon"></span>IEEE C57.104</li>
+        <li data-step="rogers"><span class="loading-step-icon"></span>Rogers Ratio</li>
+        <li data-step="duval"><span class="loading-step-icon"></span>Duval Triangle Analysis</li>
+        <li data-step="keygas"><span class="loading-step-icon"></span>Key Gas / TDCG</li>
+        <li data-step="thi"><span class="loading-step-icon"></span>Transformer Health Index</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ══════════════ MODALS ══════════════ -->
+  <div class="modal-overlay no-print" id="modal-about" data-dismissable>
+    <div class="modal-box">
+      <button class="modal-close" id="modal-about-close" aria-label="Close"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
+      <h2>TAILAM</h2>
+      <div class="modal-sub">Transformer Assessment for Insulating Liquid Analysis &amp; Monitoring</div>
+      <div class="modal-sub">Version 1.0.0</div>
+      <p style="color:var(--text2);font-size:13.5px;line-height:1.7;margin:14px 0">TAILAM is a browser-based engineering decision support platform for transformer insulating liquid diagnostics.</p>
+      <h3>Engineering Principles</h3>
+      <ul>
+        <li>Engineering Before Software</li>
+        <li>Decision Before Data</li>
+        <li>Transparency on Demand</li>
+        <li>Explain Every Conclusion</li>
+        <li>Standards First</li>
+      </ul>
+      <h3>Engineering Discoveries</h3>
+      <ul class="discovery-list" id="discovery-list">
+        <li id="discovery-engineering"><span class="discovery-icon">???</span><span class="discovery-name">Engineering Mode</span></li>
+        <li id="discovery-founder"><span class="discovery-icon">???</span><span class="discovery-name">Founder's Edition</span></li>
+      </ul>
+      <div class="modal-footer">Developed by
+        <a class="designer-link" href="https://www.linkedin.com/in/bharadwajmuppala/" target="_blank" rel="noopener" aria-label="Bharadwaj Muppala on LinkedIn">
+          Bharadwaj Muppala
+          <svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05C20.4 8.65 21 11 21 14v7h-4v-6.2c0-1.48-.03-3.4-2.07-3.4-2.07 0-2.39 1.62-2.39 3.29V21H9z" fill="currentColor"/></svg>
+        </a>
+        <div class="about-meiden-credit">
+          <img src="assets/branding/meiden-logo.png" alt="Meiden" class="about-meiden-logo">
+          <span>with the support of Meiden engineering professionals</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay no-print" id="modal-meiden" data-dismissable>
+    <div class="modal-box">
+      <button class="modal-close" id="modal-meiden-close" aria-label="Close"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
+      <div class="meiden-card-logo"><img src="assets/branding/meiden-logo.png" alt="Meiden T&amp;D India"></div>
+      <h2>Meiden T&amp;D India Limited</h2>
+      <div class="modal-sub">Power Transmission &amp; Distribution Equipment</div>
+      <p style="color:var(--text2);font-size:13.5px;line-height:1.7;margin:14px 0">Meiden T&amp;D India Limited is part of the Meidensha Corporation group (Japan), manufacturing power transformers, switchgear and turnkey T&amp;D solutions for utilities and industry across India. TAILAM was built with the support of Meiden engineering professionals.</p>
+      <div class="modal-actions">
+        <a class="btn btn-primary" href="https://www.meidentd.in/" target="_blank" rel="noopener noreferrer">
+          <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.75" fill="none"/><path d="M3 12h18M12 3c2.5 2.6 3.8 5.7 3.8 9s-1.3 6.4-3.8 9c-2.5-2.6-3.8-5.7-3.8-9s1.3-6.4 3.8-9Z" stroke="currentColor" stroke-width="1.75" fill="none"/></svg>
+          Visit Website
+        </a>
+        <a class="btn btn-outline" href="https://www.linkedin.com/company/meiden-t-d-india-limited/posts/?feedView=all" target="_blank" rel="noopener noreferrer">
+          <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.7h.05c.53-1 1.83-2.05 3.77-2.05C20.4 8.65 21 11 21 14v7h-4v-6.2c0-1.48-.03-3.4-2.07-3.4-2.07 0-2.39 1.62-2.39 3.29V21H9z" fill="currentColor"/></svg>
+          LinkedIn
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay no-print" id="modal-help" data-dismissable>
+    <div class="modal-box">
+      <button class="modal-close" id="modal-help-close" aria-label="Close"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
+      <h2>Help</h2>
+      <div class="modal-sub">Guide to using TAILAM</div>
+
+      <h3>Main Tank</h3>
+      <p>Enter gas-in-oil concentrations (ppm) from your main tank lab report and run the analysis. TAILAM applies Duval Triangle 1, Rogers Ratio, IEC 60599, IEEE C57.104, Key Gas/TDCG, Doernenburg and CIGRE methods together and reports a consensus health assessment.</p>
+
+      <h3>OLTC</h3>
+      <p>Enter gas-in-oil concentrations from the OLTC oil compartment. TAILAM applies Duval Triangle 2, TGC comparison against CIGRE TB 443 limits, diagnostic ratios and a cross-contamination check against the main tank. Main Tank and OLTC are independent analyses with separate exports.</p>
+
+      <h3>Engineering Workspace</h3>
+      <p>The left column is the input form; the right column is the engineering workspace. After you run an assessment it answers, in order: is the transformer safe, what is the most probable fault, what should you do next, how healthy is the transformer, why TAILAM concluded this, and what evidence supports it. Expand any "Why?" control for the supporting detail behind a result.</p>
+
+      <h3>PDF Export</h3>
+      <p>After running an analysis, use "Export Professional PDF" to open a print-ready report in a new window, then use your browser's print dialog to save it as a PDF.</p>
+
+      <h3>Excel Export</h3>
+      <p>Use "Export Excel" for a formatted workbook with the Duval triangle embedded as an image. If the Excel library cannot load, a CSV file is downloaded instead.</p>
+
+      <h3>Hidden Extras</h3>
+      <p>Some engineering details reveal themselves only to curious users.</p>
+
+      <div class="modal-footer">TAILAM — Rule-Based Engineering Intelligence</div>
+    </div>
+  </div>
+
+  <div class="modal-overlay no-print" id="modal-unsaved">
+    <div class="modal-box">
+      <h2>Unsaved Engineering Analysis</h2>
+      <div class="modal-sub">Current analysis has not been exported.</div>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="unsaved-export-pdf">Export PDF</button>
+        <button class="btn btn-outline" id="unsaved-export-xlsx">Export Excel</button>
+        <button class="btn btn-outline-danger" id="unsaved-discard">Discard</button>
+        <button class="btn btn-outline" id="unsaved-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Duval Triangle detail modal — shared by Main Tank (Triangle 1) and OLTC
+       (Triangle 2). Re-renders the SAME ui/duval-svg.js component, larger,
+       from the SAME already-computed report data; no new diagnostics. -->
+  <div class="modal-overlay no-print" id="modal-duval" data-dismissable>
+    <div class="modal-box modal-wide">
+      <button class="modal-close" id="modal-duval-close" aria-label="Close"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
+      <h2 id="duval-modal-title">Duval Triangle</h2>
+      <div class="modal-sub" id="duval-modal-subtitle"></div>
+
+      <div class="duval-modal-canvas-wrap">
+        <div id="duval-svg-modal" class="duval-svg-host"></div>
+      </div>
+
+      <div id="duval-legend-modal"></div>
+
+      <div class="duval-modal-facts">
+        <div class="duval-modal-fact"><span class="ai-label">Current Point</span><div id="duval-modal-point">—</div></div>
+        <div class="duval-modal-fact"><span class="ai-label">Zone Explanation</span><div id="duval-modal-explanation">—</div></div>
+        <div class="duval-modal-fact"><span class="ai-label">IEC Reference</span><div id="duval-modal-reference">—</div></div>
+        <div class="duval-modal-fact"><span class="ai-label">Typical Fault Characteristics</span><div id="duval-modal-characteristics">—</div></div>
+        <div class="duval-modal-fact"><span class="ai-label">Engineering Notes</span><div id="duval-modal-notes">—</div></div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-outline" id="duval-modal-close-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Engineering Workbook modal — shared by Main Tank and OLTC. Opened by
+       the "📖 Open Engineering Workbook" button in either panel's Detailed
+       Engineering Calculations card. Contains the SAME workbook content
+       ui/detailed-calcs.js already renders into #detailed-main/#detailed-oltc
+       (moved here from the inline dashboard flow) — a presentation-only
+       relocation, no engineering value changes. Deliberately has no
+       data-dismissable: focus-trap, Escape, backdrop-click and scroll-lock
+       are all wired together in app.js, scoped only to this modal, rather
+       than split across modals.js's generic mechanism (see app.js). -->
+  <div class="modal-overlay no-print" id="modal-workbook">
+    <div class="modal-box modal-workbook-box">
+      <button class="modal-close" id="modal-workbook-close" aria-label="Close Engineering Workbook"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
+      <h2>Engineering Workbook</h2>
+      <div class="modal-sub">Step-by-Step Engineering Calculations</div>
+      <!-- Sticky meta row — set per panel by app.js#openWorkbookModal(). -->
+      <div class="modal-workbook-meta">
+        <span class="modal-workbook-meta-item"><span class="modal-workbook-meta-label">Transformer</span><span class="modal-workbook-meta-value" id="modal-workbook-transformer">—</span></span>
+        <span class="modal-workbook-meta-item"><span class="modal-workbook-meta-label">Fault Method</span><span class="modal-workbook-meta-value" id="modal-workbook-fault-method">—</span></span>
+      </div>
+      <!-- Reading progress — updated on scroll of .modal-workbook-body (app.js). -->
+      <div class="wb-progress no-print">
+        <span class="wb-progress-label">Reading Progress</span>
+        <span class="wb-progress-track"><span class="wb-progress-fill" id="wb-progress-fill"></span></span>
+        <span class="wb-progress-pct" id="wb-progress-pct">0%</span>
+      </div>
+      <div class="modal-workbook-body">
+        <div id="detailed-main" class="detailed-calcs" hidden></div>
+        <div id="detailed-oltc" class="detailed-calcs" hidden></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Feedback dialog — delivery is configured in src/js/ui/feedback.js
+       (Formspree endpoint, or a pre-filled email fallback). Presentation
+       only; no engineering value involved. -->
+  <div class="modal-overlay no-print" id="modal-feedback" data-dismissable>
+    <div class="modal-box">
+      <button class="modal-close" id="modal-feedback-close" aria-label="Close"><svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none"/></svg></button>
+      <h2>Feedback</h2>
+      <div class="modal-sub">Found a bug? Have an idea? A diagnostic result you disagree with? It all helps make TAILAM better.</div>
+
+      <div class="fb-field-block">
+        <label class="fb-label">How would you rate TAILAM?</label>
+        <div class="fb-stars" id="fb-stars" role="radiogroup" aria-label="Rate TAILAM from 1 to 5 stars">
+          <button type="button" class="fb-star" aria-label="1 star — poor">★</button>
+          <button type="button" class="fb-star" aria-label="2 stars">★</button>
+          <button type="button" class="fb-star" aria-label="3 stars">★</button>
+          <button type="button" class="fb-star" aria-label="4 stars">★</button>
+          <button type="button" class="fb-star" aria-label="5 stars — excellent">★</button>
+        </div>
+      </div>
+
+      <div class="grid grid-2" style="margin-bottom:14px">
+        <div class="field"><label>Your Name (optional)</label><input id="fb-name" placeholder="e.g. A. Engineer"></div>
+        <div class="field"><label>Email for reply (optional)</label><input id="fb-email" type="email" placeholder="you@company.com"></div>
+      </div>
+      <div class="field" style="margin-bottom:14px"><label>Feedback Type</label>
+        <select id="fb-type">
+          <option>General Feedback</option>
+          <option>Bug Report</option>
+          <option>Feature Suggestion</option>
+          <option>Diagnostic Accuracy</option>
+          <option>Report / Export Issue</option>
+        </select>
+      </div>
+      <div class="field"><label>Your Message</label>
+        <textarea id="fb-message" rows="5" placeholder="Tell me what happened, what you expected, or what you'd like to see…"></textarea>
+      </div>
+
+      <div class="fb-status" id="fb-status" role="status" aria-live="polite"></div>
+
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="fb-send">Send Feedback</button>
+        <button class="btn btn-outline" id="fb-copy" style="display:none">Copy Message Instead</button>
+        <button class="btn btn-outline" id="fb-cancel">Cancel</button>
+      </div>
+      <div class="modal-footer">Feedback goes directly to Bharadwaj Muppala — no data is stored by the app itself.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Plain scripts, no type="module" — avoids the file:// CORS restriction on
+     ES modules so the app runs both by double-clicking index.html and from
+     GitHub Pages. Order matters: each file reads window.TAILAM.* built up
+     by the ones before it. -->
+<script src="src/js/utils/helpers.js"></script>
+<script src="src/js/utils/validators.js"></script>
+<script src="src/js/engine/confidence.js"></script>
+<script src="src/js/engine/duval.js"></script>
+<script src="src/js/engine/duval2.js"></script>
+<script src="src/js/engine/rogers.js"></script>
+<script src="src/js/engine/iec.js"></script>
+<script src="src/js/engine/ieee.js"></script>
+<script src="src/js/engine/keygas.js"></script>
+<script src="src/js/engine/doernenburg.js"></script>
+<script src="src/js/engine/cigre.js"></script>
+<script src="src/js/engine/consensus.js"></script>
+<script src="src/js/engine/thi.js"></script>
+<script src="src/js/engine/recommendations.js"></script>
+<script src="src/js/ui/icons.js"></script>
+<script src="src/js/theme.js"></script>
+<script src="src/js/ui/cards.js"></script>
+<script src="src/js/ui/charts.js"></script>
+<script src="src/js/ui/duval-legend.js"></script>
+<script src="src/js/ui/duval-svg.js"></script>
+<script src="src/js/ui/dialogs.js"></script>
+<script src="src/js/ui/modals.js"></script>
+<script src="src/js/ui/workspace.js"></script>
+<script src="src/js/ui/detailed-calcs.js"></script>
+<script src="src/js/ui/dashboard.js"></script>
+<script src="src/js/ui/export.js"></script>
+<script src="src/js/ui/loading.js"></script>
+<script src="src/js/ui/feedback.js"></script>
+<script src="src/js/ui/sidebar.js"></script>
+<script src="src/js/ui/motion.js"></script>
+<script src="src/js/navigation.js"></script>
+<script src="src/js/analytics.js"></script>
+<script src="src/js/app.js"></script>
+<!-- PWA service worker registration — enables full offline use (see sw.js).
+     Guarded and fire-and-forget: browsers without the API simply skip this,
+     and a registration failure (e.g. file:// — service workers require
+     http(s)) is caught and ignored. No app feature depends on this having
+     succeeded; it is purely an offline/installability enhancement. -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => { /* offline install, file://, etc. — non-fatal */ });
+    });
+  }
+</script>
+</body>
+</html>

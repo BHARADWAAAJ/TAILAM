@@ -1,0 +1,13 @@
+# Dev tooling only (validationRunner.js / uiSmokeTest.js) — never shipped
+# to the deployed static site.
+node_modules/
+
+# Generated validation reports (timestamped JSON, regenerated on every run).
+src/validation/reports/*.json
+
+# Local Claude Code session config (permission allowlist etc.) — machine/
+# session-specific, not project source.
+.claude/
+
+# Windows Explorer folder-view metadata — OS cruft, not project source.
+desktop.ini
