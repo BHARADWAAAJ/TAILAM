@@ -41,7 +41,7 @@ const SCRIPT_ORDER = [
   'engine/cigre.js', 'engine/consensus.js', 'engine/thi.js', 'engine/recommendations.js',
   'ui/icons.js', '../js/theme.js', 'ui/cards.js', 'ui/charts.js', 'ui/duval-legend.js',
   'ui/duval-svg.js', 'ui/dialogs.js', 'ui/modals.js', 'ui/workspace.js', 'ui/detailed-calcs.js',
-  'ui/dashboard.js', 'ui/export.js', 'ui/loading.js', 'ui/feedback.js', 'ui/motion.js',
+  'ui/dashboard.js', 'ui/export.js', 'ui/loading.js', 'ui/feedback.js', 'ui/sidebar.js', 'ui/motion.js',
   'navigation.js', 'analytics.js', 'app.js'
 ];
 
