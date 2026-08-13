@@ -44,15 +44,14 @@
 
   /**
    * Meiden partner co-brand mark, inlined raw (not <img src="...">). The
-   * report window is populated from a Blob URL (or, as a fallback,
-   * document.write() into a blank popup) — neither gives the document a
-   * base URL a relative asset path could resolve against, so the only
-   * portable way to embed it — regardless of where TAILAM is hosted — is
-   * inline SVG, the same reasoning already applied to every triangle/gauge
-   * image in this file (captured as self-contained data URIs). Source:
-   * assets/branding/meiden-logo.svg, verbatim; sized purely via the
-   * .brand-endnote-logo wrapper in the <style> block below, viewBox/paths
-   * untouched.
+   * report is document.write()n into a blank popup (or, as a fallback, an
+   * about:blank iframe — see openReportForPrint) and so has no base URL a
+   * relative asset path could resolve against; the only portable way to
+   * embed it — regardless of where TAILAM is hosted — is inline SVG, the
+   * same reasoning already applied to every triangle/gauge image in this
+   * file (captured as self-contained data URIs). Source: assets/branding/
+   * meiden-logo.svg, verbatim; sized purely via the .brand-endnote-logo
+   * wrapper in the <style> block below, viewBox/paths untouched.
    */
   const MEIDEN_LOGO_SVG = `<svg viewBox="0 0 652 652" xmlns="http://www.w3.org/2000/svg">
 <style>.mst0{fill:#415FD2;}.mst1{fill:#6289C6;}.mst2{fill:#5682C3;}.mst3{fill:#4278BC;}</style>
@@ -1178,48 +1177,104 @@
     <script>window.onload=()=>setTimeout(()=>window.print(),400)<\/script>
     </body></html>`;
 
-    const w = window.open('', '_blank');
-    if (!w) { notify('Your browser blocked the report window. Please allow pop-ups for this page and try again.'); return; }
-
-    // Safari/WebKit compatibility fix — the report opened correctly in the
-    // new window/tab but rendered as a blank white page specifically on
-    // iOS Safari (Chrome was unaffected). Root cause: document.write()-ing
-    // a large HTML string — this report embeds several base64 PNG images
-    // (Duval triangle at 3x resolution, Duval 4 when present, the risk
-    // gauge) — into a window opened via window.open('', '_blank') is a
-    // known WebKit failure mode: the tab opens, but the written content
-    // never actually commits, so the page stays blank and window.print()
-    // (fired by the <script> at the end of `html`) has nothing to print.
-    // Chrome has always tolerated this same pattern, which is why it went
-    // unnoticed there.
-    //
-    // Fix: instead of writing into the blank window, navigate it to a Blob
-    // URL of the exact same HTML. That's a real document load in every
-    // engine — including WebKit — so it renders reliably and still fires
-    // the embedded script's window.onload the same way a normal page would.
-    // No report content changes: `html` itself is untouched.
-    //
-    // Feature-detected (not Safari-specific — this path runs for every
-    // browser) so browsers without Blob/createObjectURL support — none
-    // TAILAM targets, but kept for safety — fall through to the original
-    // document.write() behavior unchanged.
-    const canUseBlobUrl = typeof Blob === 'function' && typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function';
-    let usedBlobUrl = false;
-    if (canUseBlobUrl) {
-      try {
-        const blobUrl = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
-        w.location.replace(blobUrl);
-        usedBlobUrl = true;
-        // Revoked well after Safari has had time to load the document, let
-        // the user print/share/save (and re-open the dialog if dismissed
-        // once) — not on unload, since the Share/Print sheet on iOS Safari
-        // doesn't reliably fire one while still in front.
-        setTimeout(() => URL.revokeObjectURL(blobUrl), 120000);
-      } catch (err) { usedBlobUrl = false; }
-    }
-    if (!usedBlobUrl) { w.document.open(); w.document.write(html); w.document.close(); }
-
+    openReportForPrint(html);
     if (isOLTC) markOltcExported(); else markMainExported();
+  }
+
+  /**
+   * Hand the finished report HTML to the browser for printing.
+   *
+   * PRIMARY PATH (unchanged behaviour): open a blank tab synchronously
+   * inside the click gesture and document.write() the report into it. This
+   * is the mechanism TAILAM has always used and is confirmed working in
+   * Chrome desktop, Chrome mobile, Safari desktop and Safari on iOS when
+   * the site is opened directly.
+   *
+   * FALLBACK PATH (V1.1): embedded/in-app browsers can hand back a
+   * WindowProxy that is never connected to the blank view the user is
+   * actually shown — the classic symptom being TAILAM opened from a
+   * LinkedIn (lnkd.in) link on iOS, where the link opens in LinkedIn's
+   * in-app WKWebView rather than Safari proper: the report tab appears but
+   * stays blank white, because our document.write() landed in a document
+   * nobody is looking at. A popup blocker returning null is the same dead
+   * end. Neither is detected by sniffing the user agent — we simply check
+   * whether the report actually made it into a window we can still see,
+   * and if not, print from a same-origin iframe in THIS page, which needs
+   * no popup at all.
+   * @param {string} html - the complete, self-contained report document
+   */
+  function openReportForPrint(html) {
+    const w = safeOpenBlankTab();
+    if (!w) { printViaIframe(html); return; }   // popups blocked entirely
+
+    try { w.document.open(); w.document.write(html); w.document.close(); }
+    catch (err) { printViaIframe(html); return; }   // detached/foreign proxy
+
+    // document.write() is synchronous, so a real browser has already
+    // committed the report by the time this runs; only the detached-proxy
+    // case above fails it. The delay just avoids racing slow engines — it
+    // is deliberately long enough that a working browser can never be
+    // mistaken for a broken one and end up printing twice.
+    setTimeout(() => {
+      if (reportWindowRendered(w)) return;
+      try { w.close(); } catch (err) { /* not ours to close — leave it */ }
+      printViaIframe(html);
+    }, 600);
+  }
+
+  /** window.open() that reports "no usable window" instead of throwing —
+   *  some embedded browsers throw outright rather than returning null. */
+  function safeOpenBlankTab() {
+    try { return window.open('', '_blank') || null; }
+    catch (err) { return null; }
+  }
+
+  /**
+   * Whether `w` is still a window we can see AND it actually received the
+   * report. A closed, detached or cross-origin proxy throws or reads empty
+   * — every one of those means the user is not looking at our report.
+   * @param {Window} w
+   * @returns {boolean}
+   */
+  function reportWindowRendered(w) {
+    try {
+      if (!w || w.closed) return false;
+      const d = w.document;
+      return !!(d && d.body && d.body.firstElementChild);
+    } catch (err) { return false; }
+  }
+
+  /**
+   * Popup-free print path: render the report into a same-origin iframe on
+   * this page and let the report document's OWN
+   * `window.onload → window.print()` script (already part of `html`) fire,
+   * exactly as it does in the popup — so the report content, and the way
+   * printing is triggered, are identical on both paths.
+   *
+   * The frame is left in the layout but visually inert rather than
+   * display:none, because several engines skip layout — and therefore
+   * printing — for display:none frames. It is removed well after printing:
+   * tearing it down early cancels an in-progress print job in WebKit, and
+   * the user may sit in the print/share sheet for a while.
+   * @param {string} html
+   */
+  function printViaIframe(html) {
+    let frame;
+    try {
+      frame = document.createElement('iframe');
+      frame.setAttribute('aria-hidden', 'true');
+      frame.setAttribute('title', 'TAILAM report print view');
+      frame.style.cssText = 'position:fixed;right:0;bottom:0;width:1px;height:1px;opacity:0;border:0;';
+      document.body.appendChild(frame);
+      const d = frame.contentDocument || (frame.contentWindow && frame.contentWindow.document);
+      if (!d) throw new Error('no iframe document');
+      d.open(); d.write(html); d.close();
+    } catch (err) {
+      if (frame && frame.parentNode) frame.parentNode.removeChild(frame);
+      notify('The report could not be opened for printing in this browser. Please open TAILAM directly in Safari or Chrome and export again.');
+      return;
+    }
+    setTimeout(() => { if (frame.parentNode) frame.parentNode.removeChild(frame); }, 120000);
   }
 
   /**

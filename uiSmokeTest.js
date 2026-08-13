@@ -51,24 +51,24 @@ function setField(doc, id, value) {
   el.value = String(value);
 }
 
-/** Capture the HTML exportPDF() sends to the print window — via the Blob-
- *  URL path it now prefers (Safari fix: see ui/export.js#exportPDF), with
- *  `window.location.replace` wired to resolve back to the Blob's own parts
- *  (jsdom's URL.createObjectURL is a fixed 'blob:stub-url' string, not a
- *  real blob registry) — so this exercises the actual new code path rather
- *  than always falling through to the document.write() fallback branch. */
+/** Capture the HTML exportPDF() writes into the print window.
+ *  The stub reports itself as a healthy, still-open window that received
+ *  the document (`closed: false` + a non-empty body) so exportPDF's
+ *  post-write verification — the check that drives the popup-free iframe
+ *  fallback for in-app browsers, see ui/export.js#openReportForPrint —
+ *  sees a success and the test exercises the normal popup path. */
 function capturePdf(window, exportFn, type) {
   const originalOpen = window.open;
-  const OriginalBlob = window.Blob;
   let captured = null;
-  let lastBlobParts = null;
-  window.Blob = function (parts, opts) { lastBlobParts = parts; return new OriginalBlob(parts, opts); };
   window.open = () => ({
-    document: { open() {}, write(h) { captured = h; }, close() {} },
-    location: { replace() { captured = lastBlobParts ? lastBlobParts.join('') : null; } },
+    closed: false,
+    document: {
+      body: { firstElementChild: {} },
+      open() {}, write(h) { captured = h; }, close() {}
+    },
     focus() {}, print() {}
   });
-  try { exportFn(type); } finally { window.open = originalOpen; window.Blob = OriginalBlob; }
+  try { exportFn(type); } finally { window.open = originalOpen; }
   return captured;
 }
 
@@ -188,10 +188,10 @@ async function main() {
     console.log('\nFailed checks:');
     failures.forEach((f) => console.log('  - ' + f));
   }
-  // Explicit exit, not just exitCode — exportPDF()'s Blob-URL revocation
-  // (ui/export.js) schedules a real 120s timer on jsdom's window, same as
-  // it would in a browser tab; Node's event loop would otherwise sit and
-  // wait the full 2 minutes out before exiting on its own.
+  // Explicit exit, not just exitCode — exportPDF()'s print paths schedule
+  // real long-lived timers on jsdom's window (the same ones a browser tab
+  // would run), which would otherwise hold Node's event loop open long
+  // after the assertions have all finished.
   process.exit(fail === 0 ? 0 : 1);
 }
 
